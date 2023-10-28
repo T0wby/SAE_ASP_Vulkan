@@ -13,10 +13,63 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{fc69406a-1fd7-4386-850d-6b814ab6083b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\System">
+      <UniqueIdentifier>{5f669d81-b6ad-462f-8e43-0f1886eb3025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shader">
+      <UniqueIdentifier>{b035d900-95dc-4b93-819a-e9bf47c51c77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Input">
+      <UniqueIdentifier>{1954621d-e002-45a3-89bb-4c5bcfa67351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glad">
+      <UniqueIdentifier>{492fb353-3f7f-476d-a4e3-749d9c4f007c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{e3f344eb-5aaa-42e6-82d2-fc0c531b03ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject\Primitives">
+      <UniqueIdentifier>{f7e16617-4ea3-454c-9c79-05a48661e4c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{29e383cb-e1ea-4398-839f-30a065ddb4a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WindowGLFW">
+      <UniqueIdentifier>{b2564877-89db-4a4b-9bf6-5cf8de5955bc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Core</Filter>
     </ClCompile>
+    <ClCompile Include="Core\System\Engine.cpp">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Scene.cpp">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowGLFW\Window.cpp">
+      <Filter>WindowGLFW</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Core\System\Engine.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Scene.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowGLFW\Window.h">
+      <Filter>WindowGLFW</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
