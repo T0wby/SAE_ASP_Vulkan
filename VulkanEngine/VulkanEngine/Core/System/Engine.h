@@ -1,5 +1,7 @@
 #ifndef ENGINE_H
 #define ENGINE_H
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <memory>
 
 class CEngine
@@ -21,6 +23,9 @@ private:
 	void InitializeWindow(void);
 	void MainLoop(void);
 	void Cleanup(void);
+	void CreateVulkanInstance(void);
+
+	VkInstance m_vInstance;
 
 };
 
