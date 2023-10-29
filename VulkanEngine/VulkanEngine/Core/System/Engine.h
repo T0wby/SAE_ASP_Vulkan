@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <vector>
-#include "QueueFamilyIndices.h"
+#include "CoreSystemStructs.h"
 
 class CEngine
 {
@@ -29,15 +29,31 @@ private:
 	bool IsDeviceSuitable(VkPhysicalDevice a_device);
 	void CreateVulkanInstance(void);
 	bool CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers);
+	bool CheckDeviceExtensionSupport(VkPhysicalDevice a_device);
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice a_device);
+	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice a_device);
+	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentationModes);
+	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 	void CreateLogicalDevice(void);
+	void CreateGLFWSurface(void);
+	void CreateSwapChain(void);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
+	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
 	bool m_bEnableValidationLayers{true};
 	VkInstance m_vInstance;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 	VkDevice m_logicelDevice;
 	VkQueue m_graphicsQueue;
+	VkQueue m_presentationQueue;
+	VkSurfaceKHR m_surface;
+
+	// SwapChain
+	VkSwapchainKHR m_swapChain;
+	std::vector<VkImage> m_vSwapChainImages;
+	VkFormat m_swapChainImageFormat;
+	VkExtent2D m_swapChainExtent;
 };
 
 #endif

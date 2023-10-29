@@ -42,6 +42,11 @@ auto CWindow::GetWindowShouldClose(void) const -> const bool
     return false;
 }
 
+void CWindow::GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight)
+{
+	glfwGetFramebufferSize(pWindow, &a_iWidth, &a_iHeight);
+}
+
 void CWindow::SetWindowShouldClose(const bool& a_bShouldClose)
 {
 	if (a_bShouldClose)

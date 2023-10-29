@@ -71,8 +71,8 @@
     <ClInclude Include="WindowGLFW\Window.h">
       <Filter>WindowGLFW</Filter>
     </ClInclude>
-    <ClInclude Include="Core\System\QueueFamilyIndices.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Core\System\CoreSystemStructs.h">
+      <Filter>Core\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

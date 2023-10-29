@@ -21,6 +21,7 @@ public:
 	void Finalize(void);
 
 	auto GetWindowShouldClose(void) const->const bool;
+	void GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight);
 	void SetWindowShouldClose(const bool& a_bShouldClose);
 
 	GLFWwindow* GetWindow(void);
