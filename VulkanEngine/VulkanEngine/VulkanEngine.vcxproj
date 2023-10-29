@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\System\Engine.h" />
+    <ClInclude Include="Core\System\QueueFamilyIndices.h" />
     <ClInclude Include="Core\System\Scene.h" />
     <ClInclude Include="GameObjects\GameObject.h" />
     <ClInclude Include="WindowGLFW\Window.h" />

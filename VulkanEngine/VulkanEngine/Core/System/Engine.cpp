@@ -39,16 +39,14 @@ void CEngine::CreateVulkanInstance(void)
 
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-	const std::vector<const char*> enabled_layers = { "VK_LAYER_KHRONOS_validation" };
-
 
 #ifdef NDEBUG
-	const bool enableValidationLayers = false;
+	m_bEnableValidationLayers = false;
 #else
-	const bool enableValidationLayers = true;
+	m_bEnableValidationLayers = true;
 #endif
 
-	if (enableValidationLayers && !CheckValidationLayerSupport(enabled_layers)) {
+	if (m_bEnableValidationLayers && !CheckValidationLayerSupport(m_EnabledLayers)) {
 		throw std::runtime_error("validation layers requested, but not available!");
 	}
 
@@ -61,11 +59,11 @@ void CEngine::CreateVulkanInstance(void)
 	create_info.enabledExtensionCount = glfwExtensionCount;
 	create_info.ppEnabledExtensionNames = glfwExtensions;
 
-	if (enableValidationLayers)
+	if (m_bEnableValidationLayers)
 	{
 		// Enable a Layer(validation)
-		create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
-		create_info.ppEnabledLayerNames = enabled_layers.data();
+		create_info.enabledLayerCount = static_cast<uint32_t>(m_EnabledLayers.size());
+		create_info.ppEnabledLayerNames = m_EnabledLayers.data();
 	}
 	else
 	{
@@ -108,8 +106,6 @@ bool CEngine::CheckValidationLayerSupport(const std::vector<const char*> a_enabl
 	return true;
 }
 
-
-
 void CEngine::InitializeWindow(void)
 {
 	// Create GLFW window
@@ -128,6 +124,7 @@ void CEngine::MainLoop(void)
 void CEngine::Cleanup(void)
 {
 	pWindow->Finalize();
+	vkDestroyDevice(m_logicelDevice, nullptr);
 }
 
 void CEngine::PickPhysicalDevice(void)
@@ -196,4 +193,48 @@ QueueFamilyIndices CEngine::FindQueueFamilies(VkPhysicalDevice a_device)
 	}
 
 	return indices;
+}
+
+void CEngine::CreateLogicalDevice(void)
+{
+	QueueFamilyIndices indices = FindQueueFamilies(m_physicalDevice);
+	VkPhysicalDeviceFeatures deviceFeatures{};
+
+	const char* enabled_extensions[1] = { "VK_KHR_swapchain" };
+	float priority = 1.0f;
+
+	// This structure describes the number of queues we want for a single queue family
+	VkDeviceQueueCreateInfo queueCreateInfo{};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+	queueCreateInfo.queueCount = 1;
+	queueCreateInfo.pQueuePriorities = &priority;
+
+	// Logical Device
+	VkDeviceCreateInfo deviceCreateInfo = {};
+	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	deviceCreateInfo.queueCreateInfoCount = 1;
+	deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+	deviceCreateInfo.enabledExtensionCount = 1;
+	deviceCreateInfo.ppEnabledExtensionNames = enabled_extensions;
+	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+	// enabledLayerCount and ppEnabledLayerNames fields of VkDeviceCreateInfo are ignored by up-to-date implementations
+	if (m_bEnableValidationLayers)
+	{
+		deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(m_EnabledLayers.size());
+		deviceCreateInfo.ppEnabledLayerNames = m_EnabledLayers.data();
+	}
+	else
+	{
+		deviceCreateInfo.enabledLayerCount = 0;
+	}
+
+
+	if (vkCreateDevice(m_physicalDevice, &deviceCreateInfo, nullptr, &m_logicelDevice) != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to create logical device!");
+	}
+
+	// Get handle to interface with the queue later
+	vkGetDeviceQueue(m_logicelDevice, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
 }

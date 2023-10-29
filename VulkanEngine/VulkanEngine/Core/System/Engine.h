@@ -30,10 +30,14 @@ private:
 	void CreateVulkanInstance(void);
 	bool CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers);
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice a_device);
+	void CreateLogicalDevice(void);
 
+	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
+	bool m_bEnableValidationLayers{true};
 	VkInstance m_vInstance;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-
+	VkDevice m_logicelDevice;
+	VkQueue m_graphicsQueue;
 };
 
 #endif
