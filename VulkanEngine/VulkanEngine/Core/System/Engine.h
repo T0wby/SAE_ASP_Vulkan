@@ -38,6 +38,9 @@ private:
 	void CreateLogicalDevice(void);
 	void CreateGLFWSurface(void);
 	void CreateSwapChain(void);
+	void CreateImageViews(void);
+	void DestroyImageViews(void);
+	void CreateGraphicsPipeline(void);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
@@ -54,6 +57,9 @@ private:
 	std::vector<VkImage> m_vSwapChainImages;
 	VkFormat m_swapChainImageFormat;
 	VkExtent2D m_swapChainExtent;
+
+	// Image
+	std::vector<VkImageView> m_vSwapChainImageViews;
 };
 
 #endif

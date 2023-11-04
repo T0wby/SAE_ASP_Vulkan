@@ -1,5 +1,6 @@
 #include "Engine.h"
 #include "../../WindowGLFW/Window.h"
+#include "../../Utility/Utility.h"
 #include <stdexcept>
 #include <optional>
 #include <iostream>
@@ -30,6 +31,9 @@ void CEngine::InitializeVulkan(void)
 	CreateGLFWSurface();
 	PickPhysicalDevice();
 	CreateLogicalDevice();
+	CreateSwapChain();
+	CreateImageViews();
+	CreateGraphicsPipeline();
 }
 
 
@@ -155,6 +159,7 @@ void CEngine::Cleanup(void)
 	pWindow->Finalize();
 	vkDestroySwapchainKHR(m_logicelDevice, m_swapChain, nullptr);
 	vkDestroySurfaceKHR(m_vInstance, m_surface, nullptr);
+	DestroyImageViews();
 	vkDestroyDevice(m_logicelDevice, nullptr);
 	vkDestroyInstance(m_vInstance, nullptr);
 }
@@ -464,4 +469,50 @@ void CEngine::CreateSwapChain(void)
 	vkGetSwapchainImagesKHR(m_logicelDevice, m_swapChain, &imageCount, nullptr); // query the final number of images
 	m_vSwapChainImages.resize(imageCount);
 	vkGetSwapchainImagesKHR(m_logicelDevice, m_swapChain, &imageCount, m_vSwapChainImages.data());
+}
+
+void CEngine::CreateImageViews(void)
+{
+	m_vSwapChainImageViews.resize(m_vSwapChainImages.size());
+	for (size_t i = 0; i < m_vSwapChainImages.size(); i++)
+	{
+		VkImageViewCreateInfo createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfo.image = m_vSwapChainImages[i];
+		// The viewType parameter allows you to treat images as 1D textures, 2D textures, 3D textures and cube maps
+		createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		createInfo.format = m_swapChainImageFormat;
+		// Default component mapping
+		createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		// Purpose of the image and which part of the image should be accessed
+		createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		createInfo.subresourceRange.baseMipLevel = 0;
+		createInfo.subresourceRange.levelCount = 1;
+		createInfo.subresourceRange.baseArrayLayer = 0;
+		createInfo.subresourceRange.layerCount = 1;
+
+		if (vkCreateImageView(m_logicelDevice, &createInfo, nullptr, &m_vSwapChainImageViews[i]) != VK_SUCCESS) 
+		{
+			throw std::runtime_error("failed to create image views!");
+		}
+	}
+
+
+}
+
+void CEngine::DestroyImageViews(void)
+{
+	for (auto imageView : m_vSwapChainImageViews)
+	{
+		vkDestroyImageView(m_logicelDevice, imageView, nullptr);
+	}
+}
+
+void CEngine::CreateGraphicsPipeline(void)
+{
+	auto vertShaderCode = CUtility::ReadFile("../Shader/vert.spv");
+	auto fragShaderCode = CUtility::ReadFile("../Shader/frag.spv");
 }

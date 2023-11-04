@@ -147,6 +147,7 @@
     <ClCompile Include="Core\System\Scene.cpp" />
     <ClCompile Include="GameObjects\GameObject.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utility\Utility.cpp" />
     <ClCompile Include="WindowGLFW\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -154,7 +155,19 @@
     <ClInclude Include="Core\System\CoreSystemStructs.h" />
     <ClInclude Include="Core\System\Scene.h" />
     <ClInclude Include="GameObjects\GameObject.h" />
+    <ClInclude Include="Utility\Utility.h" />
     <ClInclude Include="WindowGLFW\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\shader.frag">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

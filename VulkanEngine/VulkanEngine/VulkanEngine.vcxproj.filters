@@ -40,6 +40,9 @@
     <Filter Include="WindowGLFW">
       <UniqueIdentifier>{b2564877-89db-4a4b-9bf6-5cf8de5955bc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{985c9958-c0aa-4269-a3fa-2f5c60cef78c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -56,6 +59,9 @@
     </ClCompile>
     <ClCompile Include="WindowGLFW\Window.cpp">
       <Filter>WindowGLFW</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Utility.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -74,5 +80,18 @@
     <ClInclude Include="Core\System\CoreSystemStructs.h">
       <Filter>Core\System</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\Utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shader\shader.vert">
+      <Filter>Source Files\Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\shader.frag">
+      <Filter>Source Files\Shader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
