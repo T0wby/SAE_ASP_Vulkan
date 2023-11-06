@@ -60,6 +60,9 @@ private:
 
 	// Image
 	std::vector<VkImageView> m_vSwapChainImageViews;
+
+	// Shader
+	VkShaderModule CreateShaderModule(const std::vector<char>& a_vBytecode);
 };
 
 #endif

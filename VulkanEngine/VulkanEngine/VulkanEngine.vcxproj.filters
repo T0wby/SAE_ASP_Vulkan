@@ -85,13 +85,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shader\shader.frag">
+      <Filter>Source Files\Shader</Filter>
+    </None>
     <None Include="Shader\shader.vert">
       <Filter>Source Files\Shader</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shader\shader.frag">
-      <Filter>Source Files\Shader</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

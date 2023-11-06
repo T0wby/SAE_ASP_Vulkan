@@ -513,6 +513,50 @@ void CEngine::DestroyImageViews(void)
 
 void CEngine::CreateGraphicsPipeline(void)
 {
-	auto vertShaderCode = CUtility::ReadFile("../Shader/vert.spv");
-	auto fragShaderCode = CUtility::ReadFile("../Shader/frag.spv");
+	auto vertShaderCode = CUtility::ReadFile("Shader/vert.spv");
+	auto fragShaderCode = CUtility::ReadFile("Shader/frag.spv");
+
+	// Wrapper for  SPIR-V bytecode
+	VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
+	VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+
+	// Shader Stage
+	VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
+	vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vertShaderStageInfo.module = vertShaderModule;
+	vertShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
+	fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	fragShaderStageInfo.module = fragShaderModule;
+	fragShaderStageInfo.pName = "main";
+
+	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+	// Destroy wrapper after Pipeline is created since they are not needed anymore
+	vkDestroyShaderModule(m_logicelDevice, fragShaderModule, nullptr);
+	vkDestroyShaderModule(m_logicelDevice, vertShaderModule, nullptr);
+}
+
+/// <summary>
+/// Takes a buffer with the bytecode as parameter and create a VkShaderModule from it.
+/// </summary>
+/// <param name="code">buffer with the bytecode</param>
+/// <returns>Shader module</returns>
+VkShaderModule CEngine::CreateShaderModule(const std::vector<char>& a_vBytecode)
+{
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = a_vBytecode.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(a_vBytecode.data());
+
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(m_logicelDevice, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to create shader module!");
+	}
+
+	return shaderModule;
 }
