@@ -41,6 +41,11 @@ private:
 	void CreateImageViews(void);
 	void DestroyImageViews(void);
 	void CreateGraphicsPipeline(void);
+	void CreateRenderPass(void);
+	void CreateFrameBuffers(void);
+	void CreateCommandPool(void);
+	void CreateCommandBuffer(void);
+	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
@@ -51,6 +56,11 @@ private:
 	VkQueue m_graphicsQueue;
 	VkQueue m_presentationQueue;
 	VkSurfaceKHR m_surface;
+	VkRenderPass m_renderPass;
+	VkPipelineLayout m_pipelineLayout;
+	VkPipeline m_graphicsPipeline;
+	VkCommandPool m_commandPool;
+	VkCommandBuffer m_commandBuffer;
 
 	// SwapChain
 	VkSwapchainKHR m_swapChain;
@@ -63,6 +73,9 @@ private:
 
 	// Shader
 	VkShaderModule CreateShaderModule(const std::vector<char>& a_vBytecode);
+
+	//FrameBuffers
+	std::vector<VkFramebuffer> m_vSwapChainFramebuffers;
 };
 
 #endif
