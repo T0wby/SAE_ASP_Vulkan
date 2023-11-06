@@ -24,6 +24,7 @@ private:
 	void InitializeVulkan(void);
 	void InitializeWindow(void);
 	void MainLoop(void);
+	void DrawFrame(void);
 	void Cleanup(void);
 	void PickPhysicalDevice(void);
 	bool IsDeviceSuitable(VkPhysicalDevice a_device);
@@ -46,6 +47,7 @@ private:
 	void CreateCommandPool(void);
 	void CreateCommandBuffer(void);
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	void CreateSyncObjects(void);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
@@ -74,8 +76,13 @@ private:
 	// Shader
 	VkShaderModule CreateShaderModule(const std::vector<char>& a_vBytecode);
 
-	//FrameBuffers
+	// FrameBuffers
 	std::vector<VkFramebuffer> m_vSwapChainFramebuffers;
+
+	// semaphore and fence
+	VkSemaphore m_imageAvailableSemaphore;
+	VkSemaphore m_renderFinishedSemaphore;
+	VkFence m_inFlightFence;
 };
 
 #endif

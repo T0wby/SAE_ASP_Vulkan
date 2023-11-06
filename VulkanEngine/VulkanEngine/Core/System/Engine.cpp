@@ -35,6 +35,10 @@ void CEngine::InitializeVulkan(void)
 	CreateImageViews();
 	CreateRenderPass();
 	CreateGraphicsPipeline();
+	CreateFrameBuffers();
+	CreateCommandPool();
+	CreateCommandBuffer();
+	CreateSyncObjects();
 }
 
 
@@ -152,7 +156,55 @@ void CEngine::MainLoop(void)
 	while (!pWindow->GetWindowShouldClose()) 
 	{
 		pWindow->Update();
+		DrawFrame();
 	}
+
+	vkDeviceWaitIdle(m_logicelDevice);
+}
+
+void CEngine::DrawFrame(void)
+{
+	vkWaitForFences(m_logicelDevice, 1, &m_inFlightFence, VK_TRUE, UINT64_MAX);
+	// Reset fence to unsigned
+	vkResetFences(m_logicelDevice, 1, &m_inFlightFence);
+
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(m_logicelDevice, m_swapChain, UINT64_MAX, m_imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+	vkResetCommandBuffer(m_commandBuffer, 0);
+	RecordCommandBuffer(m_commandBuffer, imageIndex);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { m_imageAvailableSemaphore };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &m_commandBuffer;
+	VkSemaphore signalSemaphores[] = { m_imageAvailableSemaphore };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, m_inFlightFence) != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to submit draw command buffer!");
+	}
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { m_swapChain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &imageIndex;
+	presentInfo.pResults = nullptr; // Optional
+
+	vkQueuePresentKHR(m_presentationQueue, &presentInfo);
 }
 
 void CEngine::Cleanup(void)
@@ -168,6 +220,9 @@ void CEngine::Cleanup(void)
 	vkDestroyPipelineLayout(m_logicelDevice, m_pipelineLayout, nullptr);
 	vkDestroyRenderPass(m_logicelDevice, m_renderPass, nullptr);
 	vkDestroyCommandPool(m_logicelDevice, m_commandPool, nullptr);
+	vkDestroySemaphore(m_logicelDevice, m_imageAvailableSemaphore, nullptr);
+	vkDestroySemaphore(m_logicelDevice, m_renderFinishedSemaphore, nullptr);
+	vkDestroyFence(m_logicelDevice, m_inFlightFence, nullptr);
 	vkDestroyDevice(m_logicelDevice, nullptr);
 	vkDestroyInstance(m_vInstance, nullptr);
 }
@@ -698,12 +753,22 @@ void CEngine::CreateRenderPass(void)
 	subpass.colorAttachmentCount = 1;
 	subpass.pColorAttachments = &colorAttachmentRef;
 
+	VkSubpassDependency dependency{};
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 	VkRenderPassCreateInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 	renderPassInfo.attachmentCount = 1;
 	renderPassInfo.pAttachments = &colorAttachment;
 	renderPassInfo.subpassCount = 1;
 	renderPassInfo.pSubpasses = &subpass;
+	renderPassInfo.dependencyCount = 1;
+	renderPassInfo.pDependencies = &dependency;
 
 	if (vkCreateRenderPass(m_logicelDevice, &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) 
 	{
@@ -843,6 +908,23 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to record command buffer!");
+	}
+}
+
+void CEngine::CreateSyncObjects(void)
+{
+	VkSemaphoreCreateInfo semaphoreInfo{};
+	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+	VkFenceCreateInfo fenceInfo{};
+	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT; // We set it signaled to skip the first vkWaitForFences which otherwise would block us indefinitely
+
+	if (vkCreateSemaphore(m_logicelDevice, &semaphoreInfo, nullptr, &m_imageAvailableSemaphore) != VK_SUCCESS ||
+		vkCreateSemaphore(m_logicelDevice, &semaphoreInfo, nullptr, &m_renderFinishedSemaphore) != VK_SUCCESS ||
+		vkCreateFence(m_logicelDevice, &fenceInfo, nullptr, &m_inFlightFence) != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to create semaphores!");
 	}
 }
 
