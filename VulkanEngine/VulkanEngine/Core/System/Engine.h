@@ -45,7 +45,7 @@ private:
 	void CreateRenderPass(void);
 	void CreateFrameBuffers(void);
 	void CreateCommandPool(void);
-	void CreateCommandBuffer(void);
+	void CreateCommandBuffers(void);
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 	void CreateSyncObjects(void);
 
@@ -62,7 +62,7 @@ private:
 	VkPipelineLayout m_pipelineLayout;
 	VkPipeline m_graphicsPipeline;
 	VkCommandPool m_commandPool;
-	VkCommandBuffer m_commandBuffer;
+	std::vector<VkCommandBuffer> m_vCommandBuffers;
 
 	// SwapChain
 	VkSwapchainKHR m_swapChain;
@@ -80,9 +80,11 @@ private:
 	std::vector<VkFramebuffer> m_vSwapChainFramebuffers;
 
 	// semaphore and fence
-	VkSemaphore m_imageAvailableSemaphore;
-	VkSemaphore m_renderFinishedSemaphore;
-	VkFence m_inFlightFence;
+	std::vector<VkSemaphore> m_vImageAvailableSemaphores;
+	std::vector<VkSemaphore> m_vRenderFinishedSemaphores;
+	std::vector<VkFence> m_vInFlightFences;
+
+	uint32_t m_iCurrentFrame{ 0 };
 };
 
 #endif
