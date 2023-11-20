@@ -2,14 +2,23 @@
 
 GLFWwindow* pWindow = nullptr;
 
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) 
+{
+	auto app = reinterpret_cast<CWindow*>(glfwGetWindowUserPointer(window));
+	app->SetIsFrameBufferResized(true);
+}
+
 void CWindow::Initialize(void)
 {
 	if (!glfwInit()) return;
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 	if (pWindow == nullptr) pWindow = glfwCreateWindow(m_iWidth, m_iHeight, m_sTitle.c_str(), nullptr, nullptr);
+
+	glfwSetWindowUserPointer(pWindow, this);
+	glfwSetFramebufferSizeCallback(pWindow, framebufferResizeCallback);
 
 	if (!pWindow)
 	{
@@ -56,6 +65,27 @@ void CWindow::SetWindowShouldClose(const bool& a_bShouldClose)
 	else
 	{
 		glfwSetWindowShouldClose(pWindow, GLFW_FALSE);
+	}
+}
+
+auto CWindow::IsFrameBufferResized(void) const -> const bool
+{
+	return m_bFrameBufferResized;
+}
+
+void CWindow::SetIsFrameBufferResized(const bool& a_bFrameBufferResized)
+{
+	m_bFrameBufferResized = a_bFrameBufferResized;
+}
+
+void CWindow::CheckIfWindowMinimized(void)
+{
+	int width = 0, height = 0;
+	glfwGetFramebufferSize(pWindow, &width, &height);
+	while (width == 0 || height == 0) 
+	{
+		glfwGetFramebufferSize(pWindow, &width, &height);
+		glfwWaitEvents();
 	}
 }
 

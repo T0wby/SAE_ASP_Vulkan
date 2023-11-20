@@ -23,6 +23,9 @@ public:
 	auto GetWindowShouldClose(void) const->const bool;
 	void GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight);
 	void SetWindowShouldClose(const bool& a_bShouldClose);
+	auto IsFrameBufferResized(void) const->const bool;
+	void SetIsFrameBufferResized(const bool& a_bFrameBufferResized);
+	void CheckIfWindowMinimized(void);
 
 	GLFWwindow* GetWindow(void);
 
@@ -31,6 +34,8 @@ private:
 	int m_iWidth{ 0 };
 	int m_iHeight{ 0 };
 	std::string m_sTitle{};
+	bool m_bFrameBufferResized{ false };
+
 };
 
 #endif

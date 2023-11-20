@@ -166,11 +166,24 @@ void CEngine::MainLoop(void)
 void CEngine::DrawFrame(void)
 {
 	vkWaitForFences(m_logicelDevice, 1, &m_vInFlightFences[m_iCurrentFrame], VK_TRUE, UINT64_MAX);
-	// Reset fence to unsigned
-	vkResetFences(m_logicelDevice, 1, &m_vInFlightFences[m_iCurrentFrame]);
+	
 
 	uint32_t imageIndex;
-	vkAcquireNextImageKHR(m_logicelDevice, m_swapChain, UINT64_MAX, m_vImageAvailableSemaphores[m_iCurrentFrame], VK_NULL_HANDLE, &imageIndex);
+	VkResult result = vkAcquireNextImageKHR(m_logicelDevice, m_swapChain, UINT64_MAX, m_vImageAvailableSemaphores[m_iCurrentFrame], VK_NULL_HANDLE, &imageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || pWindow->IsFrameBufferResized())
+	{
+		pWindow->SetIsFrameBufferResized(false);
+		RecreateSwapChain();
+		return;
+	}
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
+	{
+		throw std::runtime_error("failed to acquire swap chain image!");
+	}
+
+	// Reset fence to unsigned
+	vkResetFences(m_logicelDevice, 1, &m_vInFlightFences[m_iCurrentFrame]);
 
 	vkResetCommandBuffer(m_vCommandBuffers[m_iCurrentFrame], 0);
 	RecordCommandBuffer(m_vCommandBuffers[m_iCurrentFrame], imageIndex);
@@ -213,13 +226,8 @@ void CEngine::DrawFrame(void)
 
 void CEngine::Cleanup(void)
 {
-	pWindow->Finalize();
-	vkDestroySwapchainKHR(m_logicelDevice, m_swapChain, nullptr);
 	vkDestroySurfaceKHR(m_vInstance, m_surface, nullptr);
-	for (auto framebuffer : m_vSwapChainFramebuffers) {
-		vkDestroyFramebuffer(m_logicelDevice, framebuffer, nullptr);
-	}
-	DestroyImageViews();
+	CleanupSwapChain();
 	vkDestroyPipeline(m_logicelDevice, m_graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(m_logicelDevice, m_pipelineLayout, nullptr);
 	vkDestroyRenderPass(m_logicelDevice, m_renderPass, nullptr);
@@ -232,6 +240,22 @@ void CEngine::Cleanup(void)
 	}
 	vkDestroyDevice(m_logicelDevice, nullptr);
 	vkDestroyInstance(m_vInstance, nullptr);
+	pWindow->Finalize();
+}
+
+void CEngine::CleanupFrameBuffer(void)
+{
+	for (auto framebuffer : m_vSwapChainFramebuffers) {
+		vkDestroyFramebuffer(m_logicelDevice, framebuffer, nullptr);
+	}
+}
+
+void CEngine::CleanupSwapChain(void)
+{
+	CleanupFrameBuffer();
+	DestroyImageViews();
+
+	vkDestroySwapchainKHR(m_logicelDevice, m_swapChain, nullptr);
 }
 
 void CEngine::PickPhysicalDevice(void)
@@ -944,6 +968,18 @@ void CEngine::CreateSyncObjects(void)
 	}
 
 	
+}
+
+void CEngine::RecreateSwapChain(void)
+{
+	pWindow->CheckIfWindowMinimized();
+	vkDeviceWaitIdle(m_logicelDevice);
+
+	CleanupSwapChain();
+
+	CreateSwapChain();
+	CreateImageViews();
+	CreateFrameBuffers();
 }
 
 /// <summary>

@@ -26,6 +26,8 @@ private:
 	void MainLoop(void);
 	void DrawFrame(void);
 	void Cleanup(void);
+	void CleanupFrameBuffer(void);
+	void CleanupSwapChain(void);
 	void PickPhysicalDevice(void);
 	bool IsDeviceSuitable(VkPhysicalDevice a_device);
 	void CreateVulkanInstance(void);
@@ -48,6 +50,7 @@ private:
 	void CreateCommandBuffers(void);
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 	void CreateSyncObjects(void);
+	void RecreateSwapChain(void);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
