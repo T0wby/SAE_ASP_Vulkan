@@ -1,6 +1,7 @@
 #include "Engine.h"
 #include "../../WindowGLFW/Window.h"
 #include "../../Utility/Utility.h"
+#include "../../Utility/Variables.h"
 #include <stdexcept>
 #include <optional>
 #include <iostream>
@@ -638,13 +639,19 @@ void CEngine::CreateGraphicsPipeline(void)
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
+
+	auto bindingDescription = Vertex::GetBindingDescription();
+	auto attributeDescriptionPos = Vertex::GetAttributeDescriptionPos();
+	auto attributeDescriptionCol = Vertex::GetAttributeDescriptionCol();
+	std::vector<VkVertexInputAttributeDescription> attributeDescriptions = { {attributeDescriptionPos, attributeDescriptionCol} };
+
 	// Vertex Input(Data hard coded inside of the shader atm)
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 0;
-	vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
-	vertexInputInfo.vertexAttributeDescriptionCount = 0;
-	vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optional
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; // Optional
+	vertexInputInfo.vertexAttributeDescriptionCount = 2;
+	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
 
 	// Input assembly
 	// The VkPipelineInputAssemblyStateCreateInfo struct describes two things: what kind of geometry will be drawn from the vertices and if primitive restart should be enabled.
