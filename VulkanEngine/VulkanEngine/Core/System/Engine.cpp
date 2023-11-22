@@ -2,6 +2,7 @@
 #include "../../WindowGLFW/Window.h"
 #include "../../Utility/Utility.h"
 #include "../../Utility/Variables.h"
+#include "../../GameObjects/Primitives/Cube.h"
 #include <stdexcept>
 #include <optional>
 #include <iostream>
@@ -11,6 +12,9 @@
 
 // System
 std::shared_ptr<CWindow> pWindow = nullptr;
+
+//Temp
+std::shared_ptr<CCube> pCube = nullptr;
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -39,6 +43,7 @@ void CEngine::InitializeVulkan(void)
 	CreateGraphicsPipeline();
 	CreateFrameBuffers();
 	CreateCommandPool();
+	CreateVertexBuffer();
 	CreateCommandBuffers();
 	CreateSyncObjects();
 }
@@ -229,6 +234,10 @@ void CEngine::Cleanup(void)
 {
 	vkDestroySurfaceKHR(m_vInstance, m_surface, nullptr);
 	CleanupSwapChain();
+	//
+	vkDestroyBuffer(m_logicelDevice, m_vertexBuffer, nullptr);
+	vkFreeMemory(m_logicelDevice, m_vertexBufferMemory, nullptr);
+	//
 	vkDestroyPipeline(m_logicelDevice, m_graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(m_logicelDevice, m_pipelineLayout, nullptr);
 	vkDestroyRenderPass(m_logicelDevice, m_renderPass, nullptr);
@@ -859,6 +868,47 @@ void CEngine::CreateCommandPool(void)
 	}
 }
 
+void CEngine::CreateVertexBuffer(void)
+{
+	pCube = std::make_shared<CCube>();
+	pCube->Initialize();
+	m_vSceneObjects.push_back(pCube);
+
+	auto vertices = pCube->GetMeshVertexData();
+
+	VkBufferCreateInfo bufferInfo{};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	if (vkCreateBuffer(m_logicelDevice, &bufferInfo, nullptr, &m_vertexBuffer) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create vertex buffer!");
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(m_logicelDevice, m_vertexBuffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	if (vkAllocateMemory(m_logicelDevice, &allocInfo, nullptr, &m_vertexBufferMemory) != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to allocate vertex buffer memory!");
+	}
+
+	vkBindBufferMemory(m_logicelDevice, m_vertexBuffer, m_vertexBufferMemory, 0);
+
+	void* data;
+	// Map memory and copy vertices.data() to it(other possibility would be explicit flushing)
+	vkMapMemory(m_logicelDevice, m_vertexBufferMemory, 0, bufferInfo.size, 0, &data);
+		memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+	vkUnmapMemory(m_logicelDevice, m_vertexBufferMemory);
+}
+
 void CEngine::CreateCommandBuffers(void)
 {
 	/* The level parameter specifies if the allocated command buffers are primary or secondary command buffers.
@@ -921,6 +971,10 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 
 	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 
+	VkBuffer vertexBuffers[] = { m_vertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
@@ -935,13 +989,15 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 	scissor.extent = m_swapChainExtent;
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+	auto vertices = m_vSceneObjects[0]->GetMeshVertexData();
+
 	/*
 	* vertexCount: Even though we don't have a vertex buffer, we technically still have 3 vertices to draw.
 	* instanceCount: Used for instanced rendering, use 1 if you're not doing that.
 	* firstVertex: Used as an offset into the vertex buffer, defines the lowest value of gl_VertexIndex.
 	* firstInstance: Used as an offset for instanced rendering, defines the lowest value of gl_InstanceIndex.
 	*/
-	vkCmdDraw(commandBuffer, 3, 1, 0, 0);
+	vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
 	vkCmdEndRenderPass(commandBuffer);
 
@@ -987,6 +1043,26 @@ void CEngine::RecreateSwapChain(void)
 	CreateSwapChain();
 	CreateImageViews();
 	CreateFrameBuffers();
+}
+
+uint32_t CEngine::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+	// query info about the available types of memory
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
+
+	// VkMemoryRequirements::memoryTypeBits is a bitfield that sets a bit for every memoryType that is
+	// supported for the resource.Therefore we need to check if the bit at index i is set while also testing the
+	// required memory property flags while iterating over the memory types.
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
+	{
+		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) 
+		{
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type!");
 }
 
 /// <summary>

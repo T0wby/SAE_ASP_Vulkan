@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include "CoreSystemStructs.h"
+#include "../../GameObjects/GameObject.h"
 
 class CEngine
 {
@@ -47,10 +48,15 @@ private:
 	void CreateRenderPass(void);
 	void CreateFrameBuffers(void);
 	void CreateCommandPool(void);
+
+	// Done in Mesh?
+	void CreateVertexBuffer(void);
+
 	void CreateCommandBuffers(void);
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 	void CreateSyncObjects(void);
 	void RecreateSwapChain(void);
+	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
@@ -88,6 +94,13 @@ private:
 	std::vector<VkFence> m_vInFlightFences;
 
 	uint32_t m_iCurrentFrame{ 0 };
+
+	// VertexBuffer
+	VkBuffer m_vertexBuffer;
+	VkDeviceMemory m_vertexBufferMemory;
+
+	// Temporary
+	std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};
 };
 
 #endif

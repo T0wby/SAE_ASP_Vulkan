@@ -55,6 +55,13 @@ void CGameObject::RemoveComponent(std::shared_ptr<IComponent> a_component)
 	}
 }
 
+std::vector<Vertex>& CGameObject::GetMeshVertexData(void)
+{
+	std::vector<Vertex> empty;
+	return  empty;
+	// TODO: insert return statement here
+}
+
 std::shared_ptr<CTransform> CGameObject::GetTransform(void)
 {
 	return m_pTransform;

@@ -5,7 +5,7 @@
 #include <memory>
 #include "../Components/Component.h"
 #include "../Components/Transform.h"
-
+#include "../Utility/Variables.h"
 
 class CGameObject
 {
@@ -27,6 +27,8 @@ public:
 
 	void AddComponent(std::shared_ptr<IComponent> a_component);
 	void RemoveComponent(std::shared_ptr<IComponent> a_component);
+	//TODO: Add a way to get a certain Component via template in the gameobject?
+	virtual std::vector<Vertex>& GetMeshVertexData(void);
 
 	std::shared_ptr<CTransform> GetTransform(void);
 

@@ -21,6 +21,7 @@ public:
 	virtual void Finalize(void) override;
 
 	void SetVertexData(const std::vector<Vertex>& a_vertices);
+	std::vector<Vertex>& GetVertexData(void);
 
 private:
 	std::vector<Vertex> m_vertices{};
