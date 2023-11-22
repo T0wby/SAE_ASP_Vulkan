@@ -29,6 +29,7 @@ private:
 	void Cleanup(void);
 	void CleanupFrameBuffer(void);
 	void CleanupSwapChain(void);
+	void CleanupUniformBuffers(void);
 	void PickPhysicalDevice(void);
 	bool IsDeviceSuitable(VkPhysicalDevice a_device);
 	void CreateVulkanInstance(void);
@@ -48,6 +49,8 @@ private:
 	void CreateRenderPass(void);
 	void CreateFrameBuffers(void);
 	void CreateCommandPool(void);
+	void CreateDescriptorPool(void);
+	void CreateDescriptorSets(void);
 
 	// Done in Mesh?
 	void CreateVertexBuffer(void);
@@ -60,6 +63,9 @@ private:
 	void CreateSyncObjects(void);
 	void RecreateSwapChain(void);
 	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+	void CreateDescriptorSetLayout(void);
+	void CreateUniformBuffers(void);
+	void UpdateUniformBuffer(uint32_t a_currentImage);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
@@ -71,6 +77,7 @@ private:
 	VkQueue m_presentationQueue;
 	VkSurfaceKHR m_surface;
 	VkRenderPass m_renderPass;
+	VkDescriptorSetLayout m_descriptorSetLayout;
 	VkPipelineLayout m_pipelineLayout;
 	VkPipeline m_graphicsPipeline;
 	VkCommandPool m_commandPool;
@@ -103,6 +110,13 @@ private:
 	VkDeviceMemory m_vertexBufferMemory;
 	VkBuffer m_indexBuffer;
 	VkDeviceMemory m_indexBufferMemory;
+
+	std::vector<VkBuffer> m_vUniformBuffers;
+	std::vector<VkDeviceMemory> m_vUniformBuffersMemory;
+	std::vector<void*> m_vUniformBuffersMapped;
+
+	VkDescriptorPool m_descriptorPool;
+	std::vector<VkDescriptorSet> m_vDescriptorSets;
 
 	// Temporary
 	std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};
