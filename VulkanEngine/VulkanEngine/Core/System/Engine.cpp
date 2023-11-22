@@ -21,6 +21,7 @@ const uint32_t HEIGHT = 600;
 const std::string NAME = "SAE_Tobi_Engine";
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
+//const std::vector<uint16_t> indices = {	0, 1, 2, 2, 3, 0};
 
 
 void CEngine::Run(void)
@@ -44,6 +45,7 @@ void CEngine::InitializeVulkan(void)
 	CreateFrameBuffers();
 	CreateCommandPool();
 	CreateVertexBuffer();
+	CreateIndexBuffer();
 	CreateCommandBuffers();
 	CreateSyncObjects();
 }
@@ -235,6 +237,8 @@ void CEngine::Cleanup(void)
 	vkDestroySurfaceKHR(m_vInstance, m_surface, nullptr);
 	CleanupSwapChain();
 	//
+	vkDestroyBuffer(m_logicelDevice, m_indexBuffer, nullptr);
+	vkFreeMemory(m_logicelDevice, m_indexBufferMemory, nullptr);
 	vkDestroyBuffer(m_logicelDevice, m_vertexBuffer, nullptr);
 	vkFreeMemory(m_logicelDevice, m_vertexBufferMemory, nullptr);
 	//
@@ -875,38 +879,122 @@ void CEngine::CreateVertexBuffer(void)
 	m_vSceneObjects.push_back(pCube);
 
 	auto vertices = pCube->GetMeshVertexData();
+	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
+	// Added staging buffer (vertex data is now being loaded from high performance memory)
+	// One staging buffer in CPU accessible memory to upload the data from the vertex array to, and the final vertex buffer in device local memory(GPU).
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+
+	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	// Map memory and copy vertices.data() to it(other possibility would be explicit flushing)
+	vkMapMemory(m_logicelDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, vertices.data(), (size_t)bufferSize);
+	vkUnmapMemory(m_logicelDevice, stagingBufferMemory);
+
+	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory);
+
+	CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
+
+	vkDestroyBuffer(m_logicelDevice, stagingBuffer, nullptr);
+	vkFreeMemory(m_logicelDevice, stagingBufferMemory, nullptr);
+}
+
+void CEngine::CreateIndexBuffer(void)
+{
+	//Temp
+	auto cube = m_vSceneObjects[0];
+	auto indices = cube->GetMeshIndiceData();
+
+	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+	void* data;
+	vkMapMemory(m_logicelDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+		memcpy(data, indices.data(), (size_t)bufferSize);
+	vkUnmapMemory(m_logicelDevice, stagingBufferMemory);
+
+	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory);
+
+	CopyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
+
+	vkDestroyBuffer(m_logicelDevice, stagingBuffer, nullptr);
+	vkFreeMemory(m_logicelDevice, stagingBufferMemory, nullptr);
+}
+
+void CEngine::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+{
 	VkBufferCreateInfo bufferInfo{};
 	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.size = size;
+	bufferInfo.usage = usage;
 	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateBuffer(m_logicelDevice, &bufferInfo, nullptr, &m_vertexBuffer) != VK_SUCCESS)
+	if (vkCreateBuffer(m_logicelDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create vertex buffer!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetBufferMemoryRequirements(m_logicelDevice, m_vertexBuffer, &memRequirements);
+	vkGetBufferMemoryRequirements(m_logicelDevice, buffer, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
-	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
 
-	if (vkAllocateMemory(m_logicelDevice, &allocInfo, nullptr, &m_vertexBufferMemory) != VK_SUCCESS) 
+	if (vkAllocateMemory(m_logicelDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate vertex buffer memory!");
 	}
 
-	vkBindBufferMemory(m_logicelDevice, m_vertexBuffer, m_vertexBufferMemory, 0);
+	vkBindBufferMemory(m_logicelDevice, buffer, bufferMemory, 0);
+}
 
-	void* data;
-	// Map memory and copy vertices.data() to it(other possibility would be explicit flushing)
-	vkMapMemory(m_logicelDevice, m_vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-		memcpy(data, vertices.data(), (size_t)bufferInfo.size);
-	vkUnmapMemory(m_logicelDevice, m_vertexBufferMemory);
+void CEngine::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+{
+	VkCommandBufferAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	allocInfo.commandPool = m_commandPool;
+	allocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer commandBuffer;
+	vkAllocateCommandBuffers(m_logicelDevice, &allocInfo, &commandBuffer);
+
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+	VkBufferCopy copyRegion{};
+	copyRegion.srcOffset = 0; // Optional
+	copyRegion.dstOffset = 0; // Optional
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	vkEndCommandBuffer(commandBuffer);
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &commandBuffer;
+
+	vkQueueSubmit(m_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(m_graphicsQueue);
+	/*
+	* We could use a fence and wait with vkWaitForFences, or simply wait for the transfer queue to become idle with vkQueueWaitIdle. 
+	* A fence would allow you to schedule multiple transfers simultaneously and wait for all of them complete, instead of executing one at a time. 
+	* That may give the driver more opportunities to optimize.
+	*/
+
+	vkFreeCommandBuffers(m_logicelDevice, m_commandPool, 1, &commandBuffer);
 }
 
 void CEngine::CreateCommandBuffers(void)
@@ -975,6 +1063,8 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 
+	vkCmdBindIndexBuffer(commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
@@ -990,6 +1080,7 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
 	auto vertices = m_vSceneObjects[0]->GetMeshVertexData();
+	auto indices = m_vSceneObjects[0]->GetMeshIndiceData();
 
 	/*
 	* vertexCount: Even though we don't have a vertex buffer, we technically still have 3 vertices to draw.
@@ -997,7 +1088,8 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 	* firstVertex: Used as an offset into the vertex buffer, defines the lowest value of gl_VertexIndex.
 	* firstInstance: Used as an offset for instanced rendering, defines the lowest value of gl_InstanceIndex.
 	*/
-	vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+	//vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
 	vkCmdEndRenderPass(commandBuffer);
 

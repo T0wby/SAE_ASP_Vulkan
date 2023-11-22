@@ -21,6 +21,7 @@ public:
 
     //TODO: Add a way to get a certain Component via template in the gameobject?
     virtual std::vector<Vertex>& GetMeshVertexData(void);
+    virtual std::vector<uint16_t>& GetMeshIndiceData(void);
 
 private:
     std::shared_ptr<CMesh> m_pMesh{ nullptr };

@@ -22,8 +22,11 @@ public:
 
 	void SetVertexData(const std::vector<Vertex>& a_vertices);
 	std::vector<Vertex>& GetVertexData(void);
+	void SetIndiceData(const std::vector<uint16_t>& a_indices);
+	std::vector<uint16_t>& GetIndiceData(void);
 
 private:
 	std::vector<Vertex> m_vertices{};
+	std::vector<uint16_t> m_indices{};
 };
 #endif

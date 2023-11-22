@@ -51,6 +51,9 @@ private:
 
 	// Done in Mesh?
 	void CreateVertexBuffer(void);
+	void CreateIndexBuffer(void);
+	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
 	void CreateCommandBuffers(void);
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
@@ -98,6 +101,8 @@ private:
 	// VertexBuffer
 	VkBuffer m_vertexBuffer;
 	VkDeviceMemory m_vertexBufferMemory;
+	VkBuffer m_indexBuffer;
+	VkDeviceMemory m_indexBufferMemory;
 
 	// Temporary
 	std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};

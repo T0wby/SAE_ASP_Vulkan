@@ -29,6 +29,7 @@ public:
 	void RemoveComponent(std::shared_ptr<IComponent> a_component);
 	//TODO: Add a way to get a certain Component via template in the gameobject?
 	virtual std::vector<Vertex>& GetMeshVertexData(void);
+	virtual std::vector<uint16_t>& GetMeshIndiceData(void);
 
 	std::shared_ptr<CTransform> GetTransform(void);
 

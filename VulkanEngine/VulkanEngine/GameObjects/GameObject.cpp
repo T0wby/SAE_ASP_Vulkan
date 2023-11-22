@@ -59,7 +59,12 @@ std::vector<Vertex>& CGameObject::GetMeshVertexData(void)
 {
 	std::vector<Vertex> empty;
 	return  empty;
-	// TODO: insert return statement here
+}
+
+std::vector<uint16_t>& CGameObject::GetMeshIndiceData(void)
+{
+	std::vector<uint16_t> empty;
+	return empty;
 }
 
 std::shared_ptr<CTransform> CGameObject::GetTransform(void)

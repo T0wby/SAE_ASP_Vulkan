@@ -27,3 +27,13 @@ std::vector<Vertex>& CMesh::GetVertexData(void)
 {
     return m_vertices;
 }
+
+void CMesh::SetIndiceData(const std::vector<uint16_t>& a_indices)
+{
+    m_indices = a_indices;
+}
+
+std::vector<uint16_t>& CMesh::GetIndiceData(void)
+{
+    return m_indices;
+}
