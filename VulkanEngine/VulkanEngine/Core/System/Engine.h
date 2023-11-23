@@ -7,6 +7,7 @@
 #include "CoreSystemStructs.h"
 #include "../../GameObjects/GameObject.h"
 
+
 class CEngine
 {
 public:
@@ -60,12 +61,21 @@ private:
 
 	void CreateCommandBuffers(void);
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	VkCommandBuffer BeginSingleTimeCommands(void);
+	void EndSingleTimeCommands(VkCommandBuffer a_commandBuffer);
 	void CreateSyncObjects(void);
 	void RecreateSwapChain(void);
 	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void CreateDescriptorSetLayout(void);
 	void CreateUniformBuffers(void);
 	void UpdateUniformBuffer(uint32_t a_currentImage);
+	void CreateTextureImage(void);
+	void CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_format, VkImageTiling a_tiling, VkImageUsageFlags a_usage, VkMemoryPropertyFlags a_properties, VkImage& a_image, VkDeviceMemory& a_imageMemory);
+	void TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout, VkImageLayout a_newLayout);
+	void CopyBufferToImage(VkBuffer a_buffer, VkImage a_image, uint32_t a_width, uint32_t a_height);
+	void CreateTextureImageView(void);
+	VkImageView CreateImageView(VkImage a_image, VkFormat a_format);
+	void CreateTextureSampler(void);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
@@ -117,6 +127,12 @@ private:
 
 	VkDescriptorPool m_descriptorPool;
 	std::vector<VkDescriptorSet> m_vDescriptorSets;
+
+	VkImage m_textureImage;
+	VkDeviceMemory m_textureImageMemory;
+
+	VkImageView m_textureImageView;
+	VkSampler m_textureSampler;
 
 	// Temporary
 	std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};

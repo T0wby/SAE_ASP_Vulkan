@@ -39,6 +39,9 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{985c9958-c0aa-4269-a3fa-2f5c60cef78c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Textures">
+      <UniqueIdentifier>{f903d7c7-c49b-48ff-b5ed-be59d649b8b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -114,5 +117,10 @@
     <None Include="Shader\shader.vert">
       <Filter>Source Files\Shader</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\SAE_Institute_Black_Logo.jpg">
+      <Filter>Source Files\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 #define VARIABLES_H
 
 #include <Vulkan/Include/vulkan/vulkan_core.h>
+#include <vector>
 
 struct Vertex
 {
@@ -30,6 +31,12 @@ struct Vertex
 		static Color Blue(void);
 
 	} color = Color::Black();
+
+	struct UVCoord
+	{
+		float u, v;
+
+	} uv{ 0.0f,0.0f };
 
 	static VkVertexInputBindingDescription GetBindingDescription() 
 	{
@@ -66,6 +73,20 @@ struct Vertex
 		return attributeDescription;
 	}
 
+	static VkVertexInputAttributeDescription GetAttributeDescriptionUV()
+	{
+		VkVertexInputAttributeDescription attributeDescription{};
+
+		attributeDescription.binding = 0;
+		attributeDescription.location = 2;
+		attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescription.offset = sizeof(float) * 5;
+
+		return attributeDescription;
+	}
+
+
+
 	/*struct Normal
 	{
 		float x, y, z;
@@ -74,12 +95,6 @@ struct Vertex
 		static Normal One(void);
 
 	} normal = Normal::Zero();
-
-	struct UVCoord
-	{
-		float u, v;
-
-	} uv{ 0.0f,0.0f };
 	*/
 	inline static const int GetSize(void) { return 5 * sizeof(float); }
 	//inline static const int GetElemSize(void) { return 3 * sizeof(float); }

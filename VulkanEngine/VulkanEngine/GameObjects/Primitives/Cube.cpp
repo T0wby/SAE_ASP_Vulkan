@@ -2,8 +2,8 @@
 
 const std::vector<uint16_t> indices = { 
 	0, 1, 2, 
-	2, 3, 0, 
-	0, 4, 1 };
+	2, 3, 0, };
+	//0, 4, 1 };
 
 void CCube::Initialize(void)
 {
@@ -11,11 +11,11 @@ void CCube::Initialize(void)
 
 	// Triangle
 	m_pMesh->SetVertexData({
-		Vertex{Vertex::Position{-0.5f, -0.5f},Vertex::Color::Red()   }, // 0
-		Vertex{Vertex::Position{0.5f, -0.5f}, Vertex::Color::Green() }, // 1
-		Vertex{Vertex::Position{0.5f, 0.5f}, Vertex::Color::Blue() }, // 2
-		Vertex{Vertex::Position{-0.5f, 0.5f},  Vertex::Color::Red()},  // 3
-		Vertex{Vertex::Position{0.0f, -1.0f},  Vertex::Color::White()}  // 4
+		Vertex{Vertex::Position{-0.5f, -0.5f}, Vertex::Color::Red(),   {1.0f, 1.0f} }, // 0
+		Vertex{Vertex::Position{0.5f, -0.5f},  Vertex::Color::Green(), {1.0f, 0.0f} }, // 1
+		Vertex{Vertex::Position{0.5f, 0.5f},   Vertex::Color::Blue(),  {0.0f, 0.0f} }, // 2
+		Vertex{Vertex::Position{-0.5f, 0.5f},  Vertex::Color::Red(),   {0.0f, 1.0f}},  // 3
+		//Vertex{Vertex::Position{0.0f, -1.0f},  Vertex::Color::White(), {1.0f, 1.0f}}   // 4
 		});
 
 	m_pMesh->SetIndiceData(indices);
