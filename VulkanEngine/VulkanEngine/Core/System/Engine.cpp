@@ -1012,12 +1012,25 @@ void CEngine::CreateDescriptorSets(void)
 
 void CEngine::CreateVertexBuffer(void)
 {
+	// TODO: Extra Methode in a scene class to create game objects
 	pCube = std::make_shared<CCube>();
 	pCube->Initialize();
 	m_vSceneObjects.push_back(pCube);
+	std::vector<std::vector<Vertex>> vertices{};
+	
+	for (int i = 0; i < m_vSceneObjects.size(); i++)
+	{
+		vertices.push_back(m_vSceneObjects[i]->GetMeshVertexData());
+	}
 
-	auto vertices = pCube->GetMeshVertexData();
-	VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+	//auto vertices = pCube->GetMeshVertexData();
+	int vertexCount{0};
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		vertexCount += vertices[i].size();
+	}
+
+	VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
 
 	// Added staging buffer (vertex data is now being loaded from high performance memory)
 	// One staging buffer in CPU accessible memory to upload the data from the vertex array to, and the final vertex buffer in device local memory(GPU).
@@ -1029,7 +1042,7 @@ void CEngine::CreateVertexBuffer(void)
 	void* data;
 	// Map memory and copy vertices.data() to it(other possibility would be explicit flushing)
 	vkMapMemory(m_logicelDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices.data(), (size_t)bufferSize);
+		memcpy(data, vertices[0].data(), (size_t)bufferSize);
 	vkUnmapMemory(m_logicelDevice, stagingBufferMemory);
 
 	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory);
@@ -1044,9 +1057,23 @@ void CEngine::CreateIndexBuffer(void)
 {
 	//Temp
 	auto cube = m_vSceneObjects[0];
-	auto indices = cube->GetMeshIndiceData();
 
-	VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+	std::vector<std::vector<uint16_t>> indices{};
+
+	for (int i = 0; i < m_vSceneObjects.size(); i++)
+	{
+		indices.push_back(m_vSceneObjects[i]->GetMeshIndiceData());
+	}
+
+	//auto indices = cube->GetMeshIndiceData();
+	int indicesCount{ 0 };
+	for (int i = 0; i < indices.size(); i++)
+	{
+		indicesCount += indices[i].size();
+	}
+
+
+	VkDeviceSize bufferSize = sizeof(uint16_t) * indicesCount;
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -1054,7 +1081,7 @@ void CEngine::CreateIndexBuffer(void)
 
 	void* data;
 	vkMapMemory(m_logicelDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices.data(), (size_t)bufferSize);
+		memcpy(data, indices[0].data(), (size_t)bufferSize);
 	vkUnmapMemory(m_logicelDevice, stagingBufferMemory);
 
 	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory);
@@ -1391,7 +1418,7 @@ VkShaderModule CEngine::CreateShaderModule(const std::vector<char>& a_vBytecode)
 void CEngine::CreateTextureImage(void)
 {
 	int texWidth, texHeight, texChannels;
-	stbi_uc* pixels = stbi_load("Textures/statue.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	stbi_uc* pixels = stbi_load("Textures/SAE_Institute_Black_Logo.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 	if (!pixels) 
@@ -1442,7 +1469,8 @@ void CEngine::CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_format
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateImage(m_logicelDevice, &imageInfo, nullptr, &a_image) != VK_SUCCESS) {
+	if (vkCreateImage(m_logicelDevice, &imageInfo, nullptr, &a_image) != VK_SUCCESS) 
+	{
 		throw std::runtime_error("failed to create image!");
 	}
 
@@ -1454,7 +1482,8 @@ void CEngine::CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_format
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, a_properties);
 
-	if (vkAllocateMemory(m_logicelDevice, &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS) {
+	if (vkAllocateMemory(m_logicelDevice, &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS) 
+	{
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 

@@ -74,6 +74,12 @@
     <ClCompile Include="Utility\Variables.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Input\PlayerController.cpp">
+      <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\System\Engine.h">
@@ -109,6 +115,10 @@
     <ClInclude Include="Utility\Variables.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Input\PlayerController.h">
+      <Filter>Input</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">

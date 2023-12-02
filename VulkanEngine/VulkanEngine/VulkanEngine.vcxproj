@@ -143,18 +143,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Components\Camera.cpp" />
     <ClCompile Include="Components\Mesh.cpp" />
     <ClCompile Include="Components\Transform.cpp" />
     <ClCompile Include="Core\System\Engine.cpp" />
     <ClCompile Include="Core\System\Scene.cpp" />
     <ClCompile Include="GameObjects\GameObject.cpp" />
     <ClCompile Include="GameObjects\Primitives\Cube.cpp" />
+    <ClCompile Include="Input\PlayerController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
     <ClCompile Include="Utility\Variables.cpp" />
     <ClCompile Include="WindowGLFW\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Components\Camera.h" />
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\Mesh.h" />
     <ClInclude Include="Components\Transform.h" />
@@ -163,6 +166,7 @@
     <ClInclude Include="Core\System\Scene.h" />
     <ClInclude Include="GameObjects\GameObject.h" />
     <ClInclude Include="GameObjects\Primitives\Cube.h" />
+    <ClInclude Include="Input\PlayerController.h" />
     <ClInclude Include="Utility\Utility.h" />
     <ClInclude Include="Utility\Variables.h" />
     <ClInclude Include="WindowGLFW\Window.h" />
