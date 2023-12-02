@@ -74,8 +74,12 @@ private:
 	void TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout, VkImageLayout a_newLayout);
 	void CopyBufferToImage(VkBuffer a_buffer, VkImage a_image, uint32_t a_width, uint32_t a_height);
 	void CreateTextureImageView(void);
-	VkImageView CreateImageView(VkImage a_image, VkFormat a_format);
+	VkImageView CreateImageView(VkImage a_image, VkFormat a_format, VkImageAspectFlags a_aspectFlags);
 	void CreateTextureSampler(void);
+	void CreateDepthResources(void);
+	VkFormat FindSupportedFormat(const std::vector<VkFormat>& a_candidates, VkImageTiling a_tiling, VkFormatFeatureFlags a_features);
+	VkFormat FindDepthFormat();
+	bool HasStencilComponent(VkFormat a_format);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
 	const std::vector<const char*> m_EnabledExtensions = { "VK_KHR_swapchain" };
@@ -133,6 +137,10 @@ private:
 
 	VkImageView m_textureImageView;
 	VkSampler m_textureSampler;
+
+	VkImage m_depthImage;
+	VkDeviceMemory m_depthImageMemory;
+	VkImageView m_depthImageView;
 
 	// Temporary
 	std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};

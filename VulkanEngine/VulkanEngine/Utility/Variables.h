@@ -13,7 +13,7 @@ struct Vertex
 
 	struct Position
 	{
-		float x, y;
+		float x, y, z;
 
 		static Position Zero(void);
 		static Position Forward(void);
@@ -42,7 +42,7 @@ struct Vertex
 	{
 		VkVertexInputBindingDescription bindingDescription{};
 		bindingDescription.binding = 0;
-		bindingDescription.stride = sizeof(float) * 7;
+		bindingDescription.stride = sizeof(Vertex);
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 		return bindingDescription;
@@ -55,8 +55,8 @@ struct Vertex
 
 		attributeDescription.binding = 0;
 		attributeDescription.location = 0;
-		attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescription.offset = 0;
+		attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescription.offset = offsetof(Vertex, position);
 
 		return attributeDescription;
 	}
@@ -68,7 +68,7 @@ struct Vertex
 		attributeDescription.binding = 0;
 		attributeDescription.location = 1;
 		attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
-		attributeDescription.offset = sizeof(float) * 2;
+		attributeDescription.offset = offsetof(Vertex, color);
 
 		return attributeDescription;
 	}
@@ -80,7 +80,7 @@ struct Vertex
 		attributeDescription.binding = 0;
 		attributeDescription.location = 2;
 		attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
-		attributeDescription.offset = sizeof(float) * 5;
+		attributeDescription.offset = offsetof(Vertex, uv);
 
 		return attributeDescription;
 	}

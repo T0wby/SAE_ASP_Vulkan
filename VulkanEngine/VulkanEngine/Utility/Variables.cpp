@@ -12,12 +12,12 @@ void Vertex::Position::operator+=(Position a_pos)
 
 Vertex::Position Vertex::Position::Zero()
 {
-    return Position{ F_ZERO, F_ZERO};
+    return Position{ F_ZERO, F_ZERO, F_ZERO };
 }
 
 Vertex::Position Vertex::Position::Forward()
 {
-    return Position{ F_ONE, F_ONE };
+    return Position{ F_ZERO, F_ZERO, F_ONE };
 }
 
 Vertex::Color Vertex::Color::Black(void)
