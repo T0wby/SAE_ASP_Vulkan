@@ -42,7 +42,7 @@ struct Vertex
 	{
 		VkVertexInputBindingDescription bindingDescription{};
 		bindingDescription.binding = 0;
-		bindingDescription.stride = sizeof(float) * 5;
+		bindingDescription.stride = sizeof(float) * 7;
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
 		return bindingDescription;
