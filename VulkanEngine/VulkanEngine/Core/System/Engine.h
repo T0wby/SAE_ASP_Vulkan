@@ -6,6 +6,7 @@
 #include <vector>
 #include "CoreSystemStructs.h"
 #include "../../GameObjects/GameObject.h"
+#include "../../Input/PlayerController.h"
 #include "Scene.h"
 
 
@@ -26,6 +27,7 @@ private:
 
 	void InitializeVulkan(void);
 	void InitializeWindow(void);
+	void CreateInput(void);
 	void CreateScenes(void);
 	void MainLoop(void);
 	void DrawFrame(void);
@@ -144,9 +146,11 @@ private:
 	VkDeviceMemory m_depthImageMemory;
 	VkImageView m_depthImageView;
 
-	// Temporary
-	//std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};
+	// Scenes
 	std::shared_ptr<CScene> m_firstScene{};
+
+	// Input
+	std::shared_ptr<CPlayerController> m_playerController{};
 };
 
 #endif

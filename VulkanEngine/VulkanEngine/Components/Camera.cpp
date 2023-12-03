@@ -23,12 +23,13 @@ void CCamera::Finalize(void)
 
 auto CCamera::GetViewMatrix() const -> const glm::mat4
 {
-    return glm::lookAt(m_pos, m_pos + m_orientation, m_up);
+    auto look = glm::lookAt(m_pos, m_pos + m_orientation, m_up);
+    return look;
 }
 
 auto CCamera::GetProjectionMatrix() const -> const glm::mat4
 {
-    return glm::perspective(glm::radians(90.0f), static_cast<float>(m_iWidth / m_iHeight), 0.0f, 1.0f);
+    return glm::perspective(glm::radians(45.0f), m_iWidth / (float)m_iHeight, 0.1f, 10.0f);
 }
 
 auto CCamera::GetCamMatrix() const -> const glm::mat4

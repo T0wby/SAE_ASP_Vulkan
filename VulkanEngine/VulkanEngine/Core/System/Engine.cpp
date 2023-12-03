@@ -2,7 +2,6 @@
 #include "../../WindowGLFW/Window.h"
 #include "../../Utility/Utility.h"
 #include "../../Utility/Variables.h"
-#include "../../GameObjects/Primitives/Cube.h"
 #include <stdexcept>
 #include <optional>
 #include <iostream>
@@ -40,11 +39,12 @@ void CEngine::Run(void)
 void CEngine::InitializeVulkan(void)
 {
 	CreateVulkanInstance();
-	CreateScenes();
+	CreateInput();
 	CreateGLFWSurface();
 	PickPhysicalDevice();
 	CreateLogicalDevice();
 	CreateSwapChain();
+	CreateScenes();
 	CreateImageViews();
 	CreateRenderPass();
 	CreateDescriptorSetLayout();
@@ -174,9 +174,14 @@ void CEngine::InitializeWindow(void)
 	pWindow->Initialize();
 }
 
+void CEngine::CreateInput(void)
+{
+	m_playerController = std::make_shared<CPlayerController>();
+}
+
 void CEngine::CreateScenes(void)
 {
-	m_firstScene = std::make_shared<CScene>();
+	m_firstScene = std::make_shared<CScene>(m_playerController, pWindow, m_swapChainExtent.width, m_swapChainExtent.height);
 	m_firstScene->Initialize();
 }
 
@@ -185,6 +190,7 @@ void CEngine::MainLoop(void)
 	while (!pWindow->GetWindowShouldClose()) 
 	{
 		pWindow->Update();
+		m_firstScene->Update();
 		DrawFrame();
 	}
 
@@ -1019,24 +1025,6 @@ void CEngine::CreateDescriptorSets(void)
 
 void CEngine::CreateVertexBuffer(void)
 {
-	// TODO: Extra Methode in a scene class to create game objects
-	//pCube = std::make_shared<CCube>();
-	//pCube->Initialize();
-	//m_vSceneObjects.push_back(pCube);
-	//std::vector<std::vector<Vertex>> vertices{};
-	//
-	//for (int i = 0; i < m_vSceneObjects.size(); i++)
-	//{
-	//	vertices.push_back(m_vSceneObjects[i]->GetMeshVertexData());
-	//}
-	//
-	////auto vertices = pCube->GetMeshVertexData();
-	//int vertexCount{0};
-	//for (int i = 0; i < vertices.size(); i++)
-	//{
-	//	vertexCount += vertices[i].size();
-	//}
-
 	VkDeviceSize bufferSize = sizeof(Vertex) * m_firstScene->GetSceneVertexCount();
 
 	// Added staging buffer (vertex data is now being loaded from high performance memory)
@@ -1062,24 +1050,6 @@ void CEngine::CreateVertexBuffer(void)
 
 void CEngine::CreateIndexBuffer(void)
 {
-	//Temp
-	//auto cube = m_vSceneObjects[0];
-	//
-	//std::vector<std::vector<uint16_t>> indices{};
-	//
-	//for (int i = 0; i < m_vSceneObjects.size(); i++)
-	//{
-	//	indices.push_back(m_vSceneObjects[i]->GetMeshIndiceData());
-	//}
-	//
-	////auto indices = cube->GetMeshIndiceData();
-	//int indicesCount{ 0 };
-	//for (int i = 0; i < indices.size(); i++)
-	//{
-	//	indicesCount += indices[i].size();
-	//}
-
-
 	VkDeviceSize bufferSize = sizeof(uint16_t) * m_firstScene->GetSceneIndicesCount();
 
 	VkBuffer stagingBuffer;
@@ -1393,11 +1363,11 @@ void CEngine::UpdateUniformBuffer(uint32_t a_currentImage)
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-	UniformBufferObject ubo{};
-	ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 10.0f);
-	ubo.proj[1][1] *= -1;
+	UniformBufferObject ubo = m_firstScene->CreateUniformBuffer();
+	//ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	//ubo.proj = glm::perspective(glm::radians(45.0f), m_swapChainExtent.width / (float)m_swapChainExtent.height, 0.1f, 10.0f);
+	//ubo.proj[1][1] *= -1;
 
 	memcpy(m_vUniformBuffersMapped[m_iCurrentFrame], &ubo, sizeof(ubo));
 }

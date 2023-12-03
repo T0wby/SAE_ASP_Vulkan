@@ -6,14 +6,14 @@ std::shared_ptr<CWindow> pCurrWindow = nullptr;
 std::shared_ptr<CCamera> pCCamera = nullptr;
 
 // Key Input
-std::function<void(void)> pExitInput = nullptr;
-std::function<void(void)> pForwardInput = nullptr;
-std::function<void(void)> pBackwardInput = nullptr;
-std::function<void(void)> pRightInput = nullptr;
-std::function<void(void)> pLeftInput = nullptr;
-std::function<void(void)> pUpInput = nullptr;
-std::function<void(void)> pDownInput = nullptr;
-std::function<void(void)> pMouseMode = nullptr;
+std::function<void(void)> pExitInput{ []() {} };
+std::function<void(void)> pForwardInput{ []() {} };
+std::function<void(void)> pBackwardInput{ []() {} };
+std::function<void(void)> pRightInput{ []() {} };
+std::function<void(void)> pLeftInput{ []() {} };
+std::function<void(void)> pUpInput{ []() {} };
+std::function<void(void)> pDownInput{ []() {} };
+std::function<void(void)> pMouseMode{ []() {} };
 
 // Mouse Input
 float fPitch{ 0.0f };
@@ -75,34 +75,42 @@ void CPlayerController::Finalize(void)
 
 void CPlayerController::SetExitInput(std::function<void(void)> a_pExitInput)
 {
+	pExitInput = a_pExitInput;
 }
 
 void CPlayerController::SetForwardInput(std::function<void(void)> a_pForwardInput)
 {
+	pForwardInput = a_pForwardInput;
 }
 
 void CPlayerController::SetBackwardInput(std::function<void(void)> a_pBackwardInput)
 {
+	pBackwardInput = a_pBackwardInput;
 }
 
 void CPlayerController::SetRightInput(std::function<void(void)> a_pRightInput)
 {
+	pRightInput = a_pRightInput;
 }
 
 void CPlayerController::SetLeftInput(std::function<void(void)> a_pLeftInput)
 {
+	pLeftInput = a_pLeftInput;
 }
 
 void CPlayerController::SetUpInput(std::function<void(void)> a_pUpInput)
 {
+	pUpInput = a_pUpInput;
 }
 
 void CPlayerController::SetDownInput(std::function<void(void)> a_pDownInput)
 {
+	pDownInput = a_pDownInput;
 }
 
 void CPlayerController::SetMouseMode(std::function<void(void)> a_pMouseMode)
 {
+	pMouseMode = a_pMouseMode;
 }
 
 void CPlayerController::SetDefaultInput(void)

@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include <stdexcept>
-
-
+#include <chrono>
+#include <glm/glm/gtc/matrix_transform.hpp>
 
 void CScene::Initialize(void)
 {
@@ -25,6 +25,9 @@ void CScene::CreateGameObjects(void)
     m_cube = std::make_shared<CCube>();
     m_cube->Initialize();
     m_vGameObjects.push_back(m_cube);
+
+    m_camera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(-1.0f, 0.1f, 2.5f), glm::vec3(0.0f, 0.0f, -0.5f),
+        glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void CScene::AddGameObject(std::shared_ptr<CGameObject> a_gameObject)
@@ -110,4 +113,21 @@ auto CScene::GetSceneFirstIndice(void) const -> const std::vector<uint16_t>
     }
 
     return m_vGameObjects[0]->GetMeshIndiceData();
+}
+
+UniformBufferObject& CScene::CreateUniformBuffer(void)
+{
+    static auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    UniformBufferObject ubo{};
+
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));;
+    ubo.view = m_camera->GetViewMatrix();
+    ubo.proj = m_camera->GetProjectionMatrix();
+    ubo.proj[1][1] *= -1;
+
+    return ubo;
 }
