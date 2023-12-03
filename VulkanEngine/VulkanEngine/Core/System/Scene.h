@@ -40,6 +40,7 @@ public:
 
 protected:
     void CreateGameObjects(void);
+    void SetupSceneInput(void);
     std::shared_ptr<CCube> m_cube{ nullptr };
     std::shared_ptr<CCamera> m_camera{ nullptr };
     std::shared_ptr<CPlayerController> m_playerController{ nullptr };
@@ -48,6 +49,11 @@ protected:
 
     uint32_t m_fWidth{ 0 };
     uint32_t m_fHeight{ 0 };
+
+    // Delta time
+    float m_fDeltaTime{ 0 };
+    float m_fLastFrame{ 0 };
+    float m_fCurrentFrame{ 0 };
 
 };
 #endif
