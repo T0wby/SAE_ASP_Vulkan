@@ -21,7 +21,7 @@
 std::shared_ptr<CWindow> pWindow = nullptr;
 
 //Temp
-std::shared_ptr<CCube> pCube = nullptr;
+//std::shared_ptr<CCube> pCube = nullptr;
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -40,6 +40,7 @@ void CEngine::Run(void)
 void CEngine::InitializeVulkan(void)
 {
 	CreateVulkanInstance();
+	CreateScenes();
 	CreateGLFWSurface();
 	PickPhysicalDevice();
 	CreateLogicalDevice();
@@ -171,6 +172,12 @@ void CEngine::InitializeWindow(void)
 	// Create GLFW window
 	pWindow = std::make_shared<CWindow>(WIDTH, HEIGHT, NAME);
 	pWindow->Initialize();
+}
+
+void CEngine::CreateScenes(void)
+{
+	m_firstScene = std::make_shared<CScene>();
+	m_firstScene->Initialize();
 }
 
 void CEngine::MainLoop(void)
@@ -1013,24 +1020,24 @@ void CEngine::CreateDescriptorSets(void)
 void CEngine::CreateVertexBuffer(void)
 {
 	// TODO: Extra Methode in a scene class to create game objects
-	pCube = std::make_shared<CCube>();
-	pCube->Initialize();
-	m_vSceneObjects.push_back(pCube);
-	std::vector<std::vector<Vertex>> vertices{};
-	
-	for (int i = 0; i < m_vSceneObjects.size(); i++)
-	{
-		vertices.push_back(m_vSceneObjects[i]->GetMeshVertexData());
-	}
+	//pCube = std::make_shared<CCube>();
+	//pCube->Initialize();
+	//m_vSceneObjects.push_back(pCube);
+	//std::vector<std::vector<Vertex>> vertices{};
+	//
+	//for (int i = 0; i < m_vSceneObjects.size(); i++)
+	//{
+	//	vertices.push_back(m_vSceneObjects[i]->GetMeshVertexData());
+	//}
+	//
+	////auto vertices = pCube->GetMeshVertexData();
+	//int vertexCount{0};
+	//for (int i = 0; i < vertices.size(); i++)
+	//{
+	//	vertexCount += vertices[i].size();
+	//}
 
-	//auto vertices = pCube->GetMeshVertexData();
-	int vertexCount{0};
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		vertexCount += vertices[i].size();
-	}
-
-	VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
+	VkDeviceSize bufferSize = sizeof(Vertex) * m_firstScene->GetSceneVertexCount();
 
 	// Added staging buffer (vertex data is now being loaded from high performance memory)
 	// One staging buffer in CPU accessible memory to upload the data from the vertex array to, and the final vertex buffer in device local memory(GPU).
@@ -1042,7 +1049,7 @@ void CEngine::CreateVertexBuffer(void)
 	void* data;
 	// Map memory and copy vertices.data() to it(other possibility would be explicit flushing)
 	vkMapMemory(m_logicelDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, vertices[0].data(), (size_t)bufferSize);
+		memcpy(data, m_firstScene->GetSceneFirstVertex().data(), (size_t)bufferSize);
 	vkUnmapMemory(m_logicelDevice, stagingBufferMemory);
 
 	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory);
@@ -1056,24 +1063,24 @@ void CEngine::CreateVertexBuffer(void)
 void CEngine::CreateIndexBuffer(void)
 {
 	//Temp
-	auto cube = m_vSceneObjects[0];
+	//auto cube = m_vSceneObjects[0];
+	//
+	//std::vector<std::vector<uint16_t>> indices{};
+	//
+	//for (int i = 0; i < m_vSceneObjects.size(); i++)
+	//{
+	//	indices.push_back(m_vSceneObjects[i]->GetMeshIndiceData());
+	//}
+	//
+	////auto indices = cube->GetMeshIndiceData();
+	//int indicesCount{ 0 };
+	//for (int i = 0; i < indices.size(); i++)
+	//{
+	//	indicesCount += indices[i].size();
+	//}
 
-	std::vector<std::vector<uint16_t>> indices{};
 
-	for (int i = 0; i < m_vSceneObjects.size(); i++)
-	{
-		indices.push_back(m_vSceneObjects[i]->GetMeshIndiceData());
-	}
-
-	//auto indices = cube->GetMeshIndiceData();
-	int indicesCount{ 0 };
-	for (int i = 0; i < indices.size(); i++)
-	{
-		indicesCount += indices[i].size();
-	}
-
-
-	VkDeviceSize bufferSize = sizeof(uint16_t) * indicesCount;
+	VkDeviceSize bufferSize = sizeof(uint16_t) * m_firstScene->GetSceneIndicesCount();
 
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
@@ -1081,7 +1088,7 @@ void CEngine::CreateIndexBuffer(void)
 
 	void* data;
 	vkMapMemory(m_logicelDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-		memcpy(data, indices[0].data(), (size_t)bufferSize);
+		memcpy(data, m_firstScene->GetSceneFirstIndice().data(), (size_t)bufferSize);
 	vkUnmapMemory(m_logicelDevice, stagingBufferMemory);
 
 	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory);
@@ -1218,8 +1225,8 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 
 	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_pipelineLayout, 0, 1, &m_vDescriptorSets[m_iCurrentFrame], 0, nullptr);
 
-	auto vertices = m_vSceneObjects[0]->GetMeshVertexData();
-	auto indices = m_vSceneObjects[0]->GetMeshIndiceData();
+	//auto vertices = m_vSceneObjects[0]->GetMeshVertexData();
+	//auto indices = m_vSceneObjects[0]->GetMeshIndiceData();
 
 	/*
 	* vertexCount: Even though we don't have a vertex buffer, we technically still have 3 vertices to draw.
@@ -1228,7 +1235,8 @@ void CEngine::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageI
 	* firstInstance: Used as an offset for instanced rendering, defines the lowest value of gl_InstanceIndex.
 	*/
 	//vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+	//vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_firstScene->GetSceneIndicesCount()), 1, 0, 0, 0);
 
 	vkCmdEndRenderPass(commandBuffer);
 

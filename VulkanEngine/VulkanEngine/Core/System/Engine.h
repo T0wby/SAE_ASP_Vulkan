@@ -6,6 +6,7 @@
 #include <vector>
 #include "CoreSystemStructs.h"
 #include "../../GameObjects/GameObject.h"
+#include "Scene.h"
 
 
 class CEngine
@@ -25,6 +26,7 @@ private:
 
 	void InitializeVulkan(void);
 	void InitializeWindow(void);
+	void CreateScenes(void);
 	void MainLoop(void);
 	void DrawFrame(void);
 	void Cleanup(void);
@@ -143,7 +145,8 @@ private:
 	VkImageView m_depthImageView;
 
 	// Temporary
-	std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};
+	//std::vector<std::shared_ptr<CGameObject>> m_vSceneObjects{};
+	std::shared_ptr<CScene> m_firstScene{};
 };
 
 #endif
