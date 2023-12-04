@@ -20,6 +20,7 @@ public:
 	virtual void Draw(void) override;
 	virtual void Finalize(void) override;
 
+	inline auto GetTransformMatrix(void) const -> const glm::mat4x4 { return m_transformMatrix; }
 	inline auto GetPosition(void) const -> const glm::vec3 { return m_position; }
 	inline void AddPosition(glm::vec3 a_pos)
 	{

@@ -30,7 +30,7 @@ public:
     auto GetSceneIndicesCount(void) const -> const int;
     auto GetSceneFirstIndice(void) const -> const std::vector<uint16_t>;
 
-    UniformBufferObject& CreateUniformBuffer(void);
+    virtual UniformBufferObject& CreateUniformBuffer(void);
     void UpdateSizeValues(const int& a_iWidth, const int& a_iHeight);
 
     virtual void Initialize(void);

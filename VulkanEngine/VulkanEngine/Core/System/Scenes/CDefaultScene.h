@@ -19,6 +19,7 @@ public:
 
 private:
     std::shared_ptr<CCube> m_cube{ nullptr };
+    //std::shared_ptr<CCube> m_cube2{ nullptr };
 
 };
 

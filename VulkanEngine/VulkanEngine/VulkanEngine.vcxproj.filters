@@ -21,9 +21,6 @@
     <Filter Include="Input">
       <UniqueIdentifier>{1954621d-e002-45a3-89bb-4c5bcfa67351}</UniqueIdentifier>
     </Filter>
-    <Filter Include="glad">
-      <UniqueIdentifier>{492fb353-3f7f-476d-a4e3-749d9c4f007c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GameObject">
       <UniqueIdentifier>{e3f344eb-5aaa-42e6-82d2-fc0c531b03ff}</UniqueIdentifier>
     </Filter>
@@ -86,6 +83,15 @@
     <ClCompile Include="Core\System\Scenes\CDefaultScene.cpp">
       <Filter>Core\System\Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="Core\System\Device.cpp">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Pipeline.cpp">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="SwapChain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\System\Engine.h">
@@ -130,6 +136,13 @@
     <ClInclude Include="Core\System\Scenes\CDefaultScene.h">
       <Filter>Core\System\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="Core\System\Device.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Pipeline.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\SwapChain.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">

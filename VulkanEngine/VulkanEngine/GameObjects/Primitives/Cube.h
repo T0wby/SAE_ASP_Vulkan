@@ -20,11 +20,12 @@ public:
 	virtual void Draw(void);
 
     //TODO: Add a way to get a certain Component via template in the gameobject?
-    virtual std::vector<Vertex>& GetMeshVertexData(void);
-    virtual std::vector<uint16_t>& GetMeshIndiceData(void);
+    virtual std::vector<Vertex>& GetMeshVertexData(void) override;
+    virtual std::vector<uint16_t>& GetMeshIndiceData(void) override;
 
 private:
     std::shared_ptr<CMesh> m_pMesh{ nullptr };
+    std::vector<Vertex> m_vertices{};
 
 };
 #endif

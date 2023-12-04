@@ -76,7 +76,16 @@ void CCube::Draw(void)
 
 std::vector<Vertex>& CCube::GetMeshVertexData(void)
 {
-	return m_pMesh->GetVertexData();
+	m_vertices = m_pMesh->GetVertexData();
+	auto pos = m_pTransform->GetPosition();
+	for (size_t i = 0; i < m_vertices.size(); i++)
+	{
+		m_vertices[i].position.x += pos.x;
+		m_vertices[i].position.y += pos.y;
+		m_vertices[i].position.z += pos.z;
+	}
+
+	return m_vertices;
 }
 
 std::vector<uint16_t>& CCube::GetMeshIndiceData(void)

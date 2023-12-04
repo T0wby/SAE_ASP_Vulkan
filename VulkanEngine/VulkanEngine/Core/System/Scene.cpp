@@ -15,10 +15,20 @@ void CScene::Update(void)
     m_fDeltaTime = m_fCurrentFrame - m_fLastFrame;
     m_fLastFrame = m_fCurrentFrame;
     m_playerController->Update(m_fDeltaTime);
+
+    for (size_t i = 0; i < m_vGameObjects.size(); i++)
+    {
+        m_vGameObjects[i]->Update();
+    }
+
 }
 
 void CScene::Draw(void)
 {
+    for (size_t i = 0; i < m_vGameObjects.size(); i++)
+    {
+        m_vGameObjects[i]->Draw();
+    }
 }
 
 void CScene::Finalize(void)
