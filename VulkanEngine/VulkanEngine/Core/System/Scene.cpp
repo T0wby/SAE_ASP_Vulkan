@@ -27,25 +27,22 @@ void CScene::Finalize(void)
 
 void CScene::CreateGameObjects(void)
 {
-    m_cube = std::make_shared<CCube>();
-    m_cube->Initialize();
-
-
-    m_vGameObjects.push_back(m_cube);
-
+    m_cameraObject = std::make_shared<CGameObject>();
     m_camera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(-1.0f, 0.1f, 2.5f), glm::vec3(0.0f, 0.0f, -0.5f),
         glm::vec3(0.0f, 1.0f, 0.0f));
+    m_cameraObject->AddComponent(m_camera);
+    m_cameraObject->SetPosition(m_camera->GetPos());
 }
 
 void CScene::SetupSceneInput(void)
 {
     m_playerController->SetExitInput(([this]() { m_window->SetWindowShouldClose(true); }));
-    m_playerController->SetForwardInput([this]() { m_camera->SetPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * m_camera->GetOrientation())); });
-    m_playerController->SetBackwardInput([this]() { m_camera->SetPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -m_camera->GetOrientation())); });
-    m_playerController->SetRightInput([this]() { m_camera->SetPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * glm::normalize(glm::cross(m_camera->GetOrientation(), m_camera->GetUp())))); });
-    m_playerController->SetLeftInput([this]() { m_camera->SetPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -glm::normalize(glm::cross(m_camera->GetOrientation(), m_camera->GetUp())))); });
-    m_playerController->SetUpInput([this]() { m_camera->SetPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * m_camera->GetUp())); });
-    m_playerController->SetDownInput([this]() { m_camera->SetPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -m_camera->GetUp())); });
+    m_playerController->SetForwardInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * m_camera->GetOrientation())); });
+    m_playerController->SetBackwardInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -m_camera->GetOrientation())); });
+    m_playerController->SetRightInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * glm::normalize(glm::cross(m_camera->GetOrientation(), m_camera->GetUp())))); });
+    m_playerController->SetLeftInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -glm::normalize(glm::cross(m_camera->GetOrientation(), m_camera->GetUp())))); });
+    m_playerController->SetUpInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * m_camera->GetUp())); });
+    m_playerController->SetDownInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -m_camera->GetUp())); });
 }
 
 void CScene::AddGameObject(std::shared_ptr<CGameObject> a_gameObject)
@@ -143,9 +140,16 @@ UniformBufferObject& CScene::CreateUniformBuffer(void)
     UniformBufferObject ubo{};
 
     ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));;
-    ubo.view = m_camera->GetViewMatrix();
+    ubo.view = m_camera->GetViewMatrix(m_cameraObject->GetPos());
     ubo.proj = m_camera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;
 
     return ubo;
+}
+
+void CScene::UpdateSizeValues(const int& a_iWidth, const int& a_iHeight)
+{
+    m_fWidth = static_cast<float>(a_iWidth);
+    m_fHeight = static_cast<float>(a_iHeight);
+    m_camera->UpdateSizeValues(a_iWidth, a_iHeight);
 }

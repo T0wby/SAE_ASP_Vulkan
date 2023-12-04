@@ -21,9 +21,10 @@ public:
 	void Draw(void) override;
 	void Finalize(void) override;
 
-	auto GetViewMatrix() const -> const glm::mat4;
-	auto GetProjectionMatrix() const -> const glm::mat4;
-	auto GetCamMatrix() const -> const glm::mat4;
+	auto GetViewMatrix(void) const -> const glm::mat4;
+	auto GetViewMatrix(const glm::vec3& a_pos) const -> const glm::mat4;
+	auto GetProjectionMatrix(void) const -> const glm::mat4;
+	auto GetCamMatrix(void) const -> const glm::mat4;
 
 	inline auto GetOrientation(void) const -> const glm::vec3 { return m_orientation; }
 	inline auto GetUp(void) const -> const glm::vec3 { return m_up; }

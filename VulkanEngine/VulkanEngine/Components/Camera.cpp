@@ -27,6 +27,12 @@ auto CCamera::GetViewMatrix() const -> const glm::mat4
     return look;
 }
 
+auto CCamera::GetViewMatrix(const glm::vec3& a_pos) const -> const glm::mat4
+{
+    auto look = glm::lookAt(a_pos, a_pos + m_orientation, m_up);
+    return look;
+}
+
 auto CCamera::GetProjectionMatrix() const -> const glm::mat4
 {
     return glm::perspective(glm::radians(45.0f), m_iWidth / (float)m_iHeight, 0.1f, 10.0f);

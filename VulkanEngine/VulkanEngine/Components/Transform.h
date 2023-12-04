@@ -20,6 +20,17 @@ public:
 	virtual void Draw(void) override;
 	virtual void Finalize(void) override;
 
+	inline auto GetPosition(void) const -> const glm::vec3 { return m_position; }
+	inline void AddPosition(glm::vec3 a_pos)
+	{
+		m_position += a_pos;
+	}
+	inline void SetPosition(glm::vec3 a_pos)
+	{
+		m_position = a_pos;
+	}
+
+private:
 	glm::vec3 m_position{};
 	glm::vec3 m_rotation{};
 	glm::vec3 m_scale{ 1.0f,1.0f,1.0f };

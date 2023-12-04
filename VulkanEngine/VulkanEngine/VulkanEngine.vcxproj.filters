@@ -42,6 +42,9 @@
     <Filter Include="Source Files\Textures">
       <UniqueIdentifier>{f903d7c7-c49b-48ff-b5ed-be59d649b8b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Core\System\Scenes">
+      <UniqueIdentifier>{00b69467-b91e-4945-93ca-63368c2a027a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -78,7 +81,10 @@
       <Filter>Input</Filter>
     </ClCompile>
     <ClCompile Include="Components\Camera.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Scenes\CDefaultScene.cpp">
+      <Filter>Core\System\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -118,7 +124,12 @@
     <ClInclude Include="Input\PlayerController.h">
       <Filter>Input</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Camera.h" />
+    <ClInclude Include="Components\Camera.h">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Scenes\CDefaultScene.h">
+      <Filter>Core\System\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">

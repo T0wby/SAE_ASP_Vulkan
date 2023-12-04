@@ -148,6 +148,7 @@
     <ClCompile Include="Components\Transform.cpp" />
     <ClCompile Include="Core\System\Engine.cpp" />
     <ClCompile Include="Core\System\Scene.cpp" />
+    <ClCompile Include="Core\System\Scenes\CDefaultScene.cpp" />
     <ClCompile Include="GameObjects\GameObject.cpp" />
     <ClCompile Include="GameObjects\Primitives\Cube.cpp" />
     <ClCompile Include="Input\PlayerController.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="Core\System\Engine.h" />
     <ClInclude Include="Core\System\CoreSystemStructs.h" />
     <ClInclude Include="Core\System\Scene.h" />
+    <ClInclude Include="Core\System\Scenes\CDefaultScene.h" />
     <ClInclude Include="GameObjects\GameObject.h" />
     <ClInclude Include="GameObjects\Primitives\Cube.h" />
     <ClInclude Include="Input\PlayerController.h" />

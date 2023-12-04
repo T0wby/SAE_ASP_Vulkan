@@ -28,6 +28,17 @@ public:
 	void AddComponent(std::shared_ptr<IComponent> a_component);
 	void RemoveComponent(std::shared_ptr<IComponent> a_component);
 	//TODO: Add a way to get a certain Component via template in the gameobject?
+
+	inline auto GetPos(void) const -> const glm::vec3 { return m_pTransform->GetPosition(); }
+	inline void AddPosition(glm::vec3 a_pos)
+	{
+		m_pTransform->AddPosition(a_pos);
+	}
+	inline void SetPosition(glm::vec3 a_pos)
+	{
+		m_pTransform->AddPosition(a_pos);
+	}
+
 	virtual std::vector<Vertex>& GetMeshVertexData(void);
 	virtual std::vector<uint16_t>& GetMeshIndiceData(void);
 

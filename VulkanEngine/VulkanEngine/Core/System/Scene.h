@@ -31,7 +31,7 @@ public:
     auto GetSceneFirstIndice(void) const -> const std::vector<uint16_t>;
 
     UniformBufferObject& CreateUniformBuffer(void);
-
+    void UpdateSizeValues(const int& a_iWidth, const int& a_iHeight);
 
     virtual void Initialize(void);
     virtual void Update(void);
@@ -41,8 +41,8 @@ public:
 protected:
     void CreateGameObjects(void);
     void SetupSceneInput(void);
-    std::shared_ptr<CCube> m_cube{ nullptr };
     std::shared_ptr<CCamera> m_camera{ nullptr };
+    std::shared_ptr<CGameObject> m_cameraObject{ nullptr };
     std::shared_ptr<CPlayerController> m_playerController{ nullptr };
     std::shared_ptr<CWindow> m_window{ nullptr };
     std::vector<std::shared_ptr<CGameObject>> m_vGameObjects{};

@@ -181,7 +181,7 @@ void CEngine::CreateInput(void)
 
 void CEngine::CreateScenes(void)
 {
-	m_firstScene = std::make_shared<CScene>(m_playerController, pWindow, m_swapChainExtent.width, m_swapChainExtent.height);
+	m_firstScene = std::make_shared<CDefaultScene>(m_playerController, pWindow, m_swapChainExtent.width, m_swapChainExtent.height);
 	m_firstScene->Initialize();
 }
 
@@ -579,6 +579,9 @@ void CEngine::CreateSwapChain(void)
 	VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
 	m_swapChainExtent = ChooseSwapExtent(swapChainSupport.capabilities);
+
+	if (m_firstScene != nullptr)
+		m_firstScene->UpdateSizeValues(m_swapChainExtent.width, m_swapChainExtent.height);
 
 	m_swapChainImageFormat = surfaceFormat.format;
 

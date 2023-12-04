@@ -8,6 +8,7 @@
 #include "../../GameObjects/GameObject.h"
 #include "../../Input/PlayerController.h"
 #include "Scene.h"
+#include "Scenes/CDefaultScene.h"
 
 
 class CEngine
@@ -147,7 +148,7 @@ private:
 	VkImageView m_depthImageView;
 
 	// Scenes
-	std::shared_ptr<CScene> m_firstScene{};
+	std::shared_ptr<CDefaultScene> m_firstScene{};
 
 	// Input
 	std::shared_ptr<CPlayerController> m_playerController{};
