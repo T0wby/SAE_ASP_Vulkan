@@ -46,6 +46,8 @@ void CScene::CreateGameObjects(void)
 
 void CScene::SetupSceneInput(void)
 {
+    m_playerController->Initialize(m_window, m_camera, m_fDeltaTime);
+
     m_playerController->SetExitInput(([this]() { m_window->SetWindowShouldClose(true); }));
     m_playerController->SetForwardInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * m_camera->GetOrientation())); });
     m_playerController->SetBackwardInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -m_camera->GetOrientation())); });

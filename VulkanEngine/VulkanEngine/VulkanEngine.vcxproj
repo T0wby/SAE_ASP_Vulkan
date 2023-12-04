@@ -148,14 +148,14 @@
     <ClCompile Include="Components\Transform.cpp" />
     <ClCompile Include="Core\System\Device.cpp" />
     <ClCompile Include="Core\System\Engine.cpp" />
+    <ClCompile Include="Core\System\Pipeline.cpp" />
     <ClCompile Include="Core\System\Scene.cpp" />
     <ClCompile Include="Core\System\Scenes\CDefaultScene.cpp" />
+    <ClCompile Include="Core\System\SwapChain.cpp" />
     <ClCompile Include="GameObjects\GameObject.cpp" />
     <ClCompile Include="GameObjects\Primitives\Cube.cpp" />
     <ClCompile Include="Input\PlayerController.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Pipeline.cpp" />
-    <ClCompile Include="SwapChain.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
     <ClCompile Include="Utility\Variables.cpp" />
     <ClCompile Include="WindowGLFW\Window.cpp" />

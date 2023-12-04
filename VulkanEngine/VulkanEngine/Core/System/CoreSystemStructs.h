@@ -1,6 +1,7 @@
 #ifndef CORESYSTEMSTRUCTS_H
 #define CORESYSTEMSTRUCTS_H
 #include <cstdint>
+#include <vector>
 #include <optional>
 #include <glm/glm/glm.hpp>
 

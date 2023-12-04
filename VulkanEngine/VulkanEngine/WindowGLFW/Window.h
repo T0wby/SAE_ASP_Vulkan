@@ -1,7 +1,10 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
+
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+#include <Vulkan/Include/vulkan/vulkan.h>
+
 #include <string>
 #include <memory>
 
@@ -10,15 +13,17 @@ class CWindow
 public:
 	inline CWindow(int a_iWidth, int a_iHeight, const std::string& a_sTitle)
 		: m_iWidth(a_iWidth), m_iHeight(a_iHeight), m_sTitle(a_sTitle) {};
-	CWindow(const CWindow&) = default;
+	CWindow(const CWindow&) = delete;
 	CWindow(CWindow&&) = default;
-	CWindow& operator= (const CWindow&) = default;
+	CWindow& operator= (const CWindow&) = delete;
 	CWindow& operator= (CWindow&&) = default;
 	~CWindow() = default;
 
 	void Initialize(void);
 	void Update(void);
 	void Finalize(void);
+
+	void CreateWindowSurface(VkInstance a_vulkanInstance, VkSurfaceKHR& a_surface);
 
 	auto GetWindowShouldClose(void) const->const bool;
 	void GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight);
@@ -27,9 +32,10 @@ public:
 	void SetIsFrameBufferResized(const bool& a_bFrameBufferResized);
 	void CheckIfWindowMinimized(void);
 
-	GLFWwindow* GetWindow(void);
+	std::shared_ptr<GLFWwindow> GetWindow(void);
 
 private:
+	std::shared_ptr<GLFWwindow> m_pWindow{ nullptr };
 
 	int m_iWidth{ 0 };
 	int m_iHeight{ 0 };
@@ -37,5 +43,3 @@ private:
 	bool m_bFrameBufferResized{ false };
 
 };
-
-#endif

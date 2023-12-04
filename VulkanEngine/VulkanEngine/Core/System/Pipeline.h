@@ -1,6 +1,5 @@
-#ifndef PIPELINE_H
-#define PIPELINE_H
+#pragma once
 class CPipeline
 {
 };
-#endif
+

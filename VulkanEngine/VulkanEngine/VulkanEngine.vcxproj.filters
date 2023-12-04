@@ -86,11 +86,11 @@
     <ClCompile Include="Core\System\Device.cpp">
       <Filter>Core\System</Filter>
     </ClCompile>
-    <ClCompile Include="Pipeline.cpp">
+    <ClCompile Include="Core\System\Pipeline.cpp">
       <Filter>Core\System</Filter>
     </ClCompile>
-    <ClCompile Include="SwapChain.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Core\System\SwapChain.cpp">
+      <Filter>Core\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -142,7 +142,9 @@
     <ClInclude Include="Core\System\Pipeline.h">
       <Filter>Core\System</Filter>
     </ClInclude>
-    <ClInclude Include="Core\System\SwapChain.h" />
+    <ClInclude Include="Core\System\SwapChain.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">
