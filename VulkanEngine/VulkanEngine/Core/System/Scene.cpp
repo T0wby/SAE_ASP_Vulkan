@@ -41,20 +41,13 @@ void CScene::CreateGameObjects(void)
     m_camera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(-1.0f, 0.1f, 2.5f), glm::vec3(0.0f, 0.0f, -0.5f),
         glm::vec3(0.0f, 1.0f, 0.0f));
     m_cameraObject->AddComponent(m_camera);
-    m_cameraObject->SetPosition(m_camera->GetPos());
+    m_cameraObject->SetPosition(m_camera->GetPosition());
 }
 
 void CScene::SetupSceneInput(void)
 {
-    m_playerController->Initialize(m_window, m_camera, m_fDeltaTime);
-
-    m_playerController->SetExitInput(([this]() { m_window->SetWindowShouldClose(true); }));
-    m_playerController->SetForwardInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * m_camera->GetOrientation())); });
-    m_playerController->SetBackwardInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -m_camera->GetOrientation())); });
-    m_playerController->SetRightInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * glm::normalize(glm::cross(m_camera->GetOrientation(), m_camera->GetUp())))); });
-    m_playerController->SetLeftInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -glm::normalize(glm::cross(m_camera->GetOrientation(), m_camera->GetUp())))); });
-    m_playerController->SetUpInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * m_camera->GetUp())); });
-    m_playerController->SetDownInput([this]() { m_cameraObject->AddPosition(glm::vec3(m_camera->GetSpeed() * m_fDeltaTime * -m_camera->GetUp())); });
+    // Default Input is set via the Initialize method
+    m_playerController->Initialize(m_window, m_cameraObject, m_fDeltaTime);
 }
 
 void CScene::AddGameObject(std::shared_ptr<CGameObject> a_gameObject)

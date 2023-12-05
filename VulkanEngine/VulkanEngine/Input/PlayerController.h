@@ -5,6 +5,7 @@
 #include <memory>
 #include "../Components/Camera.h"
 #include "../WindowGLFW/Window.h"
+#include "../GameObjects/GameObject.h"
 
 class CPlayerController
 {
@@ -17,22 +18,25 @@ public:
 	CPlayerController& operator= (CPlayerController&&) = default;
 	~CPlayerController() = default;
 
-	int Initialize(std::shared_ptr<CWindow> a_pWindow, std::shared_ptr<CCamera> a_pCamera, float& a_fDeltaTime);
-	int Update(float& a_fDeltaTime);
+	int Initialize(const std::shared_ptr<CWindow>& a_pWindow, const std::shared_ptr<CCamera>& a_pCamera, const float& a_fDeltaTime);
+	int Initialize(const std::shared_ptr<CWindow>& a_pWindow, const std::shared_ptr<CGameObject>& a_pGameObject, const float& a_fDeltaTime);
+	int Update(const float& a_fDeltaTime);
 	void Finalize(void);
 
-	void SetExitInput(std::function<void(void)> a_pExitInput);
-	void SetForwardInput(std::function<void(void)> a_pForwardInput);
-	void SetBackwardInput(std::function<void(void)> a_pBackwardInput);
-	void SetRightInput(std::function<void(void)> a_pRightInput);
-	void SetLeftInput(std::function<void(void)> a_pLeftInput);
-	void SetUpInput(std::function<void(void)> a_pUpInput);
-	void SetDownInput(std::function<void(void)> a_pDownInput);
-	void SetMouseMode(std::function<void(void)> a_pMouseMode);
+	void SetExitInput(const std::function<void(void)>& a_pExitInput);
+	void SetForwardInput(const std::function<void(void)>& a_pForwardInput);
+	void SetBackwardInput(const std::function<void(void)>& a_pBackwardInput);
+	void SetRightInput(const std::function<void(void)>& a_pRightInput);
+	void SetLeftInput(const std::function<void(void)>& a_pLeftInput);
+	void SetUpInput(const std::function<void(void)>& a_pUpInput);
+	void SetDownInput(const std::function<void(void)>& a_pDownInput);
+	void SetMouseMode(const std::function<void(void)>& a_pMouseMode);
 
 private:
-	void SetDefaultInput(void);
+	void SetDefaultInputCamera(void);
+	void SetDefaultInputGO(void);
 	void CheckKeys(void);
 	float m_fDeltaTime{ 0.0f };
+	bool m_bMouseOn {true};
 };
 #endif

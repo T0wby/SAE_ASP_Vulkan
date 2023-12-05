@@ -15,11 +15,10 @@ public:
     ~CCube() = default;
 
 
-	virtual void Initialize(void);
-	virtual void Update(void);
-	virtual void Draw(void);
+    void Initialize(void) override;
+    void Update(void) override;
+    void Draw(void) override;
 
-    //TODO: Add a way to get a certain Component via template in the gameobject?
     virtual std::vector<Vertex>& GetMeshVertexData(void) override;
     virtual std::vector<uint16_t>& GetMeshIndiceData(void) override;
 

@@ -29,7 +29,7 @@ public:
 	inline auto GetOrientation(void) const -> const glm::vec3 { return m_orientation; }
 	inline auto GetUp(void) const -> const glm::vec3 { return m_up; }
 	inline auto GetSpeed(void) const -> const float { return m_fSpeed; }
-	inline auto GetPos(void) const -> const glm::vec3 { return m_pos; }
+	inline auto GetPosition(void) const -> const glm::vec3 { return m_pos; }
 
 	inline void SetPosition(glm::vec3 a_pos)
 	{

@@ -27,14 +27,28 @@ public:
 
 	void AddComponent(std::shared_ptr<IComponent> a_component);
 	void RemoveComponent(std::shared_ptr<IComponent> a_component);
-	//TODO: Add a way to get a certain Component via template in the gameobject?
+
+	template <typename T>
+	std::shared_ptr<T> GetComponent() const {
+		// Iterate through components to find the one of the specified type
+		for (const auto& component : m_components)
+		{
+			if (typeid(T) == typeid(*component))
+			{
+				// If found, cast and return the component
+				return std::dynamic_pointer_cast<T>(component);
+			}
+		}
+		// If no component of the specified type is found, return nullptr
+		return nullptr;
+	}
 
 	inline auto GetPos(void) const -> const glm::vec3 { return m_pTransform->GetPosition(); }
-	inline void AddPosition(glm::vec3 a_pos)
+	inline void AddPosition(const glm::vec3 a_pos)
 	{
 		m_pTransform->AddPosition(a_pos);
 	}
-	inline void SetPosition(glm::vec3 a_pos)
+	inline void SetPosition(const glm::vec3 a_pos)
 	{
 		m_pTransform->AddPosition(a_pos);
 	}

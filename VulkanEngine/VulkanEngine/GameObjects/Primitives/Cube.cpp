@@ -1,7 +1,7 @@
 #include "Cube.h"
 
 const std::vector<uint16_t> indices = { 
-	2, 1, 1, 
+	2, 1, 0, 
 	0, 3, 2,
 
 	6, 5, 4,
@@ -24,7 +24,6 @@ void CCube::Initialize(void)
 {
 	m_pMesh = std::make_shared<CMesh>();
 
-	// Triangle
 	m_pMesh->SetVertexData({
 		Vertex{Vertex::Position{-0.5f, -0.5f, -0.5f}, Vertex::Color::Red(),   {1.0f, 1.0f} }, // 0
 		Vertex{Vertex::Position{0.5f, -0.5f, -0.5f},  Vertex::Color::Green(), {1.0f, 0.0f} }, // 1
