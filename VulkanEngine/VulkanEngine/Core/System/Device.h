@@ -14,13 +14,16 @@ public:
 	inline auto GetLogicalDevice(void) const -> const VkDevice& { return m_logicalDevice; }
 	inline auto GetGraphicsQueue(void) const -> const VkQueue& { return m_graphicsQueue; }
 	inline auto GetPresentationQueue(void) const -> const VkQueue& { return m_presentationQueue; }
+	inline auto GetCommandPool(void) const -> const VkCommandPool& { return m_commandPool; }
 
 	void Initialize(void);
+	void Finalize(void);
 
 private:
 
 	void PickPhysicalDevice(void);
 	void CreateLogicalDevice(void);
+	void CreateCommandPool(void);
 
 	std::shared_ptr<VkInstance> m_vulkanInstance{ nullptr };
 	VkSurfaceKHR m_surface{};
@@ -32,5 +35,6 @@ private:
 	VkDevice m_logicalDevice{};
 	VkQueue m_graphicsQueue{};
 	VkQueue m_presentationQueue{};
+	VkCommandPool m_commandPool{};
 };
 #endif

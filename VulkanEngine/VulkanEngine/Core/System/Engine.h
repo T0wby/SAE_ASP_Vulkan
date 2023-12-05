@@ -8,6 +8,7 @@
 #include "../../Input/PlayerController.h"
 #include "Scene.h"
 #include "Device.h"
+#include "Pipeline.h"
 #include "Scenes/CDefaultScene.h"
 
 
@@ -33,9 +34,9 @@ private:
 	void MainLoop(void);
 	void DrawFrame(void);
 	void Cleanup(void);
-	void CleanupFrameBuffer(void);
-	void CleanupSwapChain(void);
+	
 	void CleanupUniformBuffers(void);
+	void CreateGLFWSurface(void);
 
 	// Replaced with Device Class
 	//void PickPhysicalDevice(void);
@@ -44,21 +45,55 @@ private:
 	//bool CheckDeviceExtensionSupport(VkPhysicalDevice a_device);
 	//QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice a_device);
 	//SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice a_device);
+	//void CreateCommandPool(void);
+	/******************In Device Class******************/
+	std::shared_ptr<CDevice> m_pDevice{nullptr};
+	
+	//VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+	//VkDevice m_logicalDevice{};
+	//VkQueue m_graphicsQueue{};
+	//VkQueue m_presentationQueue{};
+	//VkCommandPool m_commandPool{};
+	/************************************/
 
 	void CreateVulkanInstance(void);
 	bool CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers);
-	
-	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentationModes);
-	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-	void CreateGLFWSurface(void);
+
+	// Replaced with SwapChain Class
 	void CreateSwapChain(void);
 	void CreateImageViews(void);
 	void DestroyImageViews(void);
-	void CreateGraphicsPipeline(void);
 	void CreateRenderPass(void);
 	void CreateFrameBuffers(void);
-	void CreateCommandPool(void);
+	void CreateSyncObjects(void);
+	void RecreateSwapChain(void);
+	void CleanupSwapChain(void);
+	void CleanupFrameBuffer(void);
+	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentationModes);
+	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+	void CreateDepthResources(void);
+	VkFormat FindDepthFormat();
+	void CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_format, VkImageTiling a_tiling, VkImageUsageFlags a_usage, VkMemoryPropertyFlags a_properties, VkImage& a_image, VkDeviceMemory& a_imageMemory);
+	VkImageView CreateImageView(VkImage a_image, VkFormat a_format, VkImageAspectFlags a_aspectFlags);
+	void TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout, VkImageLayout a_newLayout);
+	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+	
+
+	// Replaced with Pipeline Class
+	//void CreateDescriptorSetLayout(void);
+	//void CreateGraphicsPipeline(void);
+	//VkShaderModule CreateShaderModule(const std::vector<char>& a_vBytecode);
+	/******************In Pipeline Class******************/
+	std::shared_ptr<CPipeline> m_pPipeline{nullptr};
+	
+	//VkRenderPass m_renderPass{};
+	//VkDescriptorSetLayout m_descriptorSetLayout{};
+	//VkPipelineLayout m_pipelineLayout{};
+	//VkPipeline m_graphicsPipeline{};
+	/************************************/
+	
 	void CreateDescriptorPool(void);
 	void CreateDescriptorSets(void);
 
@@ -72,22 +107,14 @@ private:
 	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 	VkCommandBuffer BeginSingleTimeCommands(void);
 	void EndSingleTimeCommands(VkCommandBuffer a_commandBuffer);
-	void CreateSyncObjects(void);
-	void RecreateSwapChain(void);
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-	void CreateDescriptorSetLayout(void);
+	
 	void CreateUniformBuffers(void);
 	void UpdateUniformBuffer(uint32_t a_currentImage);
 	void CreateTextureImage(void);
-	void CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_format, VkImageTiling a_tiling, VkImageUsageFlags a_usage, VkMemoryPropertyFlags a_properties, VkImage& a_image, VkDeviceMemory& a_imageMemory);
-	void TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout, VkImageLayout a_newLayout);
 	void CopyBufferToImage(VkBuffer a_buffer, VkImage a_image, uint32_t a_width, uint32_t a_height);
 	void CreateTextureImageView(void);
-	VkImageView CreateImageView(VkImage a_image, VkFormat a_format, VkImageAspectFlags a_aspectFlags);
 	void CreateTextureSampler(void);
-	void CreateDepthResources(void);
 	VkFormat FindSupportedFormat(const std::vector<VkFormat>& a_candidates, VkImageTiling a_tiling, VkFormatFeatureFlags a_features);
-	VkFormat FindDepthFormat();
 	bool HasStencilComponent(VkFormat a_format);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
@@ -95,21 +122,8 @@ private:
 	bool m_bEnableValidationLayers{true};
 	std::shared_ptr<VkInstance> m_vInstance{};
 	
-	/******************In Device Class******************/
-	std::shared_ptr<CDevice> m_device{nullptr};
-	
-	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-	VkDevice m_logicalDevice{};
-	//VkQueue m_graphicsQueue{};
-	//VkQueue m_presentationQueue{};
-	/************************************/
-	
 	VkSurfaceKHR m_surface{};
-	VkRenderPass m_renderPass{};
-	VkDescriptorSetLayout m_descriptorSetLayout{};
-	VkPipelineLayout m_pipelineLayout{};
-	VkPipeline m_graphicsPipeline{};
-	VkCommandPool m_commandPool{};
+	
 	std::vector<VkCommandBuffer> m_vCommandBuffers{};
 
 	// SwapChain
@@ -121,8 +135,6 @@ private:
 	// Image
 	std::vector<VkImageView> m_vSwapChainImageViews{};
 
-	// Shader
-	VkShaderModule CreateShaderModule(const std::vector<char>& a_vBytecode);
 
 	// FrameBuffers
 	std::vector<VkFramebuffer> m_vSwapChainFramebuffers{};

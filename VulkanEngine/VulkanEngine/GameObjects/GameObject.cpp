@@ -66,8 +66,3 @@ std::vector<uint16_t>& CGameObject::GetMeshIndiceData(void)
 	std::vector<uint16_t> empty;
 	return empty;
 }
-
-std::shared_ptr<CTransform> CGameObject::GetTransform(void)
-{
-	return m_pTransform;
-}

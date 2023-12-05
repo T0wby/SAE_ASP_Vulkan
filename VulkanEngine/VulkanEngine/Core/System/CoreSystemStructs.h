@@ -16,17 +16,35 @@ struct QueueFamilyIndices
 	}
 };
 
-struct SwapChainSupportDetails {
+struct SwapChainSupportDetails
+{
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-struct UniformBufferObject {
+struct UniformBufferObject
+{
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
 	glm::mat4 transform;
+};
+
+struct PipelineConfigInfo
+{
+	VkViewport viewport;
+	VkRect2D scissor;
+	VkPipelineViewportStateCreateInfo viewportInfo;
+	VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+	VkPipelineRasterizationStateCreateInfo rasterizationInfo;
+	VkPipelineMultisampleStateCreateInfo multisampleInfo;
+	VkPipelineColorBlendAttachmentState colorBlendAttachment;
+	VkPipelineColorBlendStateCreateInfo colorBlendInfo;
+	VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+	VkPipelineLayout pipelineLayout = nullptr;
+	VkRenderPass renderPass = nullptr;
+	uint32_t subpass = 0;
 };
 
 #endif

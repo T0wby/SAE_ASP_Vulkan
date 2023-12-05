@@ -44,19 +44,17 @@ public:
 	}
 
 	inline auto GetPos(void) const -> const glm::vec3 { return m_pTransform->GetPosition(); }
-	inline void AddPosition(const glm::vec3 a_pos)
+	inline void AddPosition(const glm::vec3 a_pos) const
 	{
 		m_pTransform->AddPosition(a_pos);
 	}
-	inline void SetPosition(const glm::vec3 a_pos)
+	inline void SetPosition(const glm::vec3 a_pos) const
 	{
 		m_pTransform->AddPosition(a_pos);
 	}
 
 	virtual std::vector<Vertex>& GetMeshVertexData(void);
 	virtual std::vector<uint16_t>& GetMeshIndiceData(void);
-
-	std::shared_ptr<CTransform> GetTransform(void);
 
 protected:
 	std::vector<std::shared_ptr<IComponent>> m_components{};

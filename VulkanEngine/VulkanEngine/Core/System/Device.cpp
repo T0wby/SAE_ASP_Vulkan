@@ -8,6 +8,13 @@ void CDevice::Initialize()
 {
 	PickPhysicalDevice();
 	CreateLogicalDevice();
+	CreateCommandPool();
+}
+
+void CDevice::Finalize()
+{
+	vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
+	vkDestroyDevice(m_logicalDevice, nullptr);
 }
 
 void CDevice::PickPhysicalDevice(void)
@@ -87,4 +94,24 @@ void CDevice::CreateLogicalDevice()
 	// Get handle to interface with the queue later
 	vkGetDeviceQueue(m_logicalDevice, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
 	vkGetDeviceQueue(m_logicalDevice, indices.presentFamily.value(), 0, &m_presentationQueue);
+}
+
+void CDevice::CreateCommandPool()
+{
+	QueueFamilyIndices queueFamilyIndices = CSwapChain::FindQueueFamilies(m_physicalDevice, m_surface);
+
+	/* There are two possible flags for command pools:
+	* VK_COMMAND_POOL_CREATE_TRANSIENT_BIT: Hint that command buffers are rerecorded with new commands very often (may change memory allocation behavior)
+	* VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT: Allow command buffers to be rerecorded individually, without this flag they all have to be reset together
+	*/
+
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+
+	if (vkCreateCommandPool(m_logicalDevice, &poolInfo, nullptr, &m_commandPool) != VK_SUCCESS) 
+	{
+		throw std::runtime_error("failed to create command pool!");
+	}
 }
