@@ -59,6 +59,11 @@ auto CWindow::GetWindowShouldClose(void) const -> const bool
     return glfwWindowShouldClose(m_pWindow.get());
 }
 
+auto CWindow::GetExtent() const -> VkExtent2D
+{
+	return {static_cast<uint32_t>(m_iWidth), static_cast<uint32_t>(m_iHeight)};
+}
+
 void CWindow::GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight)
 {
 	glfwGetFramebufferSize(m_pWindow.get(), &a_iWidth, &a_iHeight);

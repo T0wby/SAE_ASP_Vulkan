@@ -47,13 +47,15 @@ void CEngine::InitializeVulkan(void)
 	
 	// PickPhysicalDevice();
 	// CreateLogicalDevice();
-	
+
+	m_pSwapChain = std::make_unique<CSwapChain>(&m_pDevice, pWindow, m_surface);
 	CreateSwapChain();
 	CreateScenes();
 	CreateImageViews();
 	CreateRenderPass();
 
-	m_pPipeline= std::make_shared<CPipeline>(m_pDevice, CPipeline::DefaultPipelineConfigInfo(WIDTH, HEIGHT), VERT_SHADER, FRAG_SHADER);
+	CreatePipeline();
+	
 	//CreateDescriptorSetLayout();
 	//CreateGraphicsPipeline();
 	
@@ -126,6 +128,14 @@ void CEngine::CreateVulkanInstance(void)
 	{
 		throw std::runtime_error("failed to create VK instance!");
 	}
+}
+
+void CEngine::CreatePipeline()
+{
+	auto defaultPipelineConfigInfo = CPipeline::DefaultPipelineConfigInfo(m_pSwapChain->GetWidth(), m_pSwapChain->GetHeight());
+	defaultPipelineConfigInfo.renderPass = m_pSwapChain->GetRenderPass();
+	m_pPipeline = std::make_unique<CPipeline>(m_pDevice, defaultPipelineConfigInfo, VERT_SHADER, FRAG_SHADER);
+	m_pipelineLayout = defaultPipelineConfigInfo.pipelineLayout;
 }
 
 bool CEngine::CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers)
@@ -1126,6 +1136,8 @@ void CEngine::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize si
 
 	EndSingleTimeCommands(commandBuffer);
 }
+
+
 
 void CEngine::CreateCommandBuffers(void)
 {

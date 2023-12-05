@@ -38,10 +38,6 @@ PipelineConfigInfo CPipeline::DefaultPipelineConfigInfo(uint32_t a_iWidth, uint3
 	configInfo.scissor.offset = { 0, 0 };
 	configInfo.scissor.extent = {a_iWidth, a_iHeight};
 
-	configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	configInfo.viewportInfo.viewportCount = 1;
-	configInfo.viewportInfo.scissorCount = 1;
-
 	// Rasterizer (vertex data to fragments)
 	configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 	configInfo.rasterizationInfo.depthClampEnable = VK_FALSE; // VK_TRUE, then fragments that are beyond the near and far planes are clamped to them as opposed to discarding them.
@@ -161,6 +157,13 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
+	
+	VkPipelineViewportStateCreateInfo viewportInfo{};
+	viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewportInfo.viewportCount = 1;
+	viewportInfo.pViewports = &a_pipelineConfig.viewport;
+	viewportInfo.scissorCount = 1;
+	viewportInfo.pScissors = &a_pipelineConfig.scissor;
 
 	// Creating Pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -169,7 +172,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	pipelineInfo.pStages = shaderStages;
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
 	pipelineInfo.pInputAssemblyState = &a_pipelineConfig.inputAssemblyInfo;
-	pipelineInfo.pViewportState = &a_pipelineConfig.viewportInfo;
+	pipelineInfo.pViewportState = &viewportInfo;
 	pipelineInfo.pRasterizationState = &a_pipelineConfig.rasterizationInfo;
 	pipelineInfo.pMultisampleState = &a_pipelineConfig.multisampleInfo;
 	pipelineInfo.pDepthStencilState = &a_pipelineConfig.depthStencilInfo;

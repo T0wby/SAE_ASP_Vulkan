@@ -59,6 +59,8 @@ private:
 	void CreateVulkanInstance(void);
 	bool CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers);
 
+	
+	std::unique_ptr<CSwapChain> m_pSwapChain{nullptr};
 	// Replaced with SwapChain Class
 	void CreateSwapChain(void);
 	void CreateImageViews(void);
@@ -78,16 +80,35 @@ private:
 	VkImageView CreateImageView(VkImage a_image, VkFormat a_format, VkImageAspectFlags a_aspectFlags);
 	void TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout, VkImageLayout a_newLayout);
 	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-
+	VkFormat FindSupportedFormat(const std::vector<VkFormat>& a_candidates, VkImageTiling a_tiling, VkFormatFeatureFlags a_features);
+	// SwapChain
+	VkSwapchainKHR m_swapChain{};
+	std::vector<VkImage> m_vSwapChainImages{};
+	VkFormat m_swapChainImageFormat{};
+	VkExtent2D m_swapChainExtent{};
+	std::vector<VkImageView> m_vSwapChainImageViews{};
+	std::vector<VkFramebuffer> m_vSwapChainFramebuffers{};
+	std::vector<VkSemaphore> m_vImageAvailableSemaphores{};
+	std::vector<VkSemaphore> m_vRenderFinishedSemaphores{};
+	std::vector<VkFence> m_vInFlightFences{};
+	uint32_t m_iCurrentFrame{ 0 };
 	
-
+	
 	// Replaced with Pipeline Class
 	//void CreateDescriptorSetLayout(void);
 	//void CreateGraphicsPipeline(void);
 	//VkShaderModule CreateShaderModule(const std::vector<char>& a_vBytecode);
 	/******************In Pipeline Class******************/
-	std::shared_ptr<CPipeline> m_pPipeline{nullptr};
-	
+	std::unique_ptr<CPipeline> m_pPipeline{nullptr};
+	VkPipelineLayout m_pipelineLayout{nullptr};
+	std::vector<VkCommandBuffer> m_vCommandBuffers{};
+
+	void CreatePipeline(void);
+	void CreateCommandBuffers(void);
+	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+	VkCommandBuffer BeginSingleTimeCommands(void);
+	void EndSingleTimeCommands(VkCommandBuffer a_commandBuffer);
+
 	//VkRenderPass m_renderPass{};
 	//VkDescriptorSetLayout m_descriptorSetLayout{};
 	//VkPipelineLayout m_pipelineLayout{};
@@ -103,10 +124,7 @@ private:
 	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
-	void CreateCommandBuffers(void);
-	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-	VkCommandBuffer BeginSingleTimeCommands(void);
-	void EndSingleTimeCommands(VkCommandBuffer a_commandBuffer);
+	
 	
 	void CreateUniformBuffers(void);
 	void UpdateUniformBuffer(uint32_t a_currentImage);
@@ -114,7 +132,6 @@ private:
 	void CopyBufferToImage(VkBuffer a_buffer, VkImage a_image, uint32_t a_width, uint32_t a_height);
 	void CreateTextureImageView(void);
 	void CreateTextureSampler(void);
-	VkFormat FindSupportedFormat(const std::vector<VkFormat>& a_candidates, VkImageTiling a_tiling, VkFormatFeatureFlags a_features);
 	bool HasStencilComponent(VkFormat a_format);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
@@ -124,27 +141,7 @@ private:
 	
 	VkSurfaceKHR m_surface{};
 	
-	std::vector<VkCommandBuffer> m_vCommandBuffers{};
 
-	// SwapChain
-	VkSwapchainKHR m_swapChain{};
-	std::vector<VkImage> m_vSwapChainImages{};
-	VkFormat m_swapChainImageFormat{};
-	VkExtent2D m_swapChainExtent{};
-
-	// Image
-	std::vector<VkImageView> m_vSwapChainImageViews{};
-
-
-	// FrameBuffers
-	std::vector<VkFramebuffer> m_vSwapChainFramebuffers{};
-
-	// semaphore and fence
-	std::vector<VkSemaphore> m_vImageAvailableSemaphores{};
-	std::vector<VkSemaphore> m_vRenderFinishedSemaphores{};
-	std::vector<VkFence> m_vInFlightFences{};
-
-	uint32_t m_iCurrentFrame{ 0 };
 
 	// VertexBuffer
 	VkBuffer m_vertexBuffer{};

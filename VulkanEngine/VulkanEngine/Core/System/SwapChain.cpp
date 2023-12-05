@@ -136,14 +136,15 @@ bool CSwapChain::CheckDeviceExtensionSupport(VkPhysicalDevice a_device, const st
 
 void CSwapChain::CreateSwapChain()
 {
-	SwapChainSupportDetails swapChainSupport = CSwapChain::QuerySwapChainSupport(m_pDevice->GetPhysicalDevice(), m_surface);
+	SwapChainSupportDetails swapChainSupport = CSwapChain::QuerySwapChainSupport(m_device.GetPhysicalDevice(), m_surface);
 
 	VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
 	m_swapChainExtent = ChooseSwapExtent(swapChainSupport.capabilities);
 
-	if (m_firstScene != nullptr)
-		m_firstScene->UpdateSizeValues(m_swapChainExtent.width, m_swapChainExtent.height);
+	// TODO: Move outside
+	//if (m_firstScene != nullptr)
+	//	m_firstScene->UpdateSizeValues(m_swapChainExtent.width, m_swapChainExtent.height);
 
 	m_swapChainImageFormat = surfaceFormat.format;
 
@@ -163,7 +164,7 @@ void CSwapChain::CreateSwapChain()
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //  specifies what kind of operations we'll use the images in the swap chain for
 
-	const QueueFamilyIndices indices = CSwapChain::FindQueueFamilies(m_pDevice->GetPhysicalDevice(), m_surface);
+	const QueueFamilyIndices indices = CSwapChain::FindQueueFamilies(m_device.GetPhysicalDevice(), m_surface);
 	const uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -182,16 +183,16 @@ void CSwapChain::CreateSwapChain()
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = VK_NULL_HANDLE; // Swapchain can get invalid during runtime for example because the window was resized(Solution done later)
 
-	if (vkCreateSwapchainKHR(m_pDevice->GetLogicalDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS) 
+	if (vkCreateSwapchainKHR(m_device.GetLogicalDevice(), &createInfo, nullptr, &m_swapChain) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create swap chain!");
 	}
 
 	///////////////// Retrieving the swap chain images //////////////////////////
 	
-	vkGetSwapchainImagesKHR(m_pDevice->GetLogicalDevice(), m_swapChain, &imageCount, nullptr); // query the final number of images
+	vkGetSwapchainImagesKHR(m_device.GetLogicalDevice(), m_swapChain, &imageCount, nullptr); // query the final number of images
 	m_vSwapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(m_pDevice->GetLogicalDevice(), m_swapChain, &imageCount, m_vSwapChainImages.data());
+	vkGetSwapchainImagesKHR(m_device.GetLogicalDevice(), m_swapChain, &imageCount, m_vSwapChainImages.data());
 }
 
 void CSwapChain::CreateImageViews()
@@ -217,7 +218,7 @@ void CSwapChain::CreateImageViews()
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
-		if (vkCreateImageView(m_pDevice->GetLogicalDevice(), &createInfo, nullptr, &m_vSwapChainImageViews[i]) != VK_SUCCESS) 
+		if (vkCreateImageView(m_device.GetLogicalDevice(), &createInfo, nullptr, &m_vSwapChainImageViews[i]) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("failed to create image views!");
 		}
@@ -228,7 +229,7 @@ void CSwapChain::DestroyImageViews()
 {
 	for (auto imageView : m_vSwapChainImageViews)
 	{
-		vkDestroyImageView(m_pDevice->GetLogicalDevice(), imageView, nullptr);
+		vkDestroyImageView(m_device.GetLogicalDevice(), imageView, nullptr);
 	}
 }
 
@@ -287,7 +288,7 @@ void CSwapChain::CreateRenderPass()
 	renderPassInfo.dependencyCount = 1;
 	renderPassInfo.pDependencies = &dependency;
 
-	if (vkCreateRenderPass(m_pDevice->GetLogicalDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) 
+	if (vkCreateRenderPass(m_device.GetLogicalDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create render pass!");
 	}
@@ -310,7 +311,7 @@ void CSwapChain::CreateFrameBuffers()
 		framebufferInfo.height = m_swapChainExtent.height;
 		framebufferInfo.layers = 1;
 
-		if (vkCreateFramebuffer(m_pDevice->GetLogicalDevice(), &framebufferInfo, nullptr, &m_vSwapChainFramebuffers[i]) != VK_SUCCESS) 
+		if (vkCreateFramebuffer(m_device.GetLogicalDevice(), &framebufferInfo, nullptr, &m_vSwapChainFramebuffers[i]) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("failed to create framebuffer!");
 		}
@@ -332,9 +333,9 @@ void CSwapChain::CreateSyncObjects()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		if (vkCreateSemaphore(m_pDevice->GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vImageAvailableSemaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(m_pDevice->GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vRenderFinishedSemaphores[i]) != VK_SUCCESS ||
-			vkCreateFence(m_pDevice->GetLogicalDevice(), &fenceInfo, nullptr, &m_vInFlightFences[i]) != VK_SUCCESS)
+		if (vkCreateSemaphore(m_device.GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vImageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(m_device.GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vRenderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(m_device.GetLogicalDevice(), &fenceInfo, nullptr, &m_vInFlightFences[i]) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to create semaphores!");
 		}
@@ -353,7 +354,7 @@ void CSwapChain::CreateDepthResources()
 void CSwapChain::RecreateSwapChain()
 {
 	m_pWindow->CheckIfWindowMinimized();
-	vkDeviceWaitIdle(m_pDevice->GetLogicalDevice());
+	vkDeviceWaitIdle(m_device.GetLogicalDevice());
 
 	CleanupSwapChain();
 
@@ -365,20 +366,20 @@ void CSwapChain::RecreateSwapChain()
 
 void CSwapChain::CleanupSwapChain()
 {
-	vkDestroyImageView(m_pDevice->GetLogicalDevice(), m_depthImageView, nullptr);
-	vkDestroyImage(m_pDevice->GetLogicalDevice(), m_depthImage, nullptr);
-	vkFreeMemory(m_pDevice->GetLogicalDevice(), m_depthImageMemory, nullptr);
+	vkDestroyImageView(m_device.GetLogicalDevice(), m_depthImageView, nullptr);
+	vkDestroyImage(m_device.GetLogicalDevice(), m_depthImage, nullptr);
+	vkFreeMemory(m_device.GetLogicalDevice(), m_depthImageMemory, nullptr);
 	CleanupFrameBuffer();
 	DestroyImageViews();
 
-	vkDestroySwapchainKHR(m_pDevice->GetLogicalDevice(), m_swapChain, nullptr);
+	vkDestroySwapchainKHR(m_device.GetLogicalDevice(), m_swapChain, nullptr);
 }
 
 void CSwapChain::CleanupFrameBuffer()
 {
 	for (const auto framebuffer : m_vSwapChainFramebuffers) 
 	{
-		vkDestroyFramebuffer(m_pDevice->GetLogicalDevice(), framebuffer, nullptr);
+		vkDestroyFramebuffer(m_device.GetLogicalDevice(), framebuffer, nullptr);
 	}
 }
 
@@ -415,7 +416,8 @@ VkPresentModeKHR CSwapChain::ChooseSwapPresentMode(const std::vector<VkPresentMo
 
 	for (const auto& availablePresentMode : availablePresentationModes)
 	{
-		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+		{
 			return availablePresentMode;
 		}
 	}
@@ -473,25 +475,25 @@ void CSwapChain::CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_for
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateImage(m_pDevice->GetLogicalDevice(), &imageInfo, nullptr, &a_image) != VK_SUCCESS) 
+	if (vkCreateImage(m_device.GetLogicalDevice(), &imageInfo, nullptr, &a_image) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(m_pDevice->GetLogicalDevice(), a_image, &memRequirements);
+	vkGetImageMemoryRequirements(m_device.GetLogicalDevice(), a_image, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, a_properties);
 
-	if (vkAllocateMemory(m_pDevice->GetLogicalDevice(), &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS) 
+	if (vkAllocateMemory(m_device.GetLogicalDevice(), &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(m_pDevice->GetLogicalDevice(), a_image, a_imageMemory, 0);
+	vkBindImageMemory(m_device.GetLogicalDevice(), a_image, a_imageMemory, 0);
 }
 
 VkImageView CSwapChain::CreateImageView(VkImage a_image, VkFormat a_format, VkImageAspectFlags a_aspectFlags)
@@ -508,7 +510,7 @@ VkImageView CSwapChain::CreateImageView(VkImage a_image, VkFormat a_format, VkIm
 	viewInfo.subresourceRange.layerCount = 1;
 
 	VkImageView imageView;
-	if (vkCreateImageView(m_pDevice->GetLogicalDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
+	if (vkCreateImageView(m_device.GetLogicalDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create texture image view!");
 	}
@@ -595,7 +597,7 @@ uint32_t CSwapChain::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags p
 {
 	// query info about the available types of memory
 	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(m_pDevice->GetPhysicalDevice(), &memProperties);
+	vkGetPhysicalDeviceMemoryProperties(m_device.GetPhysicalDevice(), &memProperties);
 
 	// VkMemoryRequirements::memoryTypeBits is a bitfield that sets a bit for every memoryType that is
 	// supported for the resource.Therefore we need to check if the bit at index i is set while also testing the
@@ -609,4 +611,19 @@ uint32_t CSwapChain::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags p
 	}
 
 	throw std::runtime_error("failed to find suitable memory type!");
+}
+
+VkFormat CSwapChain::FindSupportedFormat(const std::vector<VkFormat>& a_candidates, VkImageTiling a_tiling,
+	VkFormatFeatureFlags a_features) const
+{
+	for (const VkFormat format : a_candidates) 
+	{
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties(m_device.GetPhysicalDevice(), format, &props);
+		if (a_tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & a_features) == a_features) 
+			return format;
+		else if (a_tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & a_features) == a_features) 
+			return format;
+	}
+	throw std::runtime_error("failed to find supported format!");
 }

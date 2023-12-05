@@ -26,6 +26,7 @@ public:
 	void CreateWindowSurface(VkInstance a_vulkanInstance, VkSurfaceKHR& a_surface);
 
 	auto GetWindowShouldClose(void) const->const bool;
+	auto GetExtent(void) const -> VkExtent2D;
 	void GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight);
 	void SetWindowShouldClose(const bool& a_bShouldClose);
 	auto IsFrameBufferResized(void) const->const bool;
