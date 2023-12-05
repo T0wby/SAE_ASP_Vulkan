@@ -23,7 +23,8 @@ void CDevice::PickPhysicalDevice(void)
 	std::vector<VkPhysicalDevice> devices(deviceCount);
 	vkEnumeratePhysicalDevices(*m_vulkanInstance, &deviceCount, devices.data());
 
-	for (const auto& device : devices) {
+	for (const auto& device : devices)
+	{
 		if (CSwapChain::IsDeviceSuitable(device, m_surface, m_EnabledExtensions))
 		{
 			m_physicalDevice = device;

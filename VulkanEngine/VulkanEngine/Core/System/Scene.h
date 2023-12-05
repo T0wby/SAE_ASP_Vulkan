@@ -12,7 +12,7 @@ class CScene
 public:
 
     CScene() = default;
-    inline CScene(std::shared_ptr<CPlayerController> a_playerController, std::shared_ptr<CWindow> a_window, uint32_t& a_fWidth, uint32_t& a_fHeight)
+    inline CScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
         : m_playerController(a_playerController), m_window(a_window), m_fWidth(a_fWidth), m_fHeight(a_fHeight) {}
 
     CScene(const CScene&) = default;

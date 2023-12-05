@@ -2,7 +2,7 @@
 #include <iostream>
 #include <set>
 
-bool CSwapChain::IsDeviceSuitable(VkPhysicalDevice a_device, VkSurfaceKHR a_surface, const std::vector<const char*> a_EnabledExtensions)
+bool CSwapChain::IsDeviceSuitable(VkPhysicalDevice a_device, VkSurfaceKHR a_surface, const std::vector<const char*> a_enabledExtensions)
 {
 	QueueFamilyIndices indices = FindQueueFamilies(a_device, a_surface);
 
@@ -19,7 +19,7 @@ bool CSwapChain::IsDeviceSuitable(VkPhysicalDevice a_device, VkSurfaceKHR a_surf
 	vkGetPhysicalDeviceFeatures(a_device, &deviceFeatures);
 
 	// Check supported extensions
-	bool extensionsSupported = CheckDeviceExtensionSupport(a_device, a_EnabledExtensions);
+	bool extensionsSupported = CheckDeviceExtensionSupport(a_device, a_enabledExtensions);
 	bool swapChainAdequate = false;
 
 	if (extensionsSupported)
