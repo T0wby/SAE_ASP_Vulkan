@@ -6,15 +6,19 @@
 
 void CPipeline::Finalize()
 {
-	vkDestroyShaderModule(m_pDevice->GetLogicalDevice(), m_vertShaderModule, nullptr);
-	vkDestroyShaderModule(m_pDevice->GetLogicalDevice(), m_fragShaderModule, nullptr);
+	vkDestroyShaderModule(m_device.GetLogicalDevice(), m_vertShaderModule, nullptr);
+	vkDestroyShaderModule(m_device.GetLogicalDevice(), m_fragShaderModule, nullptr);
 
-	vkDestroyDescriptorSetLayout(m_pDevice->GetLogicalDevice(), m_descriptorSetLayout, nullptr);
-	vkDestroyPipeline(m_pDevice->GetLogicalDevice(), m_graphicsPipeline, nullptr);
-	vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), m_pipelineConfig.pipelineLayout, nullptr);
-	vkDestroyRenderPass(m_pDevice->GetLogicalDevice(), m_pipelineConfig.renderPass, nullptr);
+	vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(m_device.GetLogicalDevice(), m_pipelineConfig.pipelineLayout, nullptr);
+	vkDestroyRenderPass(m_device.GetLogicalDevice(), m_pipelineConfig.renderPass, nullptr);
 	
-    vkDestroyPipeline(m_pDevice->GetLogicalDevice(), m_graphicsPipeline, nullptr);
+    vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
+}
+
+void CPipeline::Bind(VkCommandBuffer a_commandBuffer)
+{
+	vkCmdBindPipeline(a_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 }
 
 PipelineConfigInfo CPipeline::DefaultPipelineConfigInfo(uint32_t a_iWidth, uint32_t a_iHeight)
@@ -95,9 +99,8 @@ PipelineConfigInfo CPipeline::DefaultPipelineConfigInfo(uint32_t a_iWidth, uint3
 	return configInfo;
 }
 
-void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo& a_pipelineConfig)
+void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo& a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout)
 {
-	CreateDescriptorSetLayout();
     //const auto vertShaderCode = CUtility::ReadFile("Shader/vert.spv");
     //const auto fragShaderCode = CUtility::ReadFile("Shader/frag.spv");
     const auto vertShaderCode = CUtility::ReadFile(vertFilepath);
@@ -139,7 +142,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	// Vertex Input(Data hard coded inside of the shader atm)
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.vertexBindingDescriptionCount =  1;
 	vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; // Optional
 	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 	vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
@@ -149,11 +152,11 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 	pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	pipelineLayoutInfo.setLayoutCount = 1; // Optional
-	pipelineLayoutInfo.pSetLayouts = &m_descriptorSetLayout;
+	pipelineLayoutInfo.pSetLayouts = &a_descriptorSetLayout;
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-	if (vkCreatePipelineLayout(m_pDevice->GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &a_pipelineConfig.pipelineLayout) != VK_SUCCESS) 
+	if (vkCreatePipelineLayout(m_device.GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &a_pipelineConfig.pipelineLayout) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
@@ -184,7 +187,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
-	if (vkCreateGraphicsPipelines(m_pDevice->GetLogicalDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
+	if (vkCreateGraphicsPipelines(m_device.GetLogicalDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
@@ -197,36 +200,8 @@ void CPipeline::CreateShaderModule(const std::vector<char>& a_vBytecode, VkShade
     createInfo.codeSize = a_vBytecode.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(a_vBytecode.data());
 
-    if (vkCreateShaderModule(m_pDevice->GetLogicalDevice(), &createInfo, nullptr, a_vertShaderModule) != VK_SUCCESS)
+    if (vkCreateShaderModule(m_device.GetLogicalDevice(), &createInfo, nullptr, a_vertShaderModule) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create shader module!");
     }
-}
-
-void CPipeline::CreateDescriptorSetLayout()
-{
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // only used in Vertex shader
-	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
-
-	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers = nullptr;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	const std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding, samplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	layoutInfo.pBindings = bindings.data();
-
-	if (vkCreateDescriptorSetLayout(m_pDevice->GetLogicalDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) 
-	{
-		throw std::runtime_error("failed to create descriptor set layout!");
-	}
 }

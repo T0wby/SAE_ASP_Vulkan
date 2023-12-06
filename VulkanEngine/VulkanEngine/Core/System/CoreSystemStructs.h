@@ -1,5 +1,7 @@
 #ifndef CORESYSTEMSTRUCTS_H
 #define CORESYSTEMSTRUCTS_H
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include <cstdint>
 #include <vector>
 #include <optional>
@@ -33,14 +35,14 @@ struct UniformBufferObject
 
 struct PipelineConfigInfo
 {
-	VkViewport viewport;
-	VkRect2D scissor;
-	VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-	VkPipelineRasterizationStateCreateInfo rasterizationInfo;
-	VkPipelineMultisampleStateCreateInfo multisampleInfo;
-	VkPipelineColorBlendAttachmentState colorBlendAttachment;
-	VkPipelineColorBlendStateCreateInfo colorBlendInfo;
-	VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+	VkViewport viewport{};
+	VkRect2D scissor{};
+	VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo{};
+	VkPipelineRasterizationStateCreateInfo rasterizationInfo{};
+	VkPipelineMultisampleStateCreateInfo multisampleInfo{};
+	VkPipelineColorBlendAttachmentState colorBlendAttachment{};
+	VkPipelineColorBlendStateCreateInfo colorBlendInfo{};
+	VkPipelineDepthStencilStateCreateInfo depthStencilInfo{};
 	VkPipelineLayout pipelineLayout = nullptr;
 	VkRenderPass renderPass = nullptr;
 	uint32_t subpass = 0;

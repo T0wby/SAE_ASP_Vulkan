@@ -1,8 +1,10 @@
 #ifndef DEVICE_H
 #define DEVICE_H
-#include "SwapChain.h"
-
+#define GLFW_INCLUDE_VULKAN
 #include <memory>
+#include <GLFW/glfw3.h>
+#include <memory>
+#include <vector>
 
 class CDevice
 {
@@ -18,6 +20,10 @@ public:
 
 	void Initialize(void);
 	void Finalize(void);
+
+	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
 private:
 

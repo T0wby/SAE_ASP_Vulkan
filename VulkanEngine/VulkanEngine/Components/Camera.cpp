@@ -3,9 +3,23 @@
 #include <glm/glm/gtc/type_ptr.hpp>
 #include <glm/glm/gtx/vector_angle.hpp>
 
+CCamera::~CCamera()
+{
+}
+
 int CCamera::Initialize(void)
 {
     return 0;
+}
+
+int CCamera::Initialize(VkCommandBuffer a_commandBuffer)
+{
+    return 0;
+}
+
+void CCamera::Draw(VkCommandBuffer a_commandBuffer)
+{
+    IComponent::Draw(a_commandBuffer);
 }
 
 int CCamera::Update(void)

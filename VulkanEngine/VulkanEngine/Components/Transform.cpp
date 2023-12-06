@@ -2,9 +2,18 @@
 #include <glm/glm/gtx/euler_angles.hpp>
 #include <glm/glm/gtx/transform.hpp>
 
+CTransform::~CTransform()
+{
+}
+
 int CTransform::Initialize(void)
 {
     return 0;
+}
+
+int CTransform::Initialize(VkCommandBuffer a_commandBuffer)
+{
+	return 0;
 }
 
 int CTransform::Update(void)
@@ -29,6 +38,11 @@ int CTransform::Update(void)
 
 void CTransform::Draw(void)
 {
+}
+
+void CTransform::Draw(VkCommandBuffer a_commandBuffer)
+{
+	IComponent::Draw(a_commandBuffer);
 }
 
 void CTransform::Finalize(void)

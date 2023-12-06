@@ -10,6 +10,14 @@ void CGameObject::Initialize(void)
 	}
 }
 
+void CGameObject::Initialize(VkCommandBuffer a_commandBuffer)
+{
+	for (std::shared_ptr<IComponent> component : m_components)
+	{
+		component->Initialize(a_commandBuffer); // calls the Initialize function of each component
+	}
+}
+
 void CGameObject::Update(void)
 {
 	for (std::shared_ptr<IComponent> component : m_components)
@@ -23,6 +31,22 @@ void CGameObject::Draw(void)
 	for (std::shared_ptr<IComponent> component : m_components)
 	{
 		component->Draw(); // calls the draw function of each component
+	}
+}
+
+void CGameObject::Draw(VkCommandBuffer a_commandBuffer)
+{
+	for (std::shared_ptr<IComponent> component : m_components)
+	{
+		component->Draw(a_commandBuffer); // calls the draw function of each component
+	}
+}
+
+void CGameObject::Finalize()
+{
+	for (std::shared_ptr<IComponent> component : m_components)
+	{
+		component->Finalize();
 	}
 }
 

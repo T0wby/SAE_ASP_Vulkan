@@ -2,15 +2,16 @@
 #define PIPELINE_H
 #include <string>
 
+#include "CoreSystemStructs.h"
 #include "Device.h"
 
 class CPipeline
 {
 public:
-    inline CPipeline(const std::shared_ptr<CDevice>& a_pDevice, const PipelineConfigInfo& a_pipelineConfig, const std::string& a_vertFilepath, const std::string& a_fragFilepath)
-        : m_pDevice(a_pDevice), m_pipelineConfig(a_pipelineConfig)
+    inline CPipeline(CDevice a_device, const PipelineConfigInfo& a_pipelineConfig, const std::string& a_vertFilepath, const std::string& a_fragFilepath, VkDescriptorSetLayout& a_descriptorSetLayout)
+        : m_device(std::move(a_device)), m_pipelineConfig(a_pipelineConfig)
     {
-        CreateGraphicsPipeline(a_vertFilepath, a_fragFilepath, m_pipelineConfig);
+        CreateGraphicsPipeline(a_vertFilepath, a_fragFilepath, m_pipelineConfig, a_descriptorSetLayout);
     }
     
     CPipeline(const CPipeline&) = delete;
@@ -21,20 +22,20 @@ public:
 
     void Finalize(void);
 
+    void Bind(VkCommandBuffer a_commandBuffer);
     static PipelineConfigInfo DefaultPipelineConfigInfo(uint32_t a_iWidth, uint32_t a_iHeight);
     
 private:
-    std::shared_ptr<CDevice> m_pDevice{nullptr};
-    VkDescriptorSetLayout m_descriptorSetLayout{};
+    CDevice m_device;
     VkPipeline m_graphicsPipeline{};
     PipelineConfigInfo m_pipelineConfig{};
     VkShaderModule m_vertShaderModule{};
     VkShaderModule m_fragShaderModule{};
-    constexpr uint32_t m_WIDTH = 800;
-    constexpr uint32_t m_HEIGHT = 600;
+    uint32_t m_WIDTH = 800;
+    uint32_t m_HEIGHT = 600;
     
-    void CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo& a_pipelineConfig);
+    void CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo& a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout);
     void CreateShaderModule(const std::vector<char>& a_vBytecode, VkShaderModule* a_vertShaderModule);
-    void CreateDescriptorSetLayout(void);
+    
 };
 #endif

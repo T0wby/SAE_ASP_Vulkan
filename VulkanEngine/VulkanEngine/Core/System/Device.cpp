@@ -3,6 +3,8 @@
 #include <set>
 #include <stdexcept>
 #include <vector>
+#include "SwapChain.h"
+#include "../../Utility/Utility.h"
 
 void CDevice::Initialize()
 {
@@ -15,6 +17,67 @@ void CDevice::Finalize()
 {
 	vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
 	vkDestroyDevice(m_logicalDevice, nullptr);
+}
+
+void CDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+	VkBuffer& buffer, VkDeviceMemory& bufferMemory)
+{
+	VkBufferCreateInfo bufferInfo{};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = size;
+	bufferInfo.usage = usage;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	if (vkCreateBuffer(m_logicalDevice, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create vertex buffer!");
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(m_logicalDevice, buffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+
+	if (vkAllocateMemory(m_logicalDevice, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to allocate vertex buffer memory!");
+	}
+
+	vkBindBufferMemory(m_logicalDevice, buffer, bufferMemory, 0);
+}
+
+void CDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+{
+	const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(m_logicalDevice, m_commandPool);
+
+	VkBufferCopy copyRegion{};
+	copyRegion.size = size;
+	vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+	CUtility::EndSingleTimeCommands(commandBuffer,m_graphicsQueue ,m_commandPool ,m_logicalDevice);
+}
+
+uint32_t CDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+{
+	// query info about the available types of memory
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(m_physicalDevice, &memProperties);
+
+	// VkMemoryRequirements::memoryTypeBits is a bitfield that sets a bit for every memoryType that is
+	// supported for the resource.Therefore we need to check if the bit at index i is set while also testing the
+	// required memory property flags while iterating over the memory types.
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
+	{
+		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) 
+		{
+			return i;
+		}
+	}
+
+	throw std::runtime_error("failed to find suitable memory type!");
 }
 
 void CDevice::PickPhysicalDevice(void)

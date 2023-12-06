@@ -7,17 +7,20 @@
 class CCube : public CGameObject
 {
 public:
-    CCube() = default;
+    inline CCube(const std::shared_ptr<CDevice>& a_pDevice) : CGameObject(a_pDevice){}
     CCube(const CCube&) = default;
     CCube(CCube&&) = default;
     CCube& operator= (const CCube&) = default;
     CCube& operator= (CCube&&) = default;
-    ~CCube() = default;
+    ~CCube() override;
 
 
     void Initialize(void) override;
+    void Initialize(VkCommandBuffer a_commandBuffer) override;
     void Update(void) override;
     void Draw(void) override;
+    void Draw(VkCommandBuffer a_commandBuffer) override;
+    void Finalize(void) override;
 
     virtual std::vector<Vertex>& GetMeshVertexData(void) override;
     virtual std::vector<uint16_t>& GetMeshIndiceData(void) override;

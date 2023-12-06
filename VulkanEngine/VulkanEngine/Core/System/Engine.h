@@ -4,11 +4,11 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 #include <vector>
-#include "CoreSystemStructs.h"
 #include "../../Input/PlayerController.h"
 #include "Scene.h"
 #include "Device.h"
 #include "Pipeline.h"
+#include "SwapChain.h"
 #include "Scenes/CDefaultScene.h"
 
 
@@ -60,77 +60,16 @@ private:
 	bool CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers);
 
 	
-	std::unique_ptr<CSwapChain> m_pSwapChain{nullptr};
-	// Replaced with SwapChain Class
-	void CreateSwapChain(void);
-	void CreateImageViews(void);
-	void DestroyImageViews(void);
-	void CreateRenderPass(void);
-	void CreateFrameBuffers(void);
-	void CreateSyncObjects(void);
-	void RecreateSwapChain(void);
-	void CleanupSwapChain(void);
-	void CleanupFrameBuffer(void);
-	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-	VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentationModes);
-	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-	void CreateDepthResources(void);
-	VkFormat FindDepthFormat();
-	void CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_format, VkImageTiling a_tiling, VkImageUsageFlags a_usage, VkMemoryPropertyFlags a_properties, VkImage& a_image, VkDeviceMemory& a_imageMemory);
-	VkImageView CreateImageView(VkImage a_image, VkFormat a_format, VkImageAspectFlags a_aspectFlags);
-	void TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout, VkImageLayout a_newLayout);
-	uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
-	VkFormat FindSupportedFormat(const std::vector<VkFormat>& a_candidates, VkImageTiling a_tiling, VkFormatFeatureFlags a_features);
-	// SwapChain
-	VkSwapchainKHR m_swapChain{};
-	std::vector<VkImage> m_vSwapChainImages{};
-	VkFormat m_swapChainImageFormat{};
-	VkExtent2D m_swapChainExtent{};
-	std::vector<VkImageView> m_vSwapChainImageViews{};
-	std::vector<VkFramebuffer> m_vSwapChainFramebuffers{};
-	std::vector<VkSemaphore> m_vImageAvailableSemaphores{};
-	std::vector<VkSemaphore> m_vRenderFinishedSemaphores{};
-	std::vector<VkFence> m_vInFlightFences{};
-	uint32_t m_iCurrentFrame{ 0 };
+	std::shared_ptr<CSwapChain> m_pSwapChain{nullptr};
 	
-	
-	// Replaced with Pipeline Class
-	//void CreateDescriptorSetLayout(void);
-	//void CreateGraphicsPipeline(void);
-	//VkShaderModule CreateShaderModule(const std::vector<char>& a_vBytecode);
-	/******************In Pipeline Class******************/
-	std::unique_ptr<CPipeline> m_pPipeline{nullptr};
+	std::shared_ptr<CPipeline> m_pPipeline{nullptr};
 	VkPipelineLayout m_pipelineLayout{nullptr};
+	void CreatePipeline(void);
+
+	void CreateCommandBuffers(void);
 	std::vector<VkCommandBuffer> m_vCommandBuffers{};
 
-	void CreatePipeline(void);
-	void CreateCommandBuffers(void);
-	void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-	VkCommandBuffer BeginSingleTimeCommands(void);
-	void EndSingleTimeCommands(VkCommandBuffer a_commandBuffer);
-
-	//VkRenderPass m_renderPass{};
-	//VkDescriptorSetLayout m_descriptorSetLayout{};
-	//VkPipelineLayout m_pipelineLayout{};
-	//VkPipeline m_graphicsPipeline{};
-	/************************************/
-	
-	void CreateDescriptorPool(void);
-	void CreateDescriptorSets(void);
-
-	// Done in Mesh?
-	void CreateVertexBuffer(void);
-	void CreateIndexBuffer(void);
-	void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
-	void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
-	
-	
 	void CreateUniformBuffers(void);
-	void UpdateUniformBuffer(uint32_t a_currentImage);
-	void CreateTextureImage(void);
-	void CopyBufferToImage(VkBuffer a_buffer, VkImage a_image, uint32_t a_width, uint32_t a_height);
-	void CreateTextureImageView(void);
 	void CreateTextureSampler(void);
 	bool HasStencilComponent(VkFormat a_format);
 
@@ -140,14 +79,6 @@ private:
 	std::shared_ptr<VkInstance> m_vInstance{};
 	
 	VkSurfaceKHR m_surface{};
-	
-
-
-	// VertexBuffer
-	VkBuffer m_vertexBuffer{};
-	VkDeviceMemory m_vertexBufferMemory{};
-	VkBuffer m_indexBuffer{};
-	VkDeviceMemory m_indexBufferMemory{};
 
 	std::vector<VkBuffer> m_vUniformBuffers{};
 	std::vector<VkDeviceMemory> m_vUniformBuffersMemory{};
@@ -161,10 +92,6 @@ private:
 
 	VkImageView m_textureImageView{};
 	VkSampler m_textureSampler{};
-
-	VkImage m_depthImage{};
-	VkDeviceMemory m_depthImageMemory{};
-	VkImageView m_depthImageView{};
 
 	// Scenes
 	std::shared_ptr<CDefaultScene> m_firstScene{};

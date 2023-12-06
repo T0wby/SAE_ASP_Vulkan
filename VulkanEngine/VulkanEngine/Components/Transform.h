@@ -12,12 +12,14 @@ public:
 	CTransform(CTransform&&) = default;
 	CTransform& operator= (const CTransform&) = default;
 	CTransform& operator= (CTransform&&) = default;
-	virtual ~CTransform() = default;
+	~CTransform() override;
 
 	// Inherited via IComponent
 	virtual int Initialize(void) override;
+	virtual int Initialize(VkCommandBuffer a_commandBuffer) override;
 	virtual int Update(void) override;
 	virtual void Draw(void) override;
+	virtual void Draw(VkCommandBuffer a_commandBuffer) override;
 	virtual void Finalize(void) override;
 
 	inline auto GetTransformMatrix(void) const -> const glm::mat4x4 { return m_transformMatrix; }

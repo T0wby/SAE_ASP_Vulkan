@@ -7,6 +7,19 @@ void CScene::Initialize(void)
 {
     CreateGameObjects();
     SetupSceneInput();
+    for (const auto& m_vGameObject : m_vGameObjects)
+    {
+        m_vGameObject->Initialize();
+    }
+}
+
+// Initializes all components on all gameobjects in the scene wit a commandbuffer(Used in the mesh atm)
+void CScene::Initialize(VkCommandBuffer a_commandBuffer)
+{
+    for (const auto& m_vGameObject : m_vGameObjects)
+    {
+        m_vGameObject->Initialize(a_commandBuffer);
+    }
 }
 
 void CScene::Update(void)
@@ -14,40 +27,51 @@ void CScene::Update(void)
     m_fCurrentFrame = glfwGetTime();
     m_fDeltaTime = m_fCurrentFrame - m_fLastFrame;
     m_fLastFrame = m_fCurrentFrame;
-    m_playerController->Update(m_fDeltaTime);
+    m_pPlayerController->Update(m_fDeltaTime);
 
-    for (size_t i = 0; i < m_vGameObjects.size(); i++)
+    for (const auto& m_vGameObject : m_vGameObjects)
     {
-        m_vGameObjects[i]->Update();
+        m_vGameObject->Update();
     }
-
 }
 
 void CScene::Draw(void)
 {
-    for (size_t i = 0; i < m_vGameObjects.size(); i++)
+    for (const auto& m_vGameObject : m_vGameObjects)
     {
-        m_vGameObjects[i]->Draw();
+        m_vGameObject->Draw();
+    }
+}
+
+void CScene::Draw(VkCommandBuffer a_commandBuffer)
+{
+    for (const auto& m_vGameObject : m_vGameObjects)
+    {
+        m_vGameObject->Draw(a_commandBuffer);
     }
 }
 
 void CScene::Finalize(void)
 {
+    for (const auto& m_vGameObject : m_vGameObjects)
+    {
+        m_vGameObject->Finalize();
+    }
 }
 
 void CScene::CreateGameObjects(void)
 {
-    m_cameraObject = std::make_shared<CGameObject>();
-    m_camera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(-1.0f, 0.1f, 2.5f), glm::vec3(0.0f, 0.0f, -0.5f),
+    m_pCameraObject = std::make_shared<CGameObject>(m_pDevice);
+    m_pCamera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(-1.0f, 0.1f, 2.5f), glm::vec3(0.0f, 0.0f, -0.5f),
         glm::vec3(0.0f, 1.0f, 0.0f));
-    m_cameraObject->AddComponent(m_camera);
-    m_cameraObject->SetPosition(m_camera->GetPosition());
+    m_pCameraObject->AddComponent(m_pCamera);
+    m_pCameraObject->SetPosition(m_pCamera->GetPosition());
 }
 
 void CScene::SetupSceneInput(void)
 {
     // Default Input is set via the Initialize method
-    m_playerController->Initialize(m_window, m_cameraObject, m_fDeltaTime);
+    m_pPlayerController->Initialize(m_pWindow, m_pCameraObject, m_fDeltaTime);
 }
 
 void CScene::AddGameObject(std::shared_ptr<CGameObject> a_gameObject)
@@ -145,8 +169,8 @@ UniformBufferObject& CScene::CreateUniformBuffer(void)
     UniformBufferObject ubo{};
 
     ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));;
-    ubo.view = m_camera->GetViewMatrix(m_cameraObject->GetPos());
-    ubo.proj = m_camera->GetProjectionMatrix();
+    ubo.view = m_pCamera->GetViewMatrix(m_pCameraObject->GetPos());
+    ubo.proj = m_pCamera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;
 
     return ubo;
@@ -156,5 +180,5 @@ void CScene::UpdateSizeValues(const int& a_iWidth, const int& a_iHeight)
 {
     m_fWidth = static_cast<float>(a_iWidth);
     m_fHeight = static_cast<float>(a_iHeight);
-    m_camera->UpdateSizeValues(a_iWidth, a_iHeight);
+    m_pCamera->UpdateSizeValues(a_iWidth, a_iHeight);
 }

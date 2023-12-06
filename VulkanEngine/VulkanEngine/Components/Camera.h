@@ -13,12 +13,14 @@ public:
 	CCamera(CCamera&&) = default;
 	CCamera& operator= (const CCamera&) = default;
 	CCamera& operator= (CCamera&&) = default;
-	virtual ~CCamera() = default;
+	~CCamera() override;
 
 	// Inherited via IComponent
 	int Initialize(void) override;
+	int Initialize(VkCommandBuffer a_commandBuffer) override;
 	int Update(void) override;
 	void Draw(void) override;
+	void Draw(VkCommandBuffer a_commandBuffer) override;
 	void Finalize(void) override;
 
 	auto GetViewMatrix(void) const -> const glm::mat4;

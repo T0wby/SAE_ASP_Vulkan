@@ -6,13 +6,15 @@
 #include "../Components/Component.h"
 #include "../Components/Transform.h"
 #include "../Utility/Variables.h"
+#include "../Core/System/Device.h"
 
 class CGameObject
 {
 public:
-	inline CGameObject()
+	inline CGameObject(const std::shared_ptr<CDevice>& a_pDevice)
 	{
 		m_pTransform = std::make_shared<CTransform>();
+		m_pDevice = a_pDevice;
 	}
 
 	CGameObject(const CGameObject&) = default;
@@ -22,8 +24,11 @@ public:
 	virtual ~CGameObject() = default;
 
 	virtual void Initialize(void);
+	virtual void Initialize(VkCommandBuffer a_commandBuffer);
 	virtual void Update(void);
 	virtual void Draw(void);
+	virtual void Draw(VkCommandBuffer a_commandBuffer);
+	virtual void Finalize(void);
 
 	void AddComponent(std::shared_ptr<IComponent> a_component);
 	void RemoveComponent(std::shared_ptr<IComponent> a_component);
@@ -59,6 +64,7 @@ public:
 protected:
 	std::vector<std::shared_ptr<IComponent>> m_components{};
 	std::shared_ptr<CTransform> m_pTransform{ nullptr };
+	std::shared_ptr<CDevice> m_pDevice{nullptr};
 };
 
 #endif
