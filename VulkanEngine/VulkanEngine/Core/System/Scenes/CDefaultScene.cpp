@@ -13,11 +13,11 @@ void CDefaultScene::Initialize()
 	m_vGameObjects.push_back(m_pCube);
 
 
-	//m_cube2 = std::make_shared<CCube>();
-	//m_cube2->Initialize();
-	//m_cube2->SetPosition(glm::vec3(0.0f, 0.1f, -2.5f));
+	m_cube2 = std::make_shared<CCube>(m_pDevice);
+	m_cube2->Initialize();
+	m_cube2->SetPosition(glm::vec3(0.0f, 0.1f, -2.5f));
 
-	//m_vGameObjects.push_back(m_cube2);
+	m_vGameObjects.push_back(m_cube2);
 }
 
 void CDefaultScene::Initialize(VkCommandBuffer a_commandBuffer)

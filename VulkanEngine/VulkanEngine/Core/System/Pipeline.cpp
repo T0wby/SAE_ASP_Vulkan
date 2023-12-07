@@ -10,10 +10,8 @@ void CPipeline::Finalize()
 	vkDestroyShaderModule(m_device.GetLogicalDevice(), m_fragShaderModule, nullptr);
 
 	vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
-	vkDestroyPipelineLayout(m_device.GetLogicalDevice(), m_pipelineConfig->pipelineLayout, nullptr);
-	vkDestroyRenderPass(m_device.GetLogicalDevice(), m_pipelineConfig->renderPass, nullptr);
-	
-    vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(m_device.GetLogicalDevice(), m_pipelineLayout, nullptr);
+	vkDestroyRenderPass(m_device.GetLogicalDevice(), m_renderPass, nullptr);
 }
 
 void CPipeline::Bind(VkCommandBuffer a_commandBuffer)
@@ -21,82 +19,79 @@ void CPipeline::Bind(VkCommandBuffer a_commandBuffer)
 	vkCmdBindPipeline(a_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_graphicsPipeline);
 }
 
-PipelineConfigInfo CPipeline::DefaultPipelineConfigInfo(uint32_t a_iWidth, uint32_t a_iHeight)
+void CPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo& a_configInfo)
 {
-	PipelineConfigInfo configInfo{};
-	
 	// The VkPipelineInputAssemblyStateCreateInfo struct describes two things: what kind of geometry will be drawn from the vertices and if primitive restart should be enabled.
-	configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-	configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
+	a_configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	a_configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	a_configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
-	// Viewport
-	configInfo.viewport.x = 0.0f;
-	configInfo.viewport.y = 0.0f;
-	configInfo.viewport.width = static_cast<float>(a_iWidth);
-	configInfo.viewport.height = static_cast<float>(a_iHeight);
-	configInfo.viewport.minDepth = 0.0f;
-	configInfo.viewport.maxDepth = 1.0f;
-	
-	// Scissor(scissor rectangles define in which regions pixels will actually be stored. Any pixels outside the scissor rectangles will be discarded by the rasterizer.)
-	configInfo.scissor.offset = { 0, 0 };
-	configInfo.scissor.extent = {a_iWidth, a_iHeight};
+	a_configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	a_configInfo.viewportInfo.viewportCount = 1;
+	a_configInfo.viewportInfo.pViewports = nullptr;
+	a_configInfo.viewportInfo.scissorCount = 1;
+	a_configInfo.viewportInfo.pScissors = nullptr;
 
 	// Rasterizer (vertex data to fragments)
-	configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-	configInfo.rasterizationInfo.depthClampEnable = VK_FALSE; // VK_TRUE, then fragments that are beyond the near and far planes are clamped to them as opposed to discarding them.
-	configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // VK_TRUE, then geometry never passes through the rasterizer stage. This basically disables any output to the framebuffer.
-	configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
-	configInfo.rasterizationInfo.lineWidth = 1.0f;
-	configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
-	configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // Because of the Y-flip we did in the projection matrix this is set to counter clockwise but indices are still using clockwise
-	configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
-	configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
-	configInfo.rasterizationInfo.depthBiasClamp = 0.0f; // Optional
-	configInfo.rasterizationInfo.depthBiasSlopeFactor = 0.0f; // Optional
+	a_configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	a_configInfo.rasterizationInfo.depthClampEnable = VK_FALSE; // VK_TRUE, then fragments that are beyond the near and far planes are clamped to them as opposed to discarding them.
+	a_configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE; // VK_TRUE, then geometry never passes through the rasterizer stage. This basically disables any output to the framebuffer.
+	a_configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
+	a_configInfo.rasterizationInfo.lineWidth = 1.0f;
+	a_configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+	a_configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // Because of the Y-flip we did in the projection matrix this is set to counter clockwise but indices are still using clockwise
+	a_configInfo.rasterizationInfo.depthBiasEnable = VK_FALSE;
+	a_configInfo.rasterizationInfo.depthBiasConstantFactor = 0.0f; // Optional
+	a_configInfo.rasterizationInfo.depthBiasClamp = 0.0f; // Optional
+	a_configInfo.rasterizationInfo.depthBiasSlopeFactor = 0.0f; // Optional
 
 	// Multisampling (Disabled for now)
-	configInfo.multisampleInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-	configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
-	configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-	configInfo.multisampleInfo.minSampleShading = 1.0f; // Optional
-	configInfo.multisampleInfo.pSampleMask = nullptr; // Optional
-	configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE; // Optional
-	configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE; // Optional
+	a_configInfo.multisampleInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	a_configInfo.multisampleInfo.sampleShadingEnable = VK_FALSE;
+	a_configInfo.multisampleInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+	a_configInfo.multisampleInfo.minSampleShading = 1.0f; // Optional
+	a_configInfo.multisampleInfo.pSampleMask = nullptr; // Optional
+	a_configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE; // Optional
+	a_configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE; // Optional
 
 	// Depth and stencil testing
-	configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-	configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
-	configInfo.depthStencilInfo.depthWriteEnable = VK_TRUE;
-	configInfo.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS;
-	configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
-	configInfo.depthStencilInfo.minDepthBounds = 0.0f; // Optional
-	configInfo.depthStencilInfo.maxDepthBounds = 1.0f; // Optional
-	configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
-	configInfo.depthStencilInfo.front = {}; // Optional
-	configInfo.depthStencilInfo.back = {}; // Optional
+	a_configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+	a_configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
+	a_configInfo.depthStencilInfo.depthWriteEnable = VK_TRUE;
+	a_configInfo.depthStencilInfo.depthCompareOp = VK_COMPARE_OP_LESS;
+	a_configInfo.depthStencilInfo.depthBoundsTestEnable = VK_FALSE;
+	a_configInfo.depthStencilInfo.minDepthBounds = 0.0f; // Optional
+	a_configInfo.depthStencilInfo.maxDepthBounds = 1.0f; // Optional
+	a_configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
+	a_configInfo.depthStencilInfo.front = {}; // Optional
+	a_configInfo.depthStencilInfo.back = {}; // Optional
 
 	// Color blending
-	configInfo.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-	configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
-	configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-	configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-	configInfo.colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-	configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-	configInfo.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-	configInfo.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+	a_configInfo.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	a_configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
+	a_configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	a_configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	a_configInfo.colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+	a_configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	a_configInfo.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	a_configInfo.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
-	configInfo.colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-	configInfo.colorBlendInfo.logicOpEnable = VK_FALSE;
-	configInfo.colorBlendInfo.logicOp = VK_LOGIC_OP_COPY; // Optional
-	configInfo.colorBlendInfo.attachmentCount = 1;
-	configInfo.colorBlendInfo.pAttachments = &configInfo.colorBlendAttachment;
-	configInfo.colorBlendInfo.blendConstants[0] = 0.0f; // Optional
-	configInfo.colorBlendInfo.blendConstants[1] = 0.0f; // Optional
-	configInfo.colorBlendInfo.blendConstants[2] = 0.0f; // Optional
-	configInfo.colorBlendInfo.blendConstants[3] = 0.0f; // Optional
+	a_configInfo.colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	a_configInfo.colorBlendInfo.logicOpEnable = VK_FALSE;
+	a_configInfo.colorBlendInfo.logicOp = VK_LOGIC_OP_COPY; // Optional
+	a_configInfo.colorBlendInfo.attachmentCount = 1;
+	a_configInfo.colorBlendInfo.pAttachments = &a_configInfo.colorBlendAttachment;
+	a_configInfo.colorBlendInfo.blendConstants[0] = 0.0f; // Optional
+	a_configInfo.colorBlendInfo.blendConstants[1] = 0.0f; // Optional
+	a_configInfo.colorBlendInfo.blendConstants[2] = 0.0f; // Optional
+	a_configInfo.colorBlendInfo.blendConstants[3] = 0.0f; // Optional
 
-	return configInfo;
+	a_configInfo.dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+	// This will cause the configuration of these values to be ignored and we need to specify the data at drawing time.
+	a_configInfo.dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	a_configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(a_configInfo.dynamicStateEnables.size());
+	a_configInfo.dynamicStateInfo.pDynamicStates = a_configInfo.dynamicStateEnables.data();
+	a_configInfo.dynamicStateInfo.flags = 0;
 }
 
 void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo* a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout)
@@ -124,22 +119,12 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	shaderStages[1].module = m_fragShaderModule;
 	shaderStages[1].pName = "main";
 
-	// Dynamic state
-	std::vector<VkDynamicState> dynamicStates = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+    const auto bindingDescription = Vertex::GetBindingDescription();
+	const auto attributeDescriptionPos = Vertex::GetAttributeDescriptionPos();
+	const auto attributeDescriptionColor = Vertex::GetAttributeDescriptionCol();
+	const auto attributeDescriptionUV = Vertex::GetAttributeDescriptionUV();
 
-	// This will cause the configuration of these values to be ignored and we need to specify the data at drawing time.
-	VkPipelineDynamicStateCreateInfo dynamicState{};
-	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-	dynamicState.pDynamicStates = dynamicStates.data();
-
-
-	auto bindingDescription = Vertex::GetBindingDescription();
-	auto attributeDescriptionPos = Vertex::GetAttributeDescriptionPos();
-	auto attributeDescriptionColor = Vertex::GetAttributeDescriptionCol();
-	auto attributeDescriptionUV = Vertex::GetAttributeDescriptionUV();
-
-	std::vector<VkVertexInputAttributeDescription> attributeDescriptions = { attributeDescriptionPos, attributeDescriptionColor, attributeDescriptionUV };
+	const std::vector<VkVertexInputAttributeDescription> attributeDescriptions = { attributeDescriptionPos, attributeDescriptionColor, attributeDescriptionUV };
 
 	// Vertex Input(Data hard coded inside of the shader atm)
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -163,12 +148,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
 	
-	VkPipelineViewportStateCreateInfo viewportInfo{};
-	viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-	viewportInfo.viewportCount = 1;
-	viewportInfo.pViewports = &a_pipelineConfig->viewport;
-	viewportInfo.scissorCount = 1;
-	viewportInfo.pScissors = &a_pipelineConfig->scissor;
+	
 
 	// Creating Pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -177,12 +157,12 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	pipelineInfo.pStages = shaderStages;
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
 	pipelineInfo.pInputAssemblyState = &a_pipelineConfig->inputAssemblyInfo;
-	pipelineInfo.pViewportState = &viewportInfo;
+	pipelineInfo.pViewportState = &a_pipelineConfig->viewportInfo;
 	pipelineInfo.pRasterizationState = &a_pipelineConfig->rasterizationInfo;
 	pipelineInfo.pMultisampleState = &a_pipelineConfig->multisampleInfo;
 	pipelineInfo.pDepthStencilState = &a_pipelineConfig->depthStencilInfo;
 	pipelineInfo.pColorBlendState = &a_pipelineConfig->colorBlendInfo;
-	pipelineInfo.pDynamicState = &dynamicState;
+	pipelineInfo.pDynamicState = &a_pipelineConfig->dynamicStateInfo;
 	pipelineInfo.layout = a_pipelineConfig->pipelineLayout;
 	pipelineInfo.renderPass = a_pipelineConfig->renderPass;
 	pipelineInfo.subpass = a_pipelineConfig->subpass;

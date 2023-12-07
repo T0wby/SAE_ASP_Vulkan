@@ -20,7 +20,6 @@ const std::string VERT_SHADER = "Shader/vert.spv";
 const std::string FRAG_SHADER = "Shader/frag.spv";
 const std::string NAME = "SAE_Tobi_Engine";
 const std::string APPLICATION_NAME = "SAE_ASP_Engine";
-constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 
 void CEngine::Run(void)
@@ -61,7 +60,7 @@ void CEngine::InitializeVulkan(void)
 	CreateGLFWSurface();
 	m_pDevice = std::make_shared<CDevice>(m_vInstance, m_surface);
 	m_pDevice->Initialize();
-	m_pSwapChain = std::make_shared<CSwapChain>(*m_pDevice, pWindow, m_surface);
+	m_pSwapChain = std::make_unique<CSwapChain>(*m_pDevice, pWindow, m_surface);
 	CreateScenes();
 	CreatePipeline();
 	m_pSwapChain->CreateTextures();
@@ -129,7 +128,8 @@ void CEngine::CreateVulkanInstance(void)
 
 void CEngine::CreatePipeline()
 {
-	auto defaultPipelineConfigInfo = CPipeline::DefaultPipelineConfigInfo(m_pSwapChain->GetWidth(), m_pSwapChain->GetHeight());
+	PipelineConfigInfo defaultPipelineConfigInfo{};
+	CPipeline::DefaultPipelineConfigInfo(defaultPipelineConfigInfo);
 	defaultPipelineConfigInfo.renderPass = m_pSwapChain->GetRenderPass();
 	m_pSwapChain->CreateDescriptorSetLayout();
 	auto layout = m_pSwapChain->GetDescriptorSetLayout();
@@ -164,6 +164,38 @@ bool CEngine::CheckValidationLayerSupport(const std::vector<const char*> a_enabl
 	return true;
 }
 
+void CEngine::RecreateSwapChain()
+{
+	//auto extent = pWindow->GetExtent();
+	pWindow->CheckIfWindowMinimized();
+	vkDeviceWaitIdle(m_pDevice->GetLogicalDevice());
+	if (m_pSwapChain == nullptr)
+	{
+		// might not be needed
+		m_pSwapChain->Finalize();
+		m_pSwapChain = std::make_unique<CSwapChain>(*m_pDevice, pWindow, m_surface);
+		m_pSwapChain->CreateTextures();
+		m_pSwapChain->CreateUniformBuffers();
+		m_pSwapChain->CreateDescriptorPool();
+		m_pSwapChain->CreateDescriptorSetLayout();
+		m_pSwapChain->CreateDescriptorSets();
+	}
+	else
+	{
+		m_pSwapChain = std::make_unique<CSwapChain>(*m_pDevice, pWindow, m_surface, std::move(m_pSwapChain));
+		m_pSwapChain->CreateTextures();
+		m_pSwapChain->CreateUniformBuffers();
+		m_pSwapChain->CreateDescriptorPool();
+		m_pSwapChain->CreateDescriptorSetLayout();
+		m_pSwapChain->CreateDescriptorSets();
+		if (m_pSwapChain->GetImageCount() != m_vCommandBuffers.size())
+		{
+			FreeCommandBuffers();
+			CreateCommandBuffers();
+		}
+	}
+	
+}
 
 
 void CEngine::InitializeWindow(void)
@@ -203,58 +235,38 @@ void CEngine::MainLoop(void)
 void CEngine::DrawFrame(void)
 {
 	//vkWaitForFences(m_pDevice->GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame], VK_TRUE, UINT64_MAX);
-	
-
 	uint32_t imageIndex;
-	const VkResult result = m_pSwapChain->AquireNextImage(imageIndex);
+	VkResult result = m_pSwapChain->AquireNextImage(imageIndex);
 
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || pWindow->IsFrameBufferResized())
 	{
 		pWindow->SetIsFrameBufferResized(false);
-		m_pSwapChain->RecreateSwapChain();
+		RecreateSwapChain();
 		if (m_firstScene != nullptr)
-			m_firstScene->UpdateSizeValues(m_pSwapChain->GetWidth(), m_pSwapChain->GetHeight());
+			m_firstScene->UpdateSizeValues(static_cast<uint32_t>(m_pSwapChain->GetWidth()), static_cast<uint32_t>(m_pSwapChain->GetHeight()));
 		return;
 	}
-	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) 
+	result = m_pSwapChain->SubmitCommandBuffers(m_vCommandBuffers[m_pSwapChain->GetCurrentFrame()], imageIndex, m_firstScene, m_pPipeline, m_pipelineLayout);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||  pWindow->IsFrameBufferResized())
+	{
+		pWindow->SetIsFrameBufferResized(false);
+		RecreateSwapChain();
+		if (m_firstScene != nullptr)
+			m_firstScene->UpdateSizeValues(static_cast<uint32_t>(m_pSwapChain->GetWidth()), static_cast<uint32_t>(m_pSwapChain->GetHeight()));
+		return;
+	}
+	if (result != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
-
-	m_pSwapChain->SubmitCommandBuffers(m_vCommandBuffers[m_pSwapChain->GetCurrentFrame()], imageIndex, m_firstScene, m_pPipeline, m_pipelineLayout);
 }
 
 void CEngine::Cleanup(void)
 {
 	m_pSwapChain->Finalize();
-	//CleanupSwapChain();
-	//
-	// Finalize for Scene GO?
 	m_firstScene->Finalize();
-	//vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
-	//vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
-	//vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
-	//vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
-	//
-	vkDestroySampler(m_pDevice->GetLogicalDevice(), m_textureSampler, nullptr);
-	vkDestroyImageView(m_pDevice->GetLogicalDevice(), m_textureImageView, nullptr);
-	vkDestroyImage(m_pDevice->GetLogicalDevice(), m_textureImage, nullptr);
-	vkFreeMemory(m_pDevice->GetLogicalDevice(), m_textureImageMemory, nullptr);
-	//CleanupUniformBuffers();
-	vkDestroyDescriptorPool(m_pDevice->GetLogicalDevice(), m_descriptorPool, nullptr);
-	//vkDestroyDescriptorSetLayout(m_pDevice->GetLogicalDevice(), m_descriptorSetLayout, nullptr);
-	//vkDestroyPipeline(m_pDevice->GetLogicalDevice(), m_graphicsPipeline, nullptr);
-	//vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), m_pipelineLayout, nullptr);
-	//vkDestroyRenderPass(m_pDevice->GetLogicalDevice(), m_renderPass, nullptr);
-	//vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
 	m_pPipeline->Finalize();
-	//for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	//{
-	//	vkDestroySemaphore(m_pDevice->GetLogicalDevice(), m_vImageAvailableSemaphores[i], nullptr);
-	//	vkDestroySemaphore(m_pDevice->GetLogicalDevice(), m_vRenderFinishedSemaphores[i], nullptr);
-	//	vkDestroyFence(m_pDevice->GetLogicalDevice(), m_vInFlightFences[i], nullptr);
-	//}
-	//vkDestroyDevice(m_device->GetLogicalDevice(), nullptr);
 	vkDestroySurfaceKHR(*m_vInstance, m_surface, nullptr);
 	m_pDevice->Finalize();
 	vkDestroyInstance(*m_vInstance, nullptr);
@@ -266,7 +278,6 @@ void CEngine::CreateGLFWSurface(void)
 {
 	pWindow->CreateWindowSurface(*m_vInstance, m_surface);
 }
-
 
 void CEngine::CreateCommandBuffers(void)
 {
@@ -289,36 +300,10 @@ void CEngine::CreateCommandBuffers(void)
 	}
 }
 
-
-void CEngine::CreateTextureSampler(void)
+void CEngine::FreeCommandBuffers()
 {
-	VkSamplerCreateInfo samplerInfo{};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.magFilter = VK_FILTER_LINEAR;
-	samplerInfo.minFilter = VK_FILTER_LINEAR;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.anisotropyEnable = VK_TRUE;
-
-	// Might be a good idea to save those in a variable
-	VkPhysicalDeviceProperties properties{};
-	vkGetPhysicalDeviceProperties(m_pDevice->GetPhysicalDevice(), &properties);
-
-	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-	samplerInfo.unnormalizedCoordinates = VK_FALSE;
-	samplerInfo.compareEnable = VK_FALSE;
-	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerInfo.mipLodBias = 0.0f;
-	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = 0.0f;
-
-	if (vkCreateSampler(m_pDevice->GetLogicalDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS) 
-	{
-		throw std::runtime_error("failed to create texture sampler!");
-	}
+	vkFreeCommandBuffers(m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool(), m_vCommandBuffers.size(), m_vCommandBuffers.data());
+	m_vCommandBuffers.clear();
 }
 
 bool CEngine::HasStencilComponent(VkFormat a_format)

@@ -6,6 +6,7 @@ static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
 	auto app = reinterpret_cast<CWindow*>(glfwGetWindowUserPointer(window));
 	app->SetIsFrameBufferResized(true);
+	app->SetSize(height, width);
 }
 
 void CWindow::Initialize(void)
@@ -27,7 +28,6 @@ void CWindow::Initialize(void)
 	}
 
 	glfwMakeContextCurrent(m_pWindow.get());
-
 
 	glfwSetInputMode(m_pWindow.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -89,6 +89,12 @@ auto CWindow::IsFrameBufferResized(void) const -> const bool
 void CWindow::SetIsFrameBufferResized(const bool& a_bFrameBufferResized)
 {
 	m_bFrameBufferResized = a_bFrameBufferResized;
+}
+
+void CWindow::SetSize(const int& a_iHeight, const int& a_iWidth)
+{
+	m_iHeight = a_iHeight;
+	m_iWidth = a_iWidth;
 }
 
 void CWindow::CheckIfWindowMinimized(void)

@@ -17,12 +17,14 @@ public:
 	inline CSwapChain(const CDevice& a_device, const std::shared_ptr<CWindow>& a_pWindow, VkSurfaceKHR a_surface)
 			: m_device(a_device), m_pWindow(a_pWindow), m_surface(a_surface)
 	{
-		CreateSwapChain();
-		CreateImageViews();
-		CreateRenderPass();
-		CreateDepthResources();
-		CreateFrameBuffers();
-		CreateSyncObjects();
+		Init();
+	}
+	
+	inline CSwapChain(const CDevice& a_device, const std::shared_ptr<CWindow>& a_pWindow, VkSurfaceKHR a_surface, const std::shared_ptr<CSwapChain>& a_pSwapChainPrevious)
+			: m_device(a_device), m_pWindow(a_pWindow), m_pSwapChainOld(a_pSwapChainPrevious), m_surface(a_surface)
+	{
+		Init();
+		m_pSwapChainOld = nullptr;
 	}
     
 	CSwapChain(const CSwapChain&) = delete;
@@ -32,7 +34,6 @@ public:
 	~CSwapChain() = default;
 
 	void Finalize(void);
-	void RecreateSwapChain(void);
 	void CreateTextures(void);
 	VkResult AquireNextImage(uint32_t& a_imageIndex);
 	VkResult SubmitCommandBuffers(const VkCommandBuffer buffers, const uint32_t& a_imageIndex,
@@ -53,6 +54,7 @@ public:
 	inline uint32_t GetHeight() const { return m_swapChainExtent.height; }
 	inline uint32_t GetCurrentFrame() const { return m_iCurrentFrame; }
 	inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_descriptorSetLayout; }
+	inline void SetDescriptorSetLayout(VkDescriptorSetLayout a_layout){ m_descriptorSetLayout = a_layout; }
 	
 	static bool IsDeviceSuitable(VkPhysicalDevice a_device, VkSurfaceKHR a_surface, const std::vector<const char*> a_enabledExtensions);
 	static QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice a_device, VkSurfaceKHR a_surface);
@@ -62,6 +64,7 @@ public:
 private:
 	CDevice m_device;
 	std::shared_ptr<CWindow> m_pWindow{nullptr};
+	std::shared_ptr<CSwapChain> m_pSwapChainOld{nullptr};
 	VkSurfaceKHR m_surface{};
 	VkSwapchainKHR m_swapChain{};
 	std::vector<VkImage> m_vSwapChainImages{};
@@ -88,7 +91,8 @@ private:
 	VkDeviceMemory m_textureImageMemory{};
 	VkImageView m_textureImageView{};
 	VkSampler m_textureSampler{};
-    
+
+	void Init(void);
 	void CreateSwapChain(void);
 	void CreateImageViews(void);
 	void CreateRenderPass(void);

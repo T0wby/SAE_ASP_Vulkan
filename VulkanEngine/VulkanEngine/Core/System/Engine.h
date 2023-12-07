@@ -42,16 +42,17 @@ private:
 	bool CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers);
 
 	
-	std::shared_ptr<CSwapChain> m_pSwapChain{nullptr};
+	std::unique_ptr<CSwapChain> m_pSwapChain{nullptr};
+	void RecreateSwapChain(void);
 	
 	std::shared_ptr<CPipeline> m_pPipeline{nullptr};
 	VkPipelineLayout m_pipelineLayout{nullptr};
 	void CreatePipeline(void);
 
 	void CreateCommandBuffers(void);
+	void FreeCommandBuffers(void);
 	std::vector<VkCommandBuffer> m_vCommandBuffers{};
 
-	void CreateTextureSampler(void);
 	bool HasStencilComponent(VkFormat a_format);
 
 	const std::vector<const char*> m_EnabledLayers = { "VK_LAYER_KHRONOS_validation" };
@@ -63,12 +64,6 @@ private:
 
 	VkDescriptorPool m_descriptorPool{};
 	std::vector<VkDescriptorSet> m_vDescriptorSets{};
-
-	VkImage m_textureImage{};
-	VkDeviceMemory m_textureImageMemory{};
-
-	VkImageView m_textureImageView{};
-	VkSampler m_textureSampler{};
 
 	// Scenes
 	std::shared_ptr<CDefaultScene> m_firstScene{};

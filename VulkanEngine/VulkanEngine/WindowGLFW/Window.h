@@ -31,6 +31,7 @@ public:
 	void SetWindowShouldClose(const bool& a_bShouldClose);
 	auto IsFrameBufferResized(void) const->const bool;
 	void SetIsFrameBufferResized(const bool& a_bFrameBufferResized);
+	void SetSize(const int& a_iHeight, const int& a_iWidth);
 	void CheckIfWindowMinimized(void);
 
 	std::shared_ptr<GLFWwindow> GetWindow(void);
