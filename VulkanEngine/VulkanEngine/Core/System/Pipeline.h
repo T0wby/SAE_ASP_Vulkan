@@ -8,7 +8,7 @@
 class CPipeline
 {
 public:
-    inline CPipeline(CDevice a_device, const PipelineConfigInfo& a_pipelineConfig, const std::string& a_vertFilepath, const std::string& a_fragFilepath, VkDescriptorSetLayout& a_descriptorSetLayout)
+    inline CPipeline(CDevice a_device, PipelineConfigInfo* a_pipelineConfig, const std::string& a_vertFilepath, const std::string& a_fragFilepath, VkDescriptorSetLayout& a_descriptorSetLayout)
         : m_device(std::move(a_device)), m_pipelineConfig(a_pipelineConfig)
     {
         CreateGraphicsPipeline(a_vertFilepath, a_fragFilepath, m_pipelineConfig, a_descriptorSetLayout);
@@ -28,13 +28,13 @@ public:
 private:
     CDevice m_device;
     VkPipeline m_graphicsPipeline{};
-    PipelineConfigInfo m_pipelineConfig{};
+    PipelineConfigInfo* m_pipelineConfig{};
     VkShaderModule m_vertShaderModule{};
     VkShaderModule m_fragShaderModule{};
     uint32_t m_WIDTH = 800;
     uint32_t m_HEIGHT = 600;
     
-    void CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo& a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout);
+    void CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo* a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout);
     void CreateShaderModule(const std::vector<char>& a_vBytecode, VkShaderModule* a_vertShaderModule);
     
 };

@@ -10,8 +10,8 @@ void CPipeline::Finalize()
 	vkDestroyShaderModule(m_device.GetLogicalDevice(), m_fragShaderModule, nullptr);
 
 	vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
-	vkDestroyPipelineLayout(m_device.GetLogicalDevice(), m_pipelineConfig.pipelineLayout, nullptr);
-	vkDestroyRenderPass(m_device.GetLogicalDevice(), m_pipelineConfig.renderPass, nullptr);
+	vkDestroyPipelineLayout(m_device.GetLogicalDevice(), m_pipelineConfig->pipelineLayout, nullptr);
+	vkDestroyRenderPass(m_device.GetLogicalDevice(), m_pipelineConfig->renderPass, nullptr);
 	
     vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
 }
@@ -99,7 +99,7 @@ PipelineConfigInfo CPipeline::DefaultPipelineConfigInfo(uint32_t a_iWidth, uint3
 	return configInfo;
 }
 
-void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo& a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout)
+void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo* a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout)
 {
     //const auto vertShaderCode = CUtility::ReadFile("Shader/vert.spv");
     //const auto fragShaderCode = CUtility::ReadFile("Shader/frag.spv");
@@ -112,11 +112,13 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 
     // Shader Stage
 	VkPipelineShaderStageCreateInfo shaderStages[2];
+	shaderStages[0] = {};
 	shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
 	shaderStages[0].module = m_vertShaderModule;
 	shaderStages[0].pName = "main";
 
+	shaderStages[1] = {};
 	shaderStages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
 	shaderStages[1].module = m_fragShaderModule;
@@ -156,7 +158,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
-	if (vkCreatePipelineLayout(m_device.GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &a_pipelineConfig.pipelineLayout) != VK_SUCCESS) 
+	if (vkCreatePipelineLayout(m_device.GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &a_pipelineConfig->pipelineLayout) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
@@ -164,9 +166,9 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	VkPipelineViewportStateCreateInfo viewportInfo{};
 	viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewportInfo.viewportCount = 1;
-	viewportInfo.pViewports = &a_pipelineConfig.viewport;
+	viewportInfo.pViewports = &a_pipelineConfig->viewport;
 	viewportInfo.scissorCount = 1;
-	viewportInfo.pScissors = &a_pipelineConfig.scissor;
+	viewportInfo.pScissors = &a_pipelineConfig->scissor;
 
 	// Creating Pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -174,16 +176,16 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
-	pipelineInfo.pInputAssemblyState = &a_pipelineConfig.inputAssemblyInfo;
+	pipelineInfo.pInputAssemblyState = &a_pipelineConfig->inputAssemblyInfo;
 	pipelineInfo.pViewportState = &viewportInfo;
-	pipelineInfo.pRasterizationState = &a_pipelineConfig.rasterizationInfo;
-	pipelineInfo.pMultisampleState = &a_pipelineConfig.multisampleInfo;
-	pipelineInfo.pDepthStencilState = &a_pipelineConfig.depthStencilInfo;
-	pipelineInfo.pColorBlendState = &a_pipelineConfig.colorBlendInfo;
+	pipelineInfo.pRasterizationState = &a_pipelineConfig->rasterizationInfo;
+	pipelineInfo.pMultisampleState = &a_pipelineConfig->multisampleInfo;
+	pipelineInfo.pDepthStencilState = &a_pipelineConfig->depthStencilInfo;
+	pipelineInfo.pColorBlendState = &a_pipelineConfig->colorBlendInfo;
 	pipelineInfo.pDynamicState = &dynamicState;
-	pipelineInfo.layout = a_pipelineConfig.pipelineLayout;
-	pipelineInfo.renderPass = a_pipelineConfig.renderPass;
-	pipelineInfo.subpass = a_pipelineConfig.subpass;
+	pipelineInfo.layout = a_pipelineConfig->pipelineLayout;
+	pipelineInfo.renderPass = a_pipelineConfig->renderPass;
+	pipelineInfo.subpass = a_pipelineConfig->subpass;
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	pipelineInfo.basePipelineIndex = -1; // Optional
 

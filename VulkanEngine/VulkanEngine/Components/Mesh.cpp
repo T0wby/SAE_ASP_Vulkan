@@ -1,12 +1,5 @@
 #include "Mesh.h"
-
-#include <stdexcept>
-
 #include "../Utility/Utility.h"
-
-CMesh::~CMesh()
-{
-}
 
 int CMesh::Initialize(void)
 {

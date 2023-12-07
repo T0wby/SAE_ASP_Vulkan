@@ -40,7 +40,8 @@ public:
 	VkFormat FindDepthFormat();
 	void CreateDescriptorSetLayout(void);
 	void CreateDescriptorPool(void);
-	void CreateDescriptorSets(const std::vector<VkBuffer>& a_vUniformBuffers);
+	void CreateDescriptorSets(void);
+	void CreateUniformBuffers(void);
 
 	inline VkFramebuffer GetFrameBuffer(const int& a_iIndex) const { return m_vSwapChainFramebuffers[a_iIndex]; }
 	inline VkRenderPass GetRenderPass() const { return m_renderPass; }
@@ -72,11 +73,13 @@ private:
 	std::vector<VkSemaphore> m_vImageAvailableSemaphores{};
 	std::vector<VkSemaphore> m_vRenderFinishedSemaphores{};
 	std::vector<VkFence> m_vInFlightFences{};
-	std::vector<VkFence> m_vImagesInFlight{};
+	//std::vector<VkFence> m_vImagesInFlight{};
 	uint32_t m_iCurrentFrame{ 0 };
 	VkImage m_depthImage{};
 	VkDeviceMemory m_depthImageMemory{};
 	VkImageView m_depthImageView{};
+	std::vector<VkBuffer> m_vUniformBuffers{};
+	std::vector<VkDeviceMemory> m_vUniformBuffersMemory{};
 	std::vector<void*> m_vUniformBuffersMapped{};
 	VkDescriptorSetLayout m_descriptorSetLayout{};
 	VkDescriptorPool m_descriptorPool{};

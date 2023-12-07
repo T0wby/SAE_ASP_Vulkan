@@ -26,7 +26,6 @@ public:
 	void Run(void);
 
 private:
-
 	void InitializeVulkan(void);
 	void InitializeWindow(void);
 	void CreateInput(void);
@@ -35,26 +34,9 @@ private:
 	void DrawFrame(void);
 	void Cleanup(void);
 	
-	void CleanupUniformBuffers(void);
 	void CreateGLFWSurface(void);
 
-	// Replaced with Device Class
-	//void PickPhysicalDevice(void);
-	//void CreateLogicalDevice(void);
-	//bool IsDeviceSuitable(VkPhysicalDevice a_device);
-	//bool CheckDeviceExtensionSupport(VkPhysicalDevice a_device);
-	//QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice a_device);
-	//SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice a_device);
-	//void CreateCommandPool(void);
-	/******************In Device Class******************/
 	std::shared_ptr<CDevice> m_pDevice{nullptr};
-	
-	//VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
-	//VkDevice m_logicalDevice{};
-	//VkQueue m_graphicsQueue{};
-	//VkQueue m_presentationQueue{};
-	//VkCommandPool m_commandPool{};
-	/************************************/
 
 	void CreateVulkanInstance(void);
 	bool CheckValidationLayerSupport(const std::vector<const char*> a_enabled_layers);
@@ -69,7 +51,6 @@ private:
 	void CreateCommandBuffers(void);
 	std::vector<VkCommandBuffer> m_vCommandBuffers{};
 
-	void CreateUniformBuffers(void);
 	void CreateTextureSampler(void);
 	bool HasStencilComponent(VkFormat a_format);
 
@@ -79,10 +60,6 @@ private:
 	std::shared_ptr<VkInstance> m_vInstance{};
 	
 	VkSurfaceKHR m_surface{};
-
-	std::vector<VkBuffer> m_vUniformBuffers{};
-	std::vector<VkDeviceMemory> m_vUniformBuffersMemory{};
-	std::vector<void*> m_vUniformBuffersMapped{};
 
 	VkDescriptorPool m_descriptorPool{};
 	std::vector<VkDescriptorSet> m_vDescriptorSets{};

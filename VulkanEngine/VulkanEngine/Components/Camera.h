@@ -13,7 +13,7 @@ public:
 	CCamera(CCamera&&) = default;
 	CCamera& operator= (const CCamera&) = default;
 	CCamera& operator= (CCamera&&) = default;
-	~CCamera() override;
+	~CCamera() = default;
 
 	// Inherited via IComponent
 	int Initialize(void) override;

@@ -12,7 +12,7 @@ public:
 	CTransform(CTransform&&) = default;
 	CTransform& operator= (const CTransform&) = default;
 	CTransform& operator= (CTransform&&) = default;
-	~CTransform() override;
+	~CTransform() = default;
 
 	// Inherited via IComponent
 	virtual int Initialize(void) override;

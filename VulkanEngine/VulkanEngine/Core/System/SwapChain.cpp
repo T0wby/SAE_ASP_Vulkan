@@ -376,9 +376,9 @@ VkResult CSwapChain::AquireNextImage(uint32_t& a_imageIndex)
 VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer buffers, const uint32_t& a_imageIndex,
 	const std::shared_ptr<CScene>& a_pScene, const std::shared_ptr<CPipeline>& a_pPipeline, VkPipelineLayout& a_pipelineLayout)
 {
-	if (m_vImagesInFlight[a_imageIndex] != VK_NULL_HANDLE)
+	if (m_vInFlightFences[m_iCurrentFrame] != VK_NULL_HANDLE)
 	{
-		vkWaitForFences(m_device.GetLogicalDevice(), 1, &m_vImagesInFlight[a_imageIndex], VK_TRUE, UINT64_MAX);
+		vkWaitForFences(m_device.GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame], VK_TRUE, UINT64_MAX);
 	}
 	
 
@@ -442,8 +442,14 @@ void CSwapChain::CleanupSwapChain()
 	{
 		vkDestroySemaphore(m_device.GetLogicalDevice(), m_vImageAvailableSemaphores[i], nullptr);
 		vkDestroySemaphore(m_device.GetLogicalDevice(), m_vRenderFinishedSemaphores[i], nullptr);
-		vkDestroyFence(m_device.GetLogicalDevice(), m_vImagesInFlight[i], nullptr);
+		//vkDestroyFence(m_device.GetLogicalDevice(), m_vImagesInFlight[i], nullptr);
 		vkDestroyFence(m_device.GetLogicalDevice(), m_vInFlightFences[i], nullptr);
+	}
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		vkDestroyBuffer(m_device.GetLogicalDevice(), m_vUniformBuffers[i], nullptr);
+		vkFreeMemory(m_device.GetLogicalDevice(), m_vUniformBuffersMemory[i], nullptr);
 	}
 }
 
@@ -705,7 +711,7 @@ bool CSwapChain::HasStencilComponent(VkFormat a_format)
 	return a_format == VK_FORMAT_D32_SFLOAT_S8_UINT || a_format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-void CSwapChain::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex,
+void CSwapChain::RecordCommandBuffer(VkCommandBuffer a_commandBuffer, uint32_t a_imageIndex,
 	const std::shared_ptr<CScene>& a_pScene, const std::shared_ptr<CPipeline>& a_pPipeline, VkPipelineLayout& a_pipelineLayout)
 {
 	/* The flags parameter specifies how we're going to use the command buffer. The following values are available:
@@ -719,7 +725,7 @@ void CSwapChain::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	beginInfo.flags = 0; // Optional
 	beginInfo.pInheritanceInfo = nullptr; // Only relevant for secondary command buffers
 
-	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) 
+	if (vkBeginCommandBuffer(a_commandBuffer, &beginInfo) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to begin recording command buffer!");
 	}
@@ -728,7 +734,7 @@ void CSwapChain::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	VkRenderPassBeginInfo renderPassInfo{};
 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass = GetRenderPass();
-	renderPassInfo.framebuffer = GetFrameBuffer(imageIndex);
+	renderPassInfo.framebuffer = GetFrameBuffer(a_imageIndex);
 	// size of the render area
 	renderPassInfo.renderArea.offset = { 0, 0 };
 	renderPassInfo.renderArea.extent = GetSwapChainExtent();
@@ -744,14 +750,13 @@ void CSwapChain::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	* VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: The render pass commands will be executed from secondary command buffers.
 	*/
 
-	vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	vkCmdBeginRenderPass(a_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	// Basic drawing commands
 
-	a_pPipeline->Bind(commandBuffer);
+	a_pPipeline->Bind(a_commandBuffer);
 
-	a_pScene->Initialize(commandBuffer);
-	a_pScene->Draw(commandBuffer);
+	a_pScene->Initialize(a_commandBuffer);
 	// const VkBuffer vertexBuffers[] = { m_vertexBuffer };
 	// const VkDeviceSize offsets[] = { 0 };
 	// vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
@@ -765,14 +770,14 @@ void CSwapChain::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	viewport.height = static_cast<float>(GetHeight());
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
-	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+	vkCmdSetViewport(a_commandBuffer, 0, 1, &viewport);
 
 	VkRect2D scissor{};
 	scissor.offset = { 0, 0 };
 	scissor.extent = GetSwapChainExtent();
-	vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+	vkCmdSetScissor(a_commandBuffer, 0, 1, &scissor);
 
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_pipelineLayout, 0, 1, &m_vDescriptorSets[m_iCurrentFrame], 0, nullptr);
+	vkCmdBindDescriptorSets(a_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_pipelineLayout, 0, 1, &m_vDescriptorSets[m_iCurrentFrame], 0, nullptr);
 
 	//auto vertices = m_vSceneObjects[0]->GetMeshVertexData();
 	//auto indices = m_vSceneObjects[0]->GetMeshIndiceData();
@@ -785,10 +790,11 @@ void CSwapChain::RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 	*/
 	// TODO: Draw in Mesh
 	//vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_firstScene->GetSceneIndicesCount()), 1, 0, 0, 0);
+	a_pScene->Draw(a_commandBuffer);
 
-	vkCmdEndRenderPass(commandBuffer);
+	vkCmdEndRenderPass(a_commandBuffer);
 
-	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
+	if (vkEndCommandBuffer(a_commandBuffer) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to record command buffer!");
 	}
@@ -956,7 +962,7 @@ void CSwapChain::CreateDescriptorPool()
 	}
 }
 
-void CSwapChain::CreateDescriptorSets(const std::vector<VkBuffer>& a_vUniformBuffers)
+void CSwapChain::CreateDescriptorSets(void)
 {
 	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo{};
@@ -974,7 +980,7 @@ void CSwapChain::CreateDescriptorSets(const std::vector<VkBuffer>& a_vUniformBuf
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{
 		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = a_vUniformBuffers[i];
+		bufferInfo.buffer = m_vUniformBuffers[i];
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
@@ -1005,5 +1011,23 @@ void CSwapChain::CreateDescriptorSets(const std::vector<VkBuffer>& a_vUniformBuf
 		descriptorWrites[1].pImageInfo = &imageInfo;
 
 		vkUpdateDescriptorSets(m_device.GetLogicalDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+	}
+}
+
+void CSwapChain::CreateUniformBuffers(void)
+{
+	const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+	m_vUniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	m_vUniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+	m_vUniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		// staging buffer not used due to uniform buffers being changed every frame
+		m_device.CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_vUniformBuffers[i], m_vUniformBuffersMemory[i]);
+
+		// persistent mapping
+		vkMapMemory(m_device.GetLogicalDevice(), m_vUniformBuffersMemory[i], 0, bufferSize, 0, &m_vUniformBuffersMapped[i]);
 	}
 }

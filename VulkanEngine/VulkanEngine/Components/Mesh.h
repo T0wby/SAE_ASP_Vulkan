@@ -22,7 +22,7 @@ public:
 	CMesh(CMesh&&) = default;
 	CMesh& operator= (const CMesh&) = default;
 	CMesh& operator= (CMesh&&) = default;
-	~CMesh() override;
+	~CMesh() = default;
 	
 	// Inherited via IComponent
 	int Initialize(void) override;
