@@ -57,6 +57,10 @@ public:
 	{
 		m_pTransform->AddPosition(a_pos);
 	}
+	inline void SetRotation(const glm::vec3 a_rotation) const
+	{
+		m_pTransform->SetRotation(a_rotation);
+	}
 
 	virtual std::vector<Vertex>& GetMeshVertexData(void);
 	virtual std::vector<uint16_t>& GetMeshIndiceData(void);

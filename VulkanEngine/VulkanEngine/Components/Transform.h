@@ -32,10 +32,14 @@ public:
 	{
 		m_position = a_pos;
 	}
+	inline void SetRotation(glm::vec3 a_rotation)
+	{
+		m_rotation = a_rotation;
+	}
 
 private:
-	glm::vec3 m_position{};
-	glm::vec3 m_rotation{};
+	glm::vec3 m_position{0.0f,0.0f,0.0f};
+	glm::vec3 m_rotation{0.0f,0.0f,0.0f};
 	glm::vec3 m_scale{ 1.0f,1.0f,1.0f };
 	glm::mat4x4 m_transformMatrix{};
 	glm::mat4x4 m_positionMatrix{};

@@ -54,8 +54,7 @@ struct PipelineConfigInfo
 
 struct SimplePushConstantData
 {
-	glm::vec3 offset;
-	alignas(16) glm::vec3 color;
+	glm::mat4 transform;
 };
 
 struct DrawInformation

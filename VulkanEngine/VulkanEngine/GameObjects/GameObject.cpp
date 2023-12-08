@@ -37,8 +37,7 @@ void CGameObject::Draw(void)
 void CGameObject::Draw(DrawInformation& a_drawInformation)
 {
 	SimplePushConstantData push{};
-	push.offset = m_pTransform->GetPosition();
-	push.color = {0.0f, 0.0f, 0.2f + 0.2f * m_pTransform->GetPosition().x};
+	push.transform = m_pTransform->GetTransformMatrix();
 
 	vkCmdPushConstants(a_drawInformation.commandBuffer, a_drawInformation.pipelineLayout,
 		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
