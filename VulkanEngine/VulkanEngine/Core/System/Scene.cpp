@@ -43,11 +43,11 @@ void CScene::Draw(void)
     }
 }
 
-void CScene::Draw(VkCommandBuffer a_commandBuffer)
+void CScene::Draw(DrawInformation& a_drawInformation)
 {
     for (const auto& m_vGameObject : m_vGameObjects)
     {
-        m_vGameObject->Draw(a_commandBuffer);
+        m_vGameObject->Draw(a_drawInformation);
     }
 }
 
@@ -168,7 +168,8 @@ UniformBufferObject& CScene::CreateUniformBuffer(void)
 
     UniformBufferObject ubo{};
 
-    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));;
+    //ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.model = glm::mat4(1.0f);
     ubo.view = m_pCamera->GetViewMatrix(m_pCameraObject->GetPos());
     ubo.proj = m_pCamera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;

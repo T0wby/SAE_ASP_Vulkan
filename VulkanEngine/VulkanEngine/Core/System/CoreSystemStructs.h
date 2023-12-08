@@ -52,4 +52,17 @@ struct PipelineConfigInfo
 	uint32_t subpass = 0;
 };
 
+struct SimplePushConstantData
+{
+	glm::vec3 offset;
+	alignas(16) glm::vec3 color;
+};
+
+struct DrawInformation
+{
+	VkCommandBuffer commandBuffer;
+	VkPipelineLayout pipelineLayout;
+	VkShaderStageFlags stageFlags;
+};
+
 #endif

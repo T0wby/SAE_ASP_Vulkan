@@ -36,7 +36,7 @@ void CTransform::Draw(void)
 {
 }
 
-void CTransform::Draw(VkCommandBuffer a_commandBuffer)
+void CTransform::Draw(DrawInformation& a_drawInformation)
 {
 }
 

@@ -166,7 +166,6 @@ bool CEngine::CheckValidationLayerSupport(const std::vector<const char*> a_enabl
 
 void CEngine::RecreateSwapChain()
 {
-	//auto extent = pWindow->GetExtent();
 	pWindow->CheckIfWindowMinimized();
 	vkDeviceWaitIdle(m_pDevice->GetLogicalDevice());
 	if (m_pSwapChain == nullptr)
@@ -194,7 +193,6 @@ void CEngine::RecreateSwapChain()
 			CreateCommandBuffers();
 		}
 	}
-	
 }
 
 

@@ -20,7 +20,7 @@ public:
 	int Initialize(VkCommandBuffer a_commandBuffer) override;
 	int Update(void) override;
 	void Draw(void) override;
-	void Draw(VkCommandBuffer a_commandBuffer) override;
+	void Draw(DrawInformation& a_drawInformation) override;
 	void Finalize(void) override;
 
 	auto GetViewMatrix(void) const -> const glm::mat4;

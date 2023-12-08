@@ -19,7 +19,7 @@ public:
     void Initialize(VkCommandBuffer a_commandBuffer) override;
     void Update(void) override;
     void Draw(void) override;
-    void Draw(VkCommandBuffer a_commandBuffer) override;
+    void Draw(DrawInformation& a_drawInformation) override;
     void Finalize(void) override;
 
     virtual std::vector<Vertex>& GetMeshVertexData(void) override;

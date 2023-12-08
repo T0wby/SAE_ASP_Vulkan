@@ -25,9 +25,10 @@ void CMesh::Draw(void)
 {
 }
 
-void CMesh::Draw(VkCommandBuffer a_commandBuffer)
+void CMesh::Draw(DrawInformation& a_drawInformation)
 {
-    vkCmdDrawIndexed(a_commandBuffer, static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
+    
+    vkCmdDrawIndexed(a_drawInformation.commandBuffer, static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
 }
 
 void CMesh::Finalize(void)

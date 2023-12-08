@@ -34,11 +34,18 @@ void CGameObject::Draw(void)
 	}
 }
 
-void CGameObject::Draw(VkCommandBuffer a_commandBuffer)
+void CGameObject::Draw(DrawInformation& a_drawInformation)
 {
+	SimplePushConstantData push{};
+	push.offset = m_pTransform->GetPosition();
+	push.color = {0.0f, 0.0f, 0.2f + 0.2f * m_pTransform->GetPosition().x};
+
+	vkCmdPushConstants(a_drawInformation.commandBuffer, a_drawInformation.pipelineLayout,
+		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+	
 	for (std::shared_ptr<IComponent> component : m_components)
 	{
-		component->Draw(a_commandBuffer); // calls the draw function of each component
+		component->Draw(a_drawInformation); // calls the draw function of each component
 	}
 }
 

@@ -29,7 +29,7 @@ public:
 	int Initialize(VkCommandBuffer a_commandBuffer) override;
 	int Update(void) override;
 	void Draw(void) override;
-	void Draw(VkCommandBuffer a_commandBuffer) override;
+	void Draw(DrawInformation& a_drawInformation) override;
 	void Finalize(void) override;
 
 	void SetVertexData(const std::vector<Vertex>& a_vertices);

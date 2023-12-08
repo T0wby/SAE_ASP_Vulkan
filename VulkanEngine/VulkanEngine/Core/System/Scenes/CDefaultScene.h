@@ -19,12 +19,12 @@ public:
     void Initialize(VkCommandBuffer a_commandBuffer) override;
     void Update(void) override;
     void Draw(void) override;
-    void Draw(VkCommandBuffer a_commandBuffer) override;
+    void Draw(DrawInformation& a_drawInformation) override;
     void Finalize(void) override;
 
 private:
     std::shared_ptr<CCube> m_pCube{ nullptr };
-    std::shared_ptr<CCube> m_cube2{ nullptr };
+    std::shared_ptr<CCube> m_pCube2{ nullptr };
 
 };
 #endif

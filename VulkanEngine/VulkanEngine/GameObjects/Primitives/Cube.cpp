@@ -85,9 +85,9 @@ void CCube::Draw(void)
 	CGameObject::Draw();
 }
 
-void CCube::Draw(VkCommandBuffer a_commandBuffer)
+void CCube::Draw(DrawInformation& a_drawInformation)
 {
-	CGameObject::Draw(a_commandBuffer);
+	CGameObject::Draw(a_drawInformation);
 }
 
 void CCube::Finalize()
@@ -98,13 +98,13 @@ void CCube::Finalize()
 std::vector<Vertex>& CCube::GetMeshVertexData(void)
 {
 	m_vertices = m_pMesh->GetVertexData();
-	auto pos = m_pTransform->GetPosition();
-	for (auto& m_vertice : m_vertices)
-	{
-		m_vertice.position.x += pos.x;
-		m_vertice.position.y += pos.y;
-		m_vertice.position.z += pos.z;
-	}
+	//auto pos = m_pTransform->GetPosition();
+	//for (auto& m_vertice : m_vertices)
+	//{
+	//	m_vertice.position.x += pos.x;
+	//	m_vertice.position.y += pos.y;
+	//	m_vertice.position.z += pos.z;
+	//}
 
 	return m_vertices;
 }

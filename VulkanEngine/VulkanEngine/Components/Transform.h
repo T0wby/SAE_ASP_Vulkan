@@ -19,7 +19,7 @@ public:
 	virtual int Initialize(VkCommandBuffer a_commandBuffer) override;
 	virtual int Update(void) override;
 	virtual void Draw(void) override;
-	virtual void Draw(VkCommandBuffer a_commandBuffer) override;
+	virtual void Draw(DrawInformation& a_drawInformation) override;
 	virtual void Finalize(void) override;
 
 	inline auto GetTransformMatrix(void) const -> const glm::mat4x4 { return m_transformMatrix; }

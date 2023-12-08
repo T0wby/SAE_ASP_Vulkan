@@ -27,7 +27,7 @@ public:
 	virtual void Initialize(VkCommandBuffer a_commandBuffer);
 	virtual void Update(void);
 	virtual void Draw(void);
-	virtual void Draw(VkCommandBuffer a_commandBuffer);
+	virtual void Draw(DrawInformation& a_drawInformation);
 	virtual void Finalize(void);
 
 	void AddComponent(std::shared_ptr<IComponent> a_component);

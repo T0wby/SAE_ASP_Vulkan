@@ -757,6 +757,7 @@ void CSwapChain::RecordCommandBuffer(VkCommandBuffer a_commandBuffer, uint32_t a
 	// Basic drawing commands
 	a_pPipeline->Bind(a_commandBuffer);
 
+
 	a_pScene->Initialize(a_commandBuffer);
 
 	VkViewport viewport{};
@@ -786,7 +787,12 @@ void CSwapChain::RecordCommandBuffer(VkCommandBuffer a_commandBuffer, uint32_t a
 	*/
 	// TODO: Draw in Mesh
 	//vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(m_firstScene->GetSceneIndicesCount()), 1, 0, 0, 0);
-	a_pScene->Draw(a_commandBuffer);
+	
+	DrawInformation drawInfo{};
+	drawInfo.commandBuffer = a_commandBuffer;
+	drawInfo.pipelineLayout = a_pipelineLayout;
+	
+	a_pScene->Draw(drawInfo);
 
 	vkCmdEndRenderPass(a_commandBuffer);
 
