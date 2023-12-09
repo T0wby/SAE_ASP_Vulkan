@@ -53,19 +53,6 @@ void MouseInput(GLFWwindow* a_pWindow, double a_dXPos, double a_dYPos)
 	pCamera->CalcOrientation(direction);
 }
 
-int CPlayerController::Initialize(const std::shared_ptr<CWindow>& a_pWindow, const std::shared_ptr<CCamera>& a_pCamera, const float& a_fDeltaTime)
-{
-	m_fDeltaTime = a_fDeltaTime;
-	pCamera = a_pCamera;
-
-	pCurrWindow = a_pWindow;
-
-	SetDefaultInputCamera();
-
-	glfwSetCursorPosCallback(pCurrWindow->GetWindow().get(), MouseInput);
-	return I_SUCCESS;
-}
-
 int CPlayerController::Initialize(const std::shared_ptr<CWindow>& a_pWindow,
 	const std::shared_ptr<CGameObject>& a_pGameObject, const float& a_fDeltaTime)
 {
@@ -134,35 +121,15 @@ void CPlayerController::SetMouseMode(const std::function<void(void)>& a_pMouseMo
 	pMouseMode = a_pMouseMode;
 }
 
-void CPlayerController::SetDefaultInputCamera(void)
-{
-	pExitInput = ([]() { pCurrWindow->SetWindowShouldClose(true); });
-	pForwardInput = ([this]() { pCamera->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * pCamera->GetOrientation())); });
-	pBackwardInput = ([this]() { pCamera->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -pCamera->GetOrientation())); });
-	pRightInput = ([this]() { pCamera->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * glm::normalize(glm::cross(pCamera->GetOrientation(), pCamera->GetUp())))); });
-	pLeftInput = ([this]() { pCamera->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -glm::normalize(glm::cross(pCamera->GetOrientation(), pCamera->GetUp())))); });
-	pUpInput = ([this]() { pCamera->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * pCamera->GetUp())); });
-	pDownInput = ([this]() { pCamera->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -pCamera->GetUp())); });
-
-	pMouseMode = ([this]()
-	{
-		m_bMouseOn = !m_bMouseOn;
-		if (m_bMouseOn)
-			glfwSetInputMode(pCurrWindow->GetWindow().get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		else
-			glfwSetInputMode(pCurrWindow->GetWindow().get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-	});
-}
-
 void CPlayerController::SetDefaultInputGO()
 {
 	pExitInput = ([]() { pCurrWindow->SetWindowShouldClose(true); });
-	pForwardInput = ([this]() { pControlledGameObject->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * pCamera->GetOrientation())); });
-	pBackwardInput = ([this]() { pControlledGameObject->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -pCamera->GetOrientation())); });
-	pRightInput = ([this]() { pControlledGameObject->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * glm::normalize(glm::cross(pCamera->GetOrientation(), pCamera->GetUp())))); });
-	pLeftInput = ([this]() { pControlledGameObject->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -glm::normalize(glm::cross(pCamera->GetOrientation(), pCamera->GetUp())))); });
-	pUpInput = ([this]() { pControlledGameObject->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * pCamera->GetUp())); });
-	pDownInput = ([this]() { pControlledGameObject->SetPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -pCamera->GetUp())); });
+	pForwardInput = ([this]() { pControlledGameObject->AddPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * pCamera->GetOrientation())); });
+	pBackwardInput = ([this]() { pControlledGameObject->AddPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -pCamera->GetOrientation())); });
+	pRightInput = ([this]() { pControlledGameObject->AddPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * glm::normalize(glm::cross(pCamera->GetOrientation(), pCamera->GetUp())))); });
+	pLeftInput = ([this]() { pControlledGameObject->AddPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -glm::normalize(glm::cross(pCamera->GetOrientation(), pCamera->GetUp())))); });
+	pUpInput = ([this]() { pControlledGameObject->AddPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * pCamera->GetUp())); });
+	pDownInput = ([this]() { pControlledGameObject->AddPosition(glm::vec3(pCamera->GetSpeed() * m_fDeltaTime * -pCamera->GetUp())); });
 
 	pMouseMode = ([this]()
 	{

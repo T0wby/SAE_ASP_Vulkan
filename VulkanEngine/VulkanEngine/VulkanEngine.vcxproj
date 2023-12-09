@@ -146,9 +146,11 @@
     <ClCompile Include="Components\Camera.cpp" />
     <ClCompile Include="Components\Mesh.cpp" />
     <ClCompile Include="Components\Transform.cpp" />
+    <ClCompile Include="Core\System\Renderer.cpp" />
     <ClCompile Include="Core\System\Device.cpp" />
     <ClCompile Include="Core\System\Engine.cpp" />
     <ClCompile Include="Core\System\Pipeline.cpp" />
+    <ClCompile Include="Core\System\RenderSystems\SimpleRenderSystem.cpp" />
     <ClCompile Include="Core\System\Scene.cpp" />
     <ClCompile Include="Core\System\Scenes\CDefaultScene.cpp" />
     <ClCompile Include="Core\System\SwapChain.cpp" />
@@ -165,10 +167,12 @@
     <ClInclude Include="Components\Component.h" />
     <ClInclude Include="Components\Mesh.h" />
     <ClInclude Include="Components\Transform.h" />
+    <ClInclude Include="Core\System\Renderer.h" />
     <ClInclude Include="Core\System\Device.h" />
     <ClInclude Include="Core\System\Engine.h" />
     <ClInclude Include="Core\System\CoreSystemStructs.h" />
     <ClInclude Include="Core\System\Pipeline.h" />
+    <ClInclude Include="Core\System\RenderSystems\SimpleRenderSystem.h" />
     <ClInclude Include="Core\System\Scene.h" />
     <ClInclude Include="Core\System\Scenes\CDefaultScene.h" />
     <ClInclude Include="Core\System\SwapChain.h" />

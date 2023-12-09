@@ -46,9 +46,9 @@ void CWindow::Finalize(void)
 	glfwTerminate();
 }
 
-void CWindow::CreateWindowSurface(VkInstance a_vulkanInstance, VkSurfaceKHR& a_surface)
+void CWindow::CreateWindowSurface(VkInstance a_vulkanInstance)
 {
-	if (glfwCreateWindowSurface(a_vulkanInstance, m_pWindow.get(), nullptr, &a_surface) != VK_SUCCESS)
+	if (glfwCreateWindowSurface(a_vulkanInstance, m_pWindow.get(), nullptr, &m_surface) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create window surface!");
 	}
@@ -62,6 +62,11 @@ auto CWindow::GetWindowShouldClose(void) const -> const bool
 auto CWindow::GetExtent() const -> VkExtent2D
 {
 	return {static_cast<uint32_t>(m_iWidth), static_cast<uint32_t>(m_iHeight)};
+}
+
+auto CWindow::GetSurface() const -> VkSurfaceKHR
+{
+	return m_surface;
 }
 
 void CWindow::GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight)

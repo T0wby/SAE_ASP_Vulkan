@@ -11,23 +11,25 @@
 class CGameObject
 {
 public:
-	inline CGameObject(const std::shared_ptr<CDevice>& a_pDevice)
+	static CGameObject CreateGameObject(const std::shared_ptr<CDevice>& a_pDevice)
 	{
-		m_pTransform = std::make_shared<CTransform>();
-		m_pDevice = a_pDevice;
+		static id_t currentId = 0;
+		return CGameObject{a_pDevice, currentId++};
 	}
 
-	CGameObject(const CGameObject&) = default;
+	CGameObject(const CGameObject&) = delete;
 	CGameObject(CGameObject&&) = default;
-	CGameObject& operator= (const CGameObject&) = default;
+	CGameObject& operator= (const CGameObject&) = delete;
 	CGameObject& operator= (CGameObject&&) = default;
 	virtual ~CGameObject() = default;
+
+	using id_t = unsigned int;
 
 	virtual void Initialize(void);
 	virtual void Initialize(VkCommandBuffer a_commandBuffer);
 	virtual void Update(void);
 	virtual void Draw(void);
-	virtual void Draw(DrawInformation& a_drawInformation);
+	virtual void Draw(const DrawInformation& a_drawInformation);
 	virtual void Finalize(void);
 
 	void AddComponent(std::shared_ptr<IComponent> a_component);
@@ -48,24 +50,27 @@ public:
 		return nullptr;
 	}
 
-	inline auto GetPos(void) const -> const glm::vec3 { return m_pTransform->GetPosition(); }
-	inline void AddPosition(const glm::vec3 a_pos) const
-	{
-		m_pTransform->AddPosition(a_pos);
-	}
-	inline void SetPosition(const glm::vec3 a_pos) const
-	{
-		m_pTransform->AddPosition(a_pos);
-	}
-	inline void SetRotation(const glm::vec3 a_rotation) const
-	{
-		m_pTransform->SetRotation(a_rotation);
-	}
+	
+	inline auto GetID(void) const -> const id_t { return m_id; }
+	inline auto GetPosition(void) const -> const glm::vec3 { return m_pTransform->GetPosition(); }
+	inline void AddPosition(const glm::vec3 a_pos) const { m_pTransform->AddPosition(a_pos); }
+	inline void SetPosition(const glm::vec3 a_pos) const { m_pTransform->SetPosition(a_pos); }
+	inline void AddRotation(const glm::vec3 a_rotation) const {	m_pTransform->AddRotation(a_rotation); }
+	inline void SetRotation(const glm::vec3 a_rotation) const {	m_pTransform->SetRotation(a_rotation); }
+	inline void AddScale(const glm::vec3 a_scale) const {	m_pTransform->AddScale(a_scale); }
+	inline void SetScale(const glm::vec3 a_scale) const {	m_pTransform->SetScale(a_scale); }
 
 	virtual std::vector<Vertex>& GetMeshVertexData(void);
 	virtual std::vector<uint16_t>& GetMeshIndiceData(void);
 
 protected:
+	inline CGameObject(const std::shared_ptr<CDevice>& a_pDevice, id_t a_objId)
+	{
+		m_pTransform = std::make_shared<CTransform>();
+		m_pDevice = a_pDevice;
+		m_id = a_objId;
+	}
+	id_t m_id;
 	std::vector<std::shared_ptr<IComponent>> m_components{};
 	std::shared_ptr<CTransform> m_pTransform{ nullptr };
 	std::shared_ptr<CDevice> m_pDevice{nullptr};

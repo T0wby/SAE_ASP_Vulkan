@@ -23,8 +23,8 @@ public:
     CScene& operator= (CScene&&) = default;
     virtual ~CScene() = default;
 
-    void AddGameObject(std::shared_ptr<CGameObject> a_gameObject);
-    void RemoveGameObject(std::shared_ptr<CGameObject> a_gameObject);
+    void AddGameObject(std::shared_ptr<CGameObject>& a_gameObject);
+    void RemoveGameObject(const std::shared_ptr<CGameObject>& a_gameObject);
 
     std::shared_ptr<CGameObject> GetGameObject(const int& a_iIndex);
     auto GetSceneVertexCount(void) const -> const int;
@@ -39,7 +39,7 @@ public:
     virtual void Initialize(VkCommandBuffer a_commandBuffer);
     virtual void Update(void);
     virtual void Draw(void);
-    virtual void Draw(DrawInformation& a_drawInformation);
+    virtual void Draw(const DrawInformation& a_drawInformation);
     virtual void Finalize(void);
 
 protected:

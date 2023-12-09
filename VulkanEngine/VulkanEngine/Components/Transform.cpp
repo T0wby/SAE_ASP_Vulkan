@@ -44,7 +44,7 @@ void CTransform::Draw(void)
 {
 }
 
-void CTransform::Draw(DrawInformation& a_drawInformation)
+void CTransform::Draw(const DrawInformation& a_drawInformation)
 {
 }
 

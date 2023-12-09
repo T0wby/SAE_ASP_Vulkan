@@ -13,7 +13,7 @@ int CCamera::Initialize(VkCommandBuffer a_commandBuffer)
     return 0;
 }
 
-void CCamera::Draw(DrawInformation& a_drawInformation)
+void CCamera::Draw(const DrawInformation& a_drawInformation)
 {
 }
 

@@ -23,10 +23,11 @@ public:
 	void Update(void);
 	void Finalize(void);
 
-	void CreateWindowSurface(VkInstance a_vulkanInstance, VkSurfaceKHR& a_surface);
+	void CreateWindowSurface(VkInstance a_vulkanInstance);
 
 	auto GetWindowShouldClose(void) const->const bool;
 	auto GetExtent(void) const -> VkExtent2D;
+	auto GetSurface(void) const -> VkSurfaceKHR;
 	void GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight);
 	void SetWindowShouldClose(const bool& a_bShouldClose);
 	auto IsFrameBufferResized(void) const->const bool;
@@ -38,6 +39,7 @@ public:
 
 private:
 	std::shared_ptr<GLFWwindow> m_pWindow{ nullptr };
+	VkSurfaceKHR m_surface{};
 
 	int m_iWidth{ 0 };
 	int m_iHeight{ 0 };

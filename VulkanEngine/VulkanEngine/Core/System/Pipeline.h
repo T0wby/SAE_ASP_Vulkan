@@ -13,8 +13,6 @@ public:
     {
         
         CreateGraphicsPipeline(a_vertFilepath, a_fragFilepath, m_pipelineConfig, a_descriptorSetLayout);
-        m_pipelineLayout = m_pipelineConfig->pipelineLayout;
-        m_renderPass = m_pipelineConfig->renderPass;
     }
     
     CPipeline(const CPipeline&) = delete;
@@ -32,8 +30,6 @@ private:
     CDevice m_device;
     VkPipeline m_graphicsPipeline{};
     PipelineConfigInfo* m_pipelineConfig{};
-    VkPipelineLayout m_pipelineLayout{};
-    VkRenderPass m_renderPass{};
     VkShaderModule m_vertShaderModule{};
     VkShaderModule m_fragShaderModule{};
     uint32_t m_WIDTH = 800;

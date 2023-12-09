@@ -34,7 +34,7 @@ void CGameObject::Draw(void)
 	}
 }
 
-void CGameObject::Draw(DrawInformation& a_drawInformation)
+void CGameObject::Draw(const DrawInformation& a_drawInformation)
 {
 	SimplePushConstantData push{};
 	push.transform = m_pTransform->GetTransformMatrix();
@@ -50,7 +50,7 @@ void CGameObject::Draw(DrawInformation& a_drawInformation)
 
 void CGameObject::Finalize()
 {
-	for (std::shared_ptr<IComponent> component : m_components)
+	for (const std::shared_ptr<IComponent>& component : m_components)
 	{
 		component->Finalize();
 	}

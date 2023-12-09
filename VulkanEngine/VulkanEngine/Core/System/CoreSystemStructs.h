@@ -50,6 +50,10 @@ struct PipelineConfigInfo
 	VkPipelineLayout pipelineLayout = nullptr;
 	VkRenderPass renderPass = nullptr;
 	uint32_t subpass = 0;
+
+	VkDescriptorSetLayoutBinding uboLayoutBinding{};
+	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 };
 
 struct SimplePushConstantData
@@ -61,7 +65,6 @@ struct DrawInformation
 {
 	VkCommandBuffer commandBuffer;
 	VkPipelineLayout pipelineLayout;
-	VkShaderStageFlags stageFlags;
 };
 
 #endif

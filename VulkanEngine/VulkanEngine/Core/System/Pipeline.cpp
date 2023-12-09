@@ -10,8 +10,6 @@ void CPipeline::Finalize()
 	vkDestroyShaderModule(m_device.GetLogicalDevice(), m_fragShaderModule, nullptr);
 
 	vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
-	vkDestroyPipelineLayout(m_device.GetLogicalDevice(), m_pipelineLayout, nullptr);
-	vkDestroyRenderPass(m_device.GetLogicalDevice(), m_renderPass, nullptr);
 }
 
 void CPipeline::Bind(VkCommandBuffer a_commandBuffer)
@@ -92,6 +90,23 @@ void CPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo& a_configInfo)
 	a_configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(a_configInfo.dynamicStateEnables.size());
 	a_configInfo.dynamicStateInfo.pDynamicStates = a_configInfo.dynamicStateEnables.data();
 	a_configInfo.dynamicStateInfo.flags = 0;
+
+	a_configInfo.uboLayoutBinding.binding = 0;
+	a_configInfo.uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	a_configInfo.uboLayoutBinding.descriptorCount = 1;
+	a_configInfo.uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // only used in Vertex shader
+	a_configInfo.uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
+
+	a_configInfo.samplerLayoutBinding.binding = 1;
+	a_configInfo.samplerLayoutBinding.descriptorCount = 1;
+	a_configInfo.samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	a_configInfo.samplerLayoutBinding.pImmutableSamplers = nullptr;
+	a_configInfo.samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	const std::vector<VkDescriptorSetLayoutBinding> bindings = { a_configInfo.uboLayoutBinding, a_configInfo.samplerLayoutBinding };
+	a_configInfo.layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	a_configInfo.layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	a_configInfo.layoutInfo.pBindings = bindings.data();
 }
 
 void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo* a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout)

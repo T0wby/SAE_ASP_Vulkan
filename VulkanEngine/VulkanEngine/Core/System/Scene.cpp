@@ -43,7 +43,7 @@ void CScene::Draw(void)
     }
 }
 
-void CScene::Draw(DrawInformation& a_drawInformation)
+void CScene::Draw(const DrawInformation& a_drawInformation)
 {
     for (const auto& m_vGameObject : m_vGameObjects)
     {
@@ -61,11 +61,12 @@ void CScene::Finalize(void)
 
 void CScene::CreateGameObjects(void)
 {
-    m_pCameraObject = std::make_shared<CGameObject>(m_pDevice);
-    m_pCamera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(-1.0f, 0.1f, 2.5f), glm::vec3(0.0f, 0.0f, -0.5f),
+    auto camObj = CGameObject::CreateGameObject(m_pDevice);
+    m_pCameraObject = std::make_shared<CGameObject>(std::move(camObj));
+    m_pCamera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, -0.5f),
         glm::vec3(0.0f, 1.0f, 0.0f));
     m_pCameraObject->AddComponent(m_pCamera);
-    m_pCameraObject->SetPosition(m_pCamera->GetPosition());
+    m_pCameraObject->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
 }
 
 void CScene::SetupSceneInput(void)
@@ -74,14 +75,14 @@ void CScene::SetupSceneInput(void)
     m_pPlayerController->Initialize(m_pWindow, m_pCameraObject, m_fDeltaTime);
 }
 
-void CScene::AddGameObject(std::shared_ptr<CGameObject> a_gameObject)
+void CScene::AddGameObject(std::shared_ptr<CGameObject>& a_gameObject)
 {
 	if (a_gameObject == nullptr) return;
 
-    m_vGameObjects.push_back(a_gameObject);
+    m_vGameObjects.push_back(std::move(a_gameObject));
 }
 
-void CScene::RemoveGameObject(std::shared_ptr<CGameObject> a_gameObject)
+void CScene::RemoveGameObject(const std::shared_ptr<CGameObject>& a_gameObject)
 {
     if (a_gameObject == nullptr) return;
 
@@ -170,7 +171,7 @@ UniformBufferObject& CScene::CreateUniformBuffer(void)
 
     //ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.model = glm::mat4(1.0f);
-    ubo.view = m_pCamera->GetViewMatrix(m_pCameraObject->GetPos());
+    ubo.view = m_pCamera->GetViewMatrix(m_pCameraObject->GetPosition());
     ubo.proj = m_pCamera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;
 

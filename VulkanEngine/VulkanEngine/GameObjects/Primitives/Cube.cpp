@@ -85,7 +85,7 @@ void CCube::Draw(void)
 	CGameObject::Draw();
 }
 
-void CCube::Draw(DrawInformation& a_drawInformation)
+void CCube::Draw(const DrawInformation& a_drawInformation)
 {
 	CGameObject::Draw(a_drawInformation);
 }
