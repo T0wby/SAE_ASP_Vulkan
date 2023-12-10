@@ -5,9 +5,16 @@
 #include <stb_image.h>
 #include "../../Utility/Utility.h"
 
-void CSwapChain::Finalize()
+CSwapChain::~CSwapChain()
 {
 	CleanupSwapChain();
+}
+
+void CSwapChain::CreateTextures()
+{
+	CreateTextureImage();
+	CreateTextureImageView();
+	CreateTextureSampler();
 }
 
 bool CSwapChain::IsDeviceSuitable(VkPhysicalDevice a_device, VkSurfaceKHR a_surface, const std::vector<const char*> a_enabledExtensions)
@@ -145,7 +152,7 @@ void CSwapChain::Init()
 
 void CSwapChain::CreateSwapChain()
 {
-	const SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_device.GetPhysicalDevice(), m_pWindow->GetSurface());
+	const SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_pDevice->GetPhysicalDevice(), m_pDevice->GetSurface());
 
 	const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 	const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -161,7 +168,7 @@ void CSwapChain::CreateSwapChain()
 
 	VkSwapchainCreateInfoKHR createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = m_pWindow->GetSurface();
+	createInfo.surface = m_pDevice->GetSurface();
 	createInfo.minImageCount = imageCount;
 	createInfo.imageFormat = surfaceFormat.format;
 	createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -169,7 +176,7 @@ void CSwapChain::CreateSwapChain()
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; //  specifies what kind of operations we'll use the images in the swap chain for
 
-	const QueueFamilyIndices indices = FindQueueFamilies(m_device.GetPhysicalDevice(), m_pWindow->GetSurface());
+	const QueueFamilyIndices indices = FindQueueFamilies(m_pDevice->GetPhysicalDevice(), m_pDevice->GetSurface());
 	const uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
 	if (indices.graphicsFamily != indices.presentFamily) {
@@ -188,7 +195,7 @@ void CSwapChain::CreateSwapChain()
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = m_pSwapChainOld == nullptr ? VK_NULL_HANDLE : m_pSwapChainOld->m_swapChain; // Swapchain can get invalid during runtime for example because the window was resized(Solution done later)
 
-	const auto result = vkCreateSwapchainKHR(m_device.GetLogicalDevice(), &createInfo, nullptr, &m_swapChain);
+	const auto result = vkCreateSwapchainKHR(m_pDevice->GetLogicalDevice(), &createInfo, nullptr, &m_swapChain);
 	if (result != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create swap chain!");
@@ -196,9 +203,9 @@ void CSwapChain::CreateSwapChain()
 
 	///////////////// Retrieving the swap chain images //////////////////////////
 	
-	vkGetSwapchainImagesKHR(m_device.GetLogicalDevice(), m_swapChain, &imageCount, nullptr); // query the final number of images
+	vkGetSwapchainImagesKHR(m_pDevice->GetLogicalDevice(), m_swapChain, &imageCount, nullptr); // query the final number of images
 	m_vSwapChainImages.resize(imageCount);
-	vkGetSwapchainImagesKHR(m_device.GetLogicalDevice(), m_swapChain, &imageCount, m_vSwapChainImages.data());
+	vkGetSwapchainImagesKHR(m_pDevice->GetLogicalDevice(), m_swapChain, &imageCount, m_vSwapChainImages.data());
 }
 
 void CSwapChain::CreateImageViews()
@@ -224,7 +231,7 @@ void CSwapChain::CreateImageViews()
 		createInfo.subresourceRange.baseArrayLayer = 0;
 		createInfo.subresourceRange.layerCount = 1;
 
-		if (vkCreateImageView(m_device.GetLogicalDevice(), &createInfo, nullptr, &m_vSwapChainImageViews[i]) != VK_SUCCESS) 
+		if (vkCreateImageView(m_pDevice->GetLogicalDevice(), &createInfo, nullptr, &m_vSwapChainImageViews[i]) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("failed to create image views!");
 		}
@@ -235,7 +242,7 @@ void CSwapChain::DestroyImageViews()
 {
 	for (const auto imageView : m_vSwapChainImageViews)
 	{
-		vkDestroyImageView(m_device.GetLogicalDevice(), imageView, nullptr);
+		vkDestroyImageView(m_pDevice->GetLogicalDevice(), imageView, nullptr);
 	}
 }
 
@@ -294,7 +301,7 @@ void CSwapChain::CreateRenderPass()
 	renderPassInfo.dependencyCount = 1;
 	renderPassInfo.pDependencies = &dependency;
 
-	if (vkCreateRenderPass(m_device.GetLogicalDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) 
+	if (vkCreateRenderPass(m_pDevice->GetLogicalDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create render pass!");
 	}
@@ -306,7 +313,7 @@ void CSwapChain::CreateFrameBuffers()
 
 	for (size_t i = 0; i < m_vSwapChainImageViews.size(); i++) 
 	{
-		std::vector<VkImageView> attachments = { m_vSwapChainImageViews[i],m_depthImageView };
+		std::vector<VkImageView> attachments = { m_vSwapChainImageViews[i], m_vDepthImageViews[i] };
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -317,7 +324,7 @@ void CSwapChain::CreateFrameBuffers()
 		framebufferInfo.height = m_swapChainExtent.height;
 		framebufferInfo.layers = 1;
 
-		if (vkCreateFramebuffer(m_device.GetLogicalDevice(), &framebufferInfo, nullptr, &m_vSwapChainFramebuffers[i]) != VK_SUCCESS) 
+		if (vkCreateFramebuffer(m_pDevice->GetLogicalDevice(), &framebufferInfo, nullptr, &m_vSwapChainFramebuffers[i]) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("failed to create framebuffer!");
 		}
@@ -329,6 +336,7 @@ void CSwapChain::CreateSyncObjects()
 	m_vImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	m_vRenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	m_vInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+	m_vImagesInFlight.resize(GetImageCount(), VK_NULL_HANDLE);
 
 	VkSemaphoreCreateInfo semaphoreInfo{};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -339,9 +347,9 @@ void CSwapChain::CreateSyncObjects()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		if (vkCreateSemaphore(m_device.GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vImageAvailableSemaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(m_device.GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vRenderFinishedSemaphores[i]) != VK_SUCCESS ||
-			vkCreateFence(m_device.GetLogicalDevice(), &fenceInfo, nullptr, &m_vInFlightFences[i]) != VK_SUCCESS)
+		if (vkCreateSemaphore(m_pDevice->GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vImageAvailableSemaphores[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(m_pDevice->GetLogicalDevice(), &semaphoreInfo, nullptr, &m_vRenderFinishedSemaphores[i]) != VK_SUCCESS ||
+			vkCreateFence(m_pDevice->GetLogicalDevice(), &fenceInfo, nullptr, &m_vInFlightFences[i]) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to create semaphores!");
 		}
@@ -352,32 +360,49 @@ void CSwapChain::CreateDepthResources()
 {
 	const VkFormat depthFormat = FindDepthFormat();
 	m_swapChainDepthFormat = depthFormat;
-	CreateImage(m_swapChainExtent.width, m_swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, m_depthImageMemory);
-	m_depthImageView = CreateImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+	m_vDepthImages.resize(GetImageCount());
+	m_vDepthImageMemorys.resize(GetImageCount());
+	m_vDepthImageViews.resize(GetImageCount());
 
-	TransitionImageLayout(m_depthImage, depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	for (int i = 0; i < m_vDepthImages.size(); i++)
+	{
+		CreateImage(m_swapChainExtent.width, m_swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+			m_vDepthImages[i],
+			m_vDepthImageMemorys[i]);
+		m_vDepthImageViews[i] = CreateImageView(m_vDepthImages[i], depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+
+		TransitionImageLayout(m_vDepthImages[i], depthFormat, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+	}
+
 }
 
-void CSwapChain::CreateTextures()
-{
-	CreateTextureImage();
-	CreateTextureImageView();
-	CreateTextureSampler();
-}
+//void CSwapChain::CreateTextures()
+//{
+//	CreateTextureImage();
+//	CreateTextureImageView();
+//	CreateTextureSampler();
+//}
 
 VkResult CSwapChain::AquireNextImage(uint32_t& a_imageIndex)
 {
-	return vkAcquireNextImageKHR(m_device.GetLogicalDevice(), m_swapChain, UINT64_MAX, m_vImageAvailableSemaphores[m_iCurrentFrame], VK_NULL_HANDLE, &a_imageIndex);
+	vkWaitForFences(m_pDevice->GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame], VK_TRUE, UINT64_MAX);
+	return vkAcquireNextImageKHR(m_pDevice->GetLogicalDevice(), m_swapChain, UINT64_MAX, m_vImageAvailableSemaphores[m_iCurrentFrame], VK_NULL_HANDLE, &a_imageIndex);
 }
 
 VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const uint32_t& a_imageIndex, const std::shared_ptr<CScene>& a_pScene)
 {
-	if (m_vInFlightFences[m_iCurrentFrame] != VK_NULL_HANDLE)
-	{
-		vkWaitForFences(m_device.GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame], VK_TRUE, UINT64_MAX);
-	}
-
+	//if (m_vImagesInFlight[a_imageIndex] != VK_NULL_HANDLE)
+	//{
+	//	vkWaitForFences(m_pDevice->GetLogicalDevice(), 1, &m_vImagesInFlight[a_imageIndex], VK_TRUE, UINT64_MAX);
+	//}
+	//m_vImagesInFlight[a_imageIndex] = m_vInFlightFences[m_iCurrentFrame];
+	
 	UpdateUniformBuffer(a_pScene);
+	
+	// Reset fence to unsigned
+	vkResetFences(m_pDevice->GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame]);
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -395,10 +420,9 @@ VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const 
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 	
-	// Reset fence to unsigned
-	vkResetFences(m_device.GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame]);
+	
 
-	if (vkQueueSubmit(m_device.GetGraphicsQueue(), 1, &submitInfo, m_vInFlightFences[m_iCurrentFrame]) != VK_SUCCESS)
+	if (vkQueueSubmit(m_pDevice->GetGraphicsQueue(), 1, &submitInfo, m_vInFlightFences[m_iCurrentFrame]) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to submit draw command buffer!");
 	}
@@ -414,7 +438,7 @@ VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const 
 	presentInfo.pImageIndices = &a_imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
-	const auto result = vkQueuePresentKHR(m_device.GetPresentationQueue(), &presentInfo);
+	const auto result = vkQueuePresentKHR(m_pDevice->GetPresentationQueue(), &presentInfo);
 
 	// Next frame
 	m_iCurrentFrame = (m_iCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -425,41 +449,47 @@ VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const 
 void CSwapChain::CleanupSwapChain()
 {
 	DestroyImageViews();
-	vkDestroySwapchainKHR(m_device.GetLogicalDevice(), m_swapChain, nullptr);
+	if (m_swapChain != nullptr)
+	{
+		vkDestroySwapchainKHR(m_pDevice->GetLogicalDevice(), m_swapChain, nullptr);
+		m_swapChain = nullptr;
+	}
 	
-	vkDestroyImageView(m_device.GetLogicalDevice(), m_depthImageView, nullptr);
-	vkDestroyImage(m_device.GetLogicalDevice(), m_depthImage, nullptr);
-	vkFreeMemory(m_device.GetLogicalDevice(), m_depthImageMemory, nullptr);
-	
+	for (int i = 0; i < m_vDepthImages.size(); i++)
+	{
+		vkDestroyImageView(m_pDevice->GetLogicalDevice(), m_vDepthImageViews[i], nullptr);
+		vkDestroyImage(m_pDevice->GetLogicalDevice(), m_vDepthImages[i], nullptr);
+		vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vDepthImageMemorys[i], nullptr);
+	}
 	CleanupFrameBuffer();
 
-	vkDestroySampler(m_device.GetLogicalDevice(), m_textureSampler, nullptr);
-	vkDestroyImageView(m_device.GetLogicalDevice(), m_textureImageView, nullptr);
-	vkDestroyImage(m_device.GetLogicalDevice(), m_textureImage, nullptr);
-	vkFreeMemory(m_device.GetLogicalDevice(), m_textureImageMemory, nullptr);
-	vkDestroyDescriptorSetLayout(m_device.GetLogicalDevice(), m_descriptorSetLayout, nullptr);
+	vkDestroySampler(m_pDevice->GetLogicalDevice(), m_textureSampler, nullptr);
+	vkDestroyImageView(m_pDevice->GetLogicalDevice(), m_textureImageView, nullptr);
+	vkDestroyImage(m_pDevice->GetLogicalDevice(), m_textureImage, nullptr);
+	vkFreeMemory(m_pDevice->GetLogicalDevice(), m_textureImageMemory, nullptr);
+	vkDestroyDescriptorSetLayout(m_pDevice->GetLogicalDevice(), m_descriptorSetLayout, nullptr);
 	
-	vkDestroyRenderPass(m_device.GetLogicalDevice(), m_renderPass, nullptr);
+	vkDestroyRenderPass(m_pDevice->GetLogicalDevice(), m_renderPass, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		vkDestroySemaphore(m_device.GetLogicalDevice(), m_vImageAvailableSemaphores[i], nullptr);
-		vkDestroySemaphore(m_device.GetLogicalDevice(), m_vRenderFinishedSemaphores[i], nullptr);
-		vkDestroyFence(m_device.GetLogicalDevice(), m_vInFlightFences[i], nullptr);
+		vkDestroySemaphore(m_pDevice->GetLogicalDevice(), m_vImageAvailableSemaphores[i], nullptr);
+		vkDestroySemaphore(m_pDevice->GetLogicalDevice(), m_vRenderFinishedSemaphores[i], nullptr);
+		vkDestroyFence(m_pDevice->GetLogicalDevice(), m_vInFlightFences[i], nullptr);
 	}
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		vkDestroyBuffer(m_device.GetLogicalDevice(), m_vUniformBuffers[i], nullptr);
-		vkFreeMemory(m_device.GetLogicalDevice(), m_vUniformBuffersMemory[i], nullptr);
+		vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vUniformBuffers[i], nullptr);
+		vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vUniformBuffersMemory[i], nullptr);
 	}
-	vkDestroyDescriptorPool(m_device.GetLogicalDevice(), m_descriptorPool, nullptr);
+	vkDestroyDescriptorPool(m_pDevice->GetLogicalDevice(), m_descriptorPool, nullptr);
 }
 
 void CSwapChain::CleanupFrameBuffer()
 {
 	for (const auto framebuffer : m_vSwapChainFramebuffers) 
 	{
-		vkDestroyFramebuffer(m_device.GetLogicalDevice(), framebuffer, nullptr);
+		vkDestroyFramebuffer(m_pDevice->GetLogicalDevice(), framebuffer, nullptr);
 	}
 }
 
@@ -555,25 +585,25 @@ void CSwapChain::CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_for
 	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateImage(m_device.GetLogicalDevice(), &imageInfo, nullptr, &a_image) != VK_SUCCESS) 
+	if (vkCreateImage(m_pDevice->GetLogicalDevice(), &imageInfo, nullptr, &a_image) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create image!");
 	}
 
 	VkMemoryRequirements memRequirements;
-	vkGetImageMemoryRequirements(m_device.GetLogicalDevice(), a_image, &memRequirements);
+	vkGetImageMemoryRequirements(m_pDevice->GetLogicalDevice(), a_image, &memRequirements);
 
 	VkMemoryAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	allocInfo.allocationSize = memRequirements.size;
 	allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, a_properties);
 
-	if (vkAllocateMemory(m_device.GetLogicalDevice(), &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS) 
+	if (vkAllocateMemory(m_pDevice->GetLogicalDevice(), &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to allocate image memory!");
 	}
 
-	vkBindImageMemory(m_device.GetLogicalDevice(), a_image, a_imageMemory, 0);
+	vkBindImageMemory(m_pDevice->GetLogicalDevice(), a_image, a_imageMemory, 0);
 }
 
 VkImageView CSwapChain::CreateImageView(VkImage a_image, VkFormat a_format, VkImageAspectFlags a_aspectFlags)
@@ -590,7 +620,7 @@ VkImageView CSwapChain::CreateImageView(VkImage a_image, VkFormat a_format, VkIm
 	viewInfo.subresourceRange.layerCount = 1;
 
 	VkImageView imageView;
-	if (vkCreateImageView(m_device.GetLogicalDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
+	if (vkCreateImageView(m_pDevice->GetLogicalDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create texture image view!");
 	}
@@ -601,7 +631,7 @@ VkImageView CSwapChain::CreateImageView(VkImage a_image, VkFormat a_format, VkIm
 void CSwapChain::TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout,
 	VkImageLayout a_newLayout)
 {
-	const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(m_device.GetLogicalDevice(), m_device.GetCommandPool());
+	const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool());
 
 	VkImageMemoryBarrier barrier{};
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -670,14 +700,14 @@ void CSwapChain::TransitionImageLayout(VkImage a_image, VkFormat a_format, VkIma
 		1, &barrier
 	);
 
-	CUtility::EndSingleTimeCommands(commandBuffer, m_device.GetGraphicsQueue(), m_device.GetCommandPool(), m_device.GetLogicalDevice());
+	CUtility::EndSingleTimeCommands(commandBuffer, m_pDevice->GetGraphicsQueue(), m_pDevice->GetCommandPool(), m_pDevice->GetLogicalDevice());
 }
 
 uint32_t CSwapChain::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
 {
 	// query info about the available types of memory
 	VkPhysicalDeviceMemoryProperties memProperties;
-	vkGetPhysicalDeviceMemoryProperties(m_device.GetPhysicalDevice(), &memProperties);
+	vkGetPhysicalDeviceMemoryProperties(m_pDevice->GetPhysicalDevice(), &memProperties);
 
 	// VkMemoryRequirements::memoryTypeBits is a bitfield that sets a bit for every memoryType that is
 	// supported for the resource.Therefore we need to check if the bit at index i is set while also testing the
@@ -699,7 +729,7 @@ VkFormat CSwapChain::FindSupportedFormat(const std::vector<VkFormat>& a_candidat
 	for (const VkFormat format : a_candidates) 
 	{
 		VkFormatProperties props;
-		vkGetPhysicalDeviceFormatProperties(m_device.GetPhysicalDevice(), format, &props);
+		vkGetPhysicalDeviceFormatProperties(m_pDevice->GetPhysicalDevice(), format, &props);
 		if (a_tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & a_features) == a_features) 
 			return format;
 		else if (a_tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & a_features) == a_features) 
@@ -713,89 +743,13 @@ bool CSwapChain::HasStencilComponent(VkFormat a_format)
 	return a_format == VK_FORMAT_D32_SFLOAT_S8_UINT || a_format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-// void CSwapChain::RecordCommandBuffer(VkCommandBuffer a_commandBuffer, uint32_t a_imageIndex,
-// 	const std::shared_ptr<CScene>& a_pScene, const std::shared_ptr<CPipeline>& a_pPipeline, VkPipelineLayout a_pipelineLayout)
-// {
-// 	/* The flags parameter specifies how we're going to use the command buffer. The following values are available:
-// 	* VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT: The command buffer will be rerecorded right after executing it once.
-// 	* VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT: This is a secondary command buffer that will be entirely within a single render pass.
-// 	* VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT: The command buffer can be resubmitted while it is also already pending execution.
-// 	*/
-//
-// 	VkCommandBufferBeginInfo beginInfo{};
-// 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-// 	beginInfo.flags = 0; // Optional
-// 	beginInfo.pInheritanceInfo = nullptr; // Only relevant for secondary command buffers
-//
-// 	if (vkBeginCommandBuffer(a_commandBuffer, &beginInfo) != VK_SUCCESS) 
-// 	{
-// 		throw std::runtime_error("failed to begin recording command buffer!");
-// 	}
-//
-// 	// Starting a render pass
-// 	VkRenderPassBeginInfo renderPassInfo{};
-// 	renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-// 	renderPassInfo.renderPass = GetRenderPass();
-// 	renderPassInfo.framebuffer = GetFrameBuffer(a_imageIndex);
-// 	// size of the render area
-// 	renderPassInfo.renderArea.offset = { 0, 0 };
-// 	renderPassInfo.renderArea.extent = GetSwapChainExtent();
-//
-// 	constexpr VkClearValue clearColor = { {{0.1f, 0.1f, 0.1f, 1.0f}} };
-// 	constexpr VkClearValue depthStencil = { {1.0f, 0.0f} };
-// 	const std::vector<VkClearValue> clearValues{ clearColor , depthStencil };
-// 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-// 	renderPassInfo.pClearValues = clearValues.data();
-//
-// 	/* The final parameter controls how the drawing commands within the render pass will be provided. It can have one of two values:
-// 	* VK_SUBPASS_CONTENTS_INLINE: The render pass commands will be embedded in the primary command buffer itself and no secondary command buffers will be executed.
-// 	* VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: The render pass commands will be executed from secondary command buffers.
-// 	*/
-//
-// 	vkCmdBeginRenderPass(a_commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-//
-// 	// Basic drawing commands
-// 	a_pPipeline->Bind(a_commandBuffer);
-//
-//
-// 	a_pScene->Initialize(a_commandBuffer);
-//
-// 	VkViewport viewport{};
-// 	viewport.x = 0.0f;
-// 	viewport.y = 0.0f;
-// 	viewport.width = static_cast<float>(GetWidth());
-// 	viewport.height = static_cast<float>(GetHeight());
-// 	viewport.minDepth = 0.0f;
-// 	viewport.maxDepth = 1.0f;
-// 	vkCmdSetViewport(a_commandBuffer, 0, 1, &viewport);
-//
-// 	VkRect2D scissor{};
-// 	scissor.offset = { 0, 0 };
-// 	scissor.extent = GetSwapChainExtent();
-// 	vkCmdSetScissor(a_commandBuffer, 0, 1, &scissor);
-//
-// 	vkCmdBindDescriptorSets(a_commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_pipelineLayout, 0, 1, &m_vDescriptorSets[m_iCurrentFrame], 0, nullptr);
-// 	
-// 	DrawInformation drawInfo{};
-// 	drawInfo.commandBuffer = a_commandBuffer;
-// 	drawInfo.pipelineLayout = a_pipelineLayout;
-// 	
-// 	a_pScene->Draw(drawInfo);
-//
-// 	vkCmdEndRenderPass(a_commandBuffer);
-//
-// 	if (vkEndCommandBuffer(a_commandBuffer) != VK_SUCCESS) 
-// 	{
-// 		throw std::runtime_error("failed to record command buffer!");
-// 	}
-// }
-
 void CSwapChain::UpdateUniformBuffer(const std::shared_ptr<CScene>& a_pScene)
 {
 	const UniformBufferObject ubo = a_pScene->CreateUniformBuffer();
 
 	memcpy(m_vUniformBuffersMapped[m_iCurrentFrame], &ubo, sizeof(ubo));
 }
+
 
 void CSwapChain::CreateTextureImage()
 {
@@ -811,13 +765,13 @@ void CSwapChain::CreateTextureImage()
 	VkBuffer stagingBuffer;
 	VkDeviceMemory stagingBufferMemory;
 	// The buffer should be in host visible memory so that we can map it and it should be usable as a transfer source so that we can copy it to an image later on:
-	m_device.CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	m_pDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
 	// We can then directly copy the pixel values that we got from the image loading library to the buffer:
 	void* data;
-	vkMapMemory(m_device.GetLogicalDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+	vkMapMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
 	memcpy(data, pixels, static_cast<size_t>(imageSize));
-	vkUnmapMemory(m_device.GetLogicalDevice(), stagingBufferMemory);
+	vkUnmapMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory);
 
 	stbi_image_free(pixels);
 
@@ -829,13 +783,13 @@ void CSwapChain::CreateTextureImage()
 
 	TransitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-	vkDestroyBuffer(m_device.GetLogicalDevice(), stagingBuffer, nullptr);
-	vkFreeMemory(m_device.GetLogicalDevice(), stagingBufferMemory, nullptr);
+	vkDestroyBuffer(m_pDevice->GetLogicalDevice(), stagingBuffer, nullptr);
+	vkFreeMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory, nullptr);
 }
 
 void CSwapChain::CopyBufferToImage(VkBuffer a_buffer, VkImage a_image, uint32_t a_width, uint32_t a_height)
 {
-	const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(m_device.GetLogicalDevice(), m_device.GetCommandPool());
+	const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool());
 
 	VkBufferImageCopy region{};
 	region.bufferOffset = 0;
@@ -863,7 +817,7 @@ void CSwapChain::CopyBufferToImage(VkBuffer a_buffer, VkImage a_image, uint32_t 
 		&region
 	);
 
-	CUtility::EndSingleTimeCommands(commandBuffer, m_device.GetGraphicsQueue(), m_device.GetCommandPool(), m_device.GetLogicalDevice());
+	CUtility::EndSingleTimeCommands(commandBuffer, m_pDevice->GetGraphicsQueue(), m_pDevice->GetCommandPool(), m_pDevice->GetLogicalDevice());
 }
 
 void CSwapChain::CreateTextureImageView()
@@ -884,7 +838,7 @@ void CSwapChain::CreateTextureSampler()
 
 	// Might be a good idea to save those in a variable
 	VkPhysicalDeviceProperties properties{};
-	vkGetPhysicalDeviceProperties(m_device.GetPhysicalDevice(), &properties);
+	vkGetPhysicalDeviceProperties(m_pDevice->GetPhysicalDevice(), &properties);
 
 	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
 	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
@@ -896,11 +850,12 @@ void CSwapChain::CreateTextureSampler()
 	samplerInfo.minLod = 0.0f;
 	samplerInfo.maxLod = 0.0f;
 
-	if (vkCreateSampler(m_device.GetLogicalDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS) 
+	if (vkCreateSampler(m_pDevice->GetLogicalDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create texture sampler!");
 	}
 }
+
 
 void CSwapChain::CreateDescriptorSetLayout()
 {
@@ -924,7 +879,7 @@ void CSwapChain::CreateDescriptorSetLayout()
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
 	layoutInfo.pBindings = bindings.data();
 
-	if (vkCreateDescriptorSetLayout(m_device.GetLogicalDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) 
+	if (vkCreateDescriptorSetLayout(m_pDevice->GetLogicalDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to create descriptor set layout!");
 	}
@@ -946,7 +901,7 @@ void CSwapChain::CreateDescriptorPool()
 	poolInfo.pPoolSizes = poolSizes.data();
 	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
-	if (vkCreateDescriptorPool(m_device.GetLogicalDevice(), &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
+	if (vkCreateDescriptorPool(m_pDevice->GetLogicalDevice(), &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
@@ -962,7 +917,7 @@ void CSwapChain::CreateDescriptorSets(void)
 	allocInfo.pSetLayouts = layouts.data();
 
 	m_vDescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-	if (vkAllocateDescriptorSets(m_device.GetLogicalDevice(), &allocInfo, m_vDescriptorSets.data()) != VK_SUCCESS)
+	if (vkAllocateDescriptorSets(m_pDevice->GetLogicalDevice(), &allocInfo, m_vDescriptorSets.data()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to allocate descriptor sets!");
 	}
@@ -1000,7 +955,7 @@ void CSwapChain::CreateDescriptorSets(void)
 		descriptorWrites[1].descriptorCount = 1;
 		descriptorWrites[1].pImageInfo = &imageInfo;
 
-		vkUpdateDescriptorSets(m_device.GetLogicalDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(m_pDevice->GetLogicalDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
 	}
 }
 
@@ -1015,9 +970,9 @@ void CSwapChain::CreateUniformBuffers(void)
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		// staging buffer not used due to uniform buffers being changed every frame
-		m_device.CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_vUniformBuffers[i], m_vUniformBuffersMemory[i]);
+		m_pDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_vUniformBuffers[i], m_vUniformBuffersMemory[i]);
 
 		// persistent mapping
-		vkMapMemory(m_device.GetLogicalDevice(), m_vUniformBuffersMemory[i], 0, bufferSize, 0, &m_vUniformBuffersMapped[i]);
+		vkMapMemory(m_pDevice->GetLogicalDevice(), m_vUniformBuffersMemory[i], 0, bufferSize, 0, &m_vUniformBuffersMapped[i]);
 	}
 }

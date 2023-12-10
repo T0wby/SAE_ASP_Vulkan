@@ -92,6 +92,18 @@
     <ClCompile Include="Core\System\SwapChain.cpp">
       <Filter>Core\System</Filter>
     </ClCompile>
+    <ClCompile Include="Components\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\RenderSystems\SimpleRenderSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Primitives\LoadedCube.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\System\Engine.h">
@@ -145,6 +157,10 @@
     <ClInclude Include="Core\System\SwapChain.h">
       <Filter>Core\System</Filter>
     </ClInclude>
+    <ClInclude Include="Components\Texture.h" />
+    <ClInclude Include="Core\System\Renderer.h" />
+    <ClInclude Include="Core\System\RenderSystems\SimpleRenderSystem.h" />
+    <ClInclude Include="GameObjects\Primitives\LoadedCube.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">

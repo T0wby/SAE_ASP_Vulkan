@@ -1,5 +1,6 @@
 #include "PlayerController.h"
 
+#include <iostream>
 #include <stdexcept>
 
 const int I_SUCCESS = 0;
@@ -53,6 +54,11 @@ void MouseInput(GLFWwindow* a_pWindow, double a_dXPos, double a_dYPos)
 	pCamera->CalcOrientation(direction);
 }
 
+void ScrollCallback(GLFWwindow* window, double a_dXOffset, double a_dYOffset) {
+	// Adjust the float value based on the scroll input
+	pCamera->AddSpeed(static_cast<float>(a_dYOffset * 0.5f));
+}
+
 int CPlayerController::Initialize(const std::shared_ptr<CWindow>& a_pWindow,
 	const std::shared_ptr<CGameObject>& a_pGameObject, const float& a_fDeltaTime)
 {
@@ -66,13 +72,14 @@ int CPlayerController::Initialize(const std::shared_ptr<CWindow>& a_pWindow,
 	SetDefaultInputGO();
 
 	glfwSetCursorPosCallback(pCurrWindow->GetWindow().get(), MouseInput);
+	glfwSetScrollCallback(pCurrWindow->GetWindow().get(), ScrollCallback);
 	return I_SUCCESS;
 }
 
 
-int CPlayerController::Update(const float& a_fDeltaTime)
+int CPlayerController::Update(const double& a_dDeltaTime)
 {
-	m_fDeltaTime = a_fDeltaTime;
+	m_fDeltaTime = static_cast<float>(a_dDeltaTime);
 	CheckKeys();
 	return I_SUCCESS;
 }

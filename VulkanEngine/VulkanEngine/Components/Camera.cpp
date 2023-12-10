@@ -8,7 +8,7 @@ int CCamera::Initialize(void)
     return 0;
 }
 
-int CCamera::Initialize(VkCommandBuffer a_commandBuffer)
+int CCamera::Initialize(const VkCommandBuffer& a_commandBuffer)
 {
     return 0;
 }
@@ -17,7 +17,7 @@ void CCamera::Draw(const DrawInformation& a_drawInformation)
 {
 }
 
-int CCamera::Update(void)
+int CCamera::Update(const double& a_dDeltaTime)
 {
     return 0;
 }
@@ -32,25 +32,23 @@ void CCamera::Finalize(void)
 
 auto CCamera::GetViewMatrix() const -> const glm::mat4
 {
-    auto look = glm::lookAt(m_pos, m_pos + m_orientation, m_up);
-    return look;
+    return glm::lookAt(m_pos, m_pos + m_orientation, m_up);
 }
 
 auto CCamera::GetViewMatrix(const glm::vec3& a_pos) const -> const glm::mat4
 {
-    auto look = glm::lookAt(a_pos, a_pos + m_orientation, m_up);
-    return look;
+    return glm::lookAt(a_pos, a_pos + m_orientation, m_up);
 }
 
 auto CCamera::GetProjectionMatrix() const -> const glm::mat4
 {
-    return glm::perspective(glm::radians(45.0f), m_iWidth / (float)m_iHeight, 0.1f, 10.0f);
+    return glm::perspective(glm::radians(m_fFieldOfView), m_iWidth / static_cast<float>(m_iHeight), m_fNearPlane, m_fFarPlane);
 }
 
 auto CCamera::GetCamMatrix() const -> const glm::mat4
 {
     auto view = glm::mat4x4(1.0f);
-    view = glm::lookAt(m_pos, m_pos + m_orientation, m_up);
+    view = GetViewMatrix();
     auto projection = glm::mat4x4(1.0f);
     projection = GetProjectionMatrix();
     return projection * view;

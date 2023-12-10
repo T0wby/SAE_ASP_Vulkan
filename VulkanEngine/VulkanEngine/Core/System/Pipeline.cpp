@@ -4,12 +4,12 @@
 #include "../../Utility/Utility.h"
 #include "../../Utility/Variables.h"
 
-void CPipeline::Finalize()
+CPipeline::~CPipeline()
 {
-	vkDestroyShaderModule(m_device.GetLogicalDevice(), m_vertShaderModule, nullptr);
-	vkDestroyShaderModule(m_device.GetLogicalDevice(), m_fragShaderModule, nullptr);
+	vkDestroyShaderModule(m_pDevice->GetLogicalDevice(), m_vertShaderModule, nullptr);
+	vkDestroyShaderModule(m_pDevice->GetLogicalDevice(), m_fragShaderModule, nullptr);
 
-	vkDestroyPipeline(m_device.GetLogicalDevice(), m_graphicsPipeline, nullptr);
+	vkDestroyPipeline(m_pDevice->GetLogicalDevice(), m_graphicsPipeline, nullptr);
 }
 
 void CPipeline::Bind(VkCommandBuffer a_commandBuffer)
@@ -137,9 +137,12 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
     const auto bindingDescription = Vertex::GetBindingDescription();
 	const auto attributeDescriptionPos = Vertex::GetAttributeDescriptionPos();
 	const auto attributeDescriptionColor = Vertex::GetAttributeDescriptionCol();
+	const auto attributeDescriptionNormal = Vertex::GetAttributeDescriptionNormal();
 	const auto attributeDescriptionUV = Vertex::GetAttributeDescriptionUV();
 
-	const std::vector<VkVertexInputAttributeDescription> attributeDescriptions = { attributeDescriptionPos, attributeDescriptionColor, attributeDescriptionUV };
+	const std::vector<VkVertexInputAttributeDescription> attributeDescriptions = {
+		attributeDescriptionPos, attributeDescriptionColor, attributeDescriptionNormal, attributeDescriptionUV
+	};
 
 	// Vertex Input(Data hard coded inside of the shader atm)
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -163,7 +166,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Optional
 
-	if (vkCreatePipelineLayout(m_device.GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &a_pipelineConfig->pipelineLayout) != VK_SUCCESS)
+	if (vkCreatePipelineLayout(m_pDevice->GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &a_pipelineConfig->pipelineLayout) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create pipeline layout!");
 	}
@@ -187,7 +190,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
 	pipelineInfo.basePipelineIndex = -1; // Optional
 
-	if (vkCreateGraphicsPipelines(m_device.GetLogicalDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
+	if (vkCreateGraphicsPipelines(m_pDevice->GetLogicalDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_graphicsPipeline) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create graphics pipeline!");
 	}
@@ -200,7 +203,7 @@ void CPipeline::CreateShaderModule(const std::vector<char>& a_vBytecode, VkShade
     createInfo.codeSize = a_vBytecode.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(a_vBytecode.data());
 
-    if (vkCreateShaderModule(m_device.GetLogicalDevice(), &createInfo, nullptr, a_vertShaderModule) != VK_SUCCESS)
+    if (vkCreateShaderModule(m_pDevice->GetLogicalDevice(), &createInfo, nullptr, a_vertShaderModule) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create shader module!");
     }

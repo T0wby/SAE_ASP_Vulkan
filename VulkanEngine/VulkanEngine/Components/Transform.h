@@ -16,8 +16,8 @@ public:
 
 	// Inherited via IComponent
 	virtual int Initialize(void) override;
-	virtual int Initialize(VkCommandBuffer a_commandBuffer) override;
-	virtual int Update(void) override;
+	virtual int Initialize(const VkCommandBuffer& a_commandBuffer) override;
+	virtual int Update(const double& a_dDeltaTime) override;
 	virtual void Draw(void) override;
 	virtual void Draw(const DrawInformation& a_drawInformation) override;
 	virtual void Finalize(void) override;

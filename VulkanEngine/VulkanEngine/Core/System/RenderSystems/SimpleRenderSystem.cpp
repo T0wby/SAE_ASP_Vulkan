@@ -7,12 +7,6 @@ const std::string FRAG_SHADER = "Shader/frag.spv";
 
 CSimpleRenderSystem::~CSimpleRenderSystem()
 {
-    
-}
-
-void CSimpleRenderSystem::Finalize()
-{
-    m_pPipeline->Finalize();
     vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), m_pipelineLayout, nullptr);
 }
 
@@ -50,5 +44,5 @@ void CSimpleRenderSystem::CreatePipeline(const VkRenderPass& renderPass, VkDescr
     CPipeline::DefaultPipelineConfigInfo(defaultPipelineConfigInfo);
     defaultPipelineConfigInfo.renderPass = renderPass;
     defaultPipelineConfigInfo.pipelineLayout = m_pipelineLayout;
-    m_pPipeline = std::make_unique<CPipeline>(*m_pDevice, &defaultPipelineConfigInfo, VERT_SHADER, FRAG_SHADER, a_descLayout);
+    m_pPipeline = std::make_unique<CPipeline>(m_pDevice, &defaultPipelineConfigInfo, VERT_SHADER, FRAG_SHADER, a_descLayout);
 }

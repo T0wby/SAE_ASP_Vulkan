@@ -63,7 +63,8 @@ CCube::~CCube()
 
 void CCube::Initialize(void)
 {
-	m_pMesh = std::make_shared<CMesh>(m_pDevice, verticies, indices);
+	MeshData data{verticies, indices };
+	m_pMesh = std::make_shared<CMesh>(m_pDevice, data);
 
 	AddComponent(m_pMesh);
 
@@ -75,9 +76,9 @@ void CCube::Initialize(VkCommandBuffer a_commandBuffer)
 	CGameObject::Initialize(a_commandBuffer);
 }
 
-void CCube::Update(void)
+void CCube::Update(const double& a_dDeltaTime)
 {
-	CGameObject::Update();
+	CGameObject::Update(a_dDeltaTime);
 }
 
 void CCube::Draw(void)

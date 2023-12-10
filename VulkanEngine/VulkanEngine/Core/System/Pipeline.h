@@ -8,8 +8,10 @@
 class CPipeline
 {
 public:
-    inline CPipeline(CDevice a_device, PipelineConfigInfo* a_pipelineConfig, const std::string& a_vertFilepath, const std::string& a_fragFilepath, VkDescriptorSetLayout& a_descriptorSetLayout)
-        : m_device(std::move(a_device)), m_pipelineConfig(a_pipelineConfig)
+    inline CPipeline(const std::shared_ptr<CDevice>& a_pDevice, PipelineConfigInfo* a_pipelineConfig,
+        const std::string& a_vertFilepath, const std::string& a_fragFilepath,
+        VkDescriptorSetLayout& a_descriptorSetLayout)
+        : m_pDevice(a_pDevice), m_pipelineConfig(a_pipelineConfig)
     {
         
         CreateGraphicsPipeline(a_vertFilepath, a_fragFilepath, m_pipelineConfig, a_descriptorSetLayout);
@@ -19,15 +21,13 @@ public:
     CPipeline(CPipeline&&) = delete;
     CPipeline& operator= (const CPipeline&) = delete;
     CPipeline& operator= (CPipeline&&) = delete;
-    ~CPipeline() = default;
-
-    void Finalize(void);
+    ~CPipeline();
 
     void Bind(VkCommandBuffer a_commandBuffer);
     static void DefaultPipelineConfigInfo(PipelineConfigInfo& a_configInfo);
     
 private:
-    CDevice m_device;
+    std::shared_ptr<CDevice> m_pDevice{nullptr};
     VkPipeline m_graphicsPipeline{};
     PipelineConfigInfo* m_pipelineConfig{};
     VkShaderModule m_vertShaderModule{};

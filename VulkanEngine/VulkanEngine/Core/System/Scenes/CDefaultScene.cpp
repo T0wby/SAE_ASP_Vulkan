@@ -28,6 +28,14 @@ void CDefaultScene::InitGameObjects()
 	m_pCube3->SetRotation(glm::vec3(90.0f, 55.0f,255.0f));
 	m_pCube3->SetScale(glm::vec3(0.5f, 0.5f,0.5f));
 	m_vGameObjects.push_back(std::move(m_pCube3));
+
+	auto loaded = CLoadedCube::CreateGameObject(m_pDevice);
+	m_pCubeLoad = std::make_shared<CLoadedCube>(std::move(loaded));
+	m_pCubeLoad->Initialize();
+	m_pCubeLoad->SetPosition(glm::vec3(-1.5f, 2.0f,1.0f));
+	m_pCubeLoad->SetScale(glm::vec3(0.7f, 0.7f,0.7f));
+	m_vGameObjects.push_back(std::move(m_pCubeLoad));
+
 }
 
 void CDefaultScene::Initialize(VkCommandBuffer a_commandBuffer)
@@ -35,10 +43,10 @@ void CDefaultScene::Initialize(VkCommandBuffer a_commandBuffer)
 	CScene::Initialize(a_commandBuffer);
 }
 
-void CDefaultScene::Update(void)
+void CDefaultScene::Update(const double& a_dDeltaTime)
 {
 	m_vGameObjects[1]->SetRotation(glm::vec3(1.0f + static_cast<float>(glfwGetTime()),static_cast<float>(glfwGetTime()), 0.0f));
-	CScene::Update();
+	CScene::Update(a_dDeltaTime);
 }
 
 void CDefaultScene::Draw(void)

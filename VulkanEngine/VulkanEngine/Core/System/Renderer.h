@@ -20,9 +20,7 @@ public:
     CRenderer(CRenderer&&) = default;
     CRenderer& operator= (const CRenderer&) = delete;
     CRenderer& operator= (CRenderer&&) = default;
-    ~CRenderer() = default;
-
-    void Finalize(void);
+    ~CRenderer();
 
     VkCommandBuffer BeginFrame(void);
     void EndFrame(void);
@@ -30,7 +28,7 @@ public:
     void EndSwapChainRenderPass(const DrawInformation& a_drawInfo);
 
     inline auto IsFrameInProgress(void) const -> const bool { return m_bIsFrameStarted; }
-    inline auto GetCurrentCommandBuffer(void) const -> const VkCommandBuffer { return m_vCommandBuffers[m_currentFrameIndex]; }
+    inline auto GetCurrentCommandBuffer(void) const -> const VkCommandBuffer&{return m_vCommandBuffers[m_currentFrameIndex];}
     inline auto GetSwapChainRenderPass(void) const -> const VkRenderPass { return m_pSwapChain->GetRenderPass(); }
     inline auto GetDescriptorSetLayout(void) const -> const VkDescriptorSetLayout { return m_pSwapChain->GetDescriptorSetLayout(); }
     inline int GetFrameIndex() const
@@ -38,7 +36,6 @@ public:
         assert(m_bIsFrameStarted && "Cannot get frame index when frame not in progress");
         return m_currentFrameIndex;
     }
-    //inline void SetDescriptorSets(const std::vector<VkDescriptorSet>& a_vDescriptorSets) { m_vDescriptorSets = a_vDescriptorSets; }
 
 private:
     std::shared_ptr<CDevice> m_pDevice{nullptr};
@@ -46,7 +43,6 @@ private:
     std::unique_ptr<CSwapChain> m_pSwapChain{nullptr};
     std::shared_ptr<CScene> m_pCurrentScene{nullptr};
     std::vector<VkCommandBuffer> m_vCommandBuffers{};
-    //std::vector<VkDescriptorSet> m_vDescriptorSets{};
     uint32_t m_currentImageIndex{0};
     int m_currentFrameIndex{0};
     bool m_bIsFrameStarted{false};

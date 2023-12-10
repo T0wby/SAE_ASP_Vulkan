@@ -2,6 +2,7 @@
 #define DEFAULTSCENE_H
 #include "../Scene.h"
 #include "../../../GameObjects/Primitives/Cube.h"
+#include "../../../GameObjects/Primitives/LoadedCube.h"
 
 class CDefaultScene : public CScene
 {
@@ -17,7 +18,7 @@ public:
 
     void Initialize(void) override;
     void Initialize(VkCommandBuffer a_commandBuffer) override;
-    void Update(void) override;
+    void Update(const double& a_dDeltaTime) override;
     void Draw(void) override;
     void Draw(const DrawInformation& a_drawInformation) override;
     void Finalize(void) override;
@@ -26,6 +27,7 @@ private:
     std::shared_ptr<CCube> m_pCube{ nullptr };
     std::shared_ptr<CCube> m_pCube2{ nullptr };
     std::shared_ptr<CCube> m_pCube3{ nullptr };
+    std::shared_ptr<CLoadedCube> m_pCubeLoad{ nullptr };
 
     void InitGameObjects(void);
 

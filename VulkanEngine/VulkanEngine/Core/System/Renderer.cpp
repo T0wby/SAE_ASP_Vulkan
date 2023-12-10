@@ -2,9 +2,8 @@
 
 #include <stdexcept>
 
-void CRenderer::Finalize()
+CRenderer::~CRenderer()
 {
-    m_pSwapChain->Finalize();
     FreeCommandBuffers();
 }
 
@@ -43,7 +42,7 @@ void CRenderer::EndFrame()
 {
     assert(m_bIsFrameStarted && "Frame still in progress!");
 
-    const auto commandBuffer = GetCurrentCommandBuffer();
+    const auto commandBuffer = m_vCommandBuffers[m_currentFrameIndex];
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
     {
         throw std::runtime_error("failed to record command buffer!");
@@ -90,6 +89,7 @@ void CRenderer::BeginSwapChainRenderPass(const DrawInformation& a_drawInfo)
     * VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS: The render pass commands will be executed from secondary command buffers.
     */
     vkCmdBeginRenderPass(a_drawInfo.commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    //vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
     
     VkViewport viewport{};
     viewport.x = 0.0f;
@@ -134,7 +134,8 @@ void CRenderer::CreateCommandBuffers()
 
 void CRenderer::FreeCommandBuffers()
 {
-    vkFreeCommandBuffers(m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool(), m_vCommandBuffers.size(), m_vCommandBuffers.data());
+    vkFreeCommandBuffers(m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool(),
+        static_cast<uint32_t>(m_vCommandBuffers.size()), m_vCommandBuffers.data());
     m_vCommandBuffers.clear();
 }
 
@@ -144,22 +145,12 @@ void CRenderer::RecreateSwapChain()
     vkDeviceWaitIdle(m_pDevice->GetLogicalDevice());
     if (m_pSwapChain == nullptr)
     {
-        m_pSwapChain = std::make_unique<CSwapChain>(*m_pDevice, m_pWindow);
-        m_pSwapChain->CreateTextures();
-        m_pSwapChain->CreateUniformBuffers();
-        m_pSwapChain->CreateDescriptorPool();
-        m_pSwapChain->CreateDescriptorSetLayout();
-        m_pSwapChain->CreateDescriptorSets();
+        m_pSwapChain = std::make_unique<CSwapChain>(m_pDevice, m_pWindow);
     }
     else
     {
         std::shared_ptr<CSwapChain> oldSwapChain = std::move(m_pSwapChain);
-        m_pSwapChain = std::make_unique<CSwapChain>(*m_pDevice, m_pWindow, oldSwapChain);
-        m_pSwapChain->CreateTextures();
-        m_pSwapChain->CreateUniformBuffers();
-        m_pSwapChain->CreateDescriptorPool();
-        m_pSwapChain->CreateDescriptorSetLayout();
-        m_pSwapChain->CreateDescriptorSets();
+        m_pSwapChain = std::make_unique<CSwapChain>(m_pDevice, m_pWindow, oldSwapChain);
         if (!oldSwapChain->CompareSwapFormats(*m_pSwapChain))
             throw std::runtime_error("SwapChain Image or depth format has changed!");
     }

@@ -19,7 +19,7 @@ public:
 	~CPlayerController() = default;
 
 	int Initialize(const std::shared_ptr<CWindow>& a_pWindow, const std::shared_ptr<CGameObject>& a_pGameObject, const float& a_fDeltaTime);
-	int Update(const float& a_fDeltaTime);
+	int Update(const double& a_dDeltaTime);
 	void Finalize(void);
 
 	void SetExitInput(const std::function<void(void)>& a_pExitInput);

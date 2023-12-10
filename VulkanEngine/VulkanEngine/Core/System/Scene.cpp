@@ -22,16 +22,13 @@ void CScene::Initialize(VkCommandBuffer a_commandBuffer)
     }
 }
 
-void CScene::Update(void)
+void CScene::Update(const double& a_dDeltaTime)
 {
-    m_fCurrentFrame = glfwGetTime();
-    m_fDeltaTime = m_fCurrentFrame - m_fLastFrame;
-    m_fLastFrame = m_fCurrentFrame;
-    m_pPlayerController->Update(m_fDeltaTime);
+    m_pPlayerController->Update(a_dDeltaTime);
 
     for (const auto& m_vGameObject : m_vGameObjects)
     {
-        m_vGameObject->Update();
+        m_vGameObject->Update(a_dDeltaTime);
     }
 }
 
@@ -72,7 +69,7 @@ void CScene::CreateGameObjects(void)
 void CScene::SetupSceneInput(void)
 {
     // Default Input is set via the Initialize method
-    m_pPlayerController->Initialize(m_pWindow, m_pCameraObject, m_fDeltaTime);
+    m_pPlayerController->Initialize(m_pWindow, m_pCameraObject, 0.0f);
 }
 
 void CScene::AddGameObject(std::shared_ptr<CGameObject>& a_gameObject)

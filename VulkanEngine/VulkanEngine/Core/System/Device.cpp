@@ -6,17 +6,16 @@
 #include "SwapChain.h"
 #include "../../Utility/Utility.h"
 
-void CDevice::Initialize()
-{
-	PickPhysicalDevice();
-	CreateLogicalDevice();
-	CreateCommandPool();
-}
+const std::string NAME = "SAE_Tobi_Engine";
+const std::string APPLICATION_NAME = "SAE_ASP_Engine";
 
-void CDevice::Finalize()
+CDevice::~CDevice()
 {
 	vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
 	vkDestroyDevice(m_logicalDevice, nullptr);
+
+	vkDestroySurfaceKHR(*m_vulkanInstance, m_surface, nullptr);
+	vkDestroyInstance(*m_vulkanInstance, nullptr);
 }
 
 void CDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
@@ -78,6 +77,65 @@ uint32_t CDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prop
 	}
 
 	throw std::runtime_error("failed to find suitable memory type!");
+}
+
+void CDevice::CreateVulkanInstance()
+{
+	VkApplicationInfo application_info = {};
+	application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	application_info.pApplicationName = APPLICATION_NAME.c_str();
+	application_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	application_info.pEngineName = NAME.c_str();
+	application_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	application_info.apiVersion = VK_API_VERSION_1_2;
+
+	uint32_t glfwExtensionCount = 0;
+
+	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
+
+
+#ifdef NDEBUG
+	m_bEnableValidationLayers = false;
+#else
+	m_bEnableValidationLayers = true;
+#endif
+
+	if (m_bEnableValidationLayers && !CheckValidationLayerSupport(m_EnabledLayers))
+	{
+		throw std::runtime_error("validation layers requested, but not available!");
+	}
+
+	// Configuration Structs are a common pattern in VK, later used to create the instance
+	VkInstanceCreateInfo create_info = {};
+	create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	// Extra Application Info(Here for API version used)
+	create_info.pApplicationInfo = &application_info;
+	// Adding used Extensions
+	create_info.enabledExtensionCount = glfwExtensionCount;
+	create_info.ppEnabledExtensionNames = glfwExtensions;
+
+	if (m_bEnableValidationLayers)
+	{
+		// Enable a Layer(validation)
+		create_info.enabledLayerCount = static_cast<uint32_t>(m_EnabledLayers.size());
+		create_info.ppEnabledLayerNames = m_EnabledLayers.data();
+	}
+	else
+	{
+		create_info.enabledLayerCount = 0;
+	}
+
+	m_vulkanInstance = std::make_shared<VkInstance>();
+
+	if (vkCreateInstance(&create_info, nullptr, m_vulkanInstance.get()) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create VK instance!");
+	}
+}
+
+void CDevice::CreateSurface()
+{
+	m_pWindow->CreateWindowSurface(*m_vulkanInstance, m_surface);
 }
 
 void CDevice::PickPhysicalDevice(void)
@@ -177,4 +235,31 @@ void CDevice::CreateCommandPool()
 	{
 		throw std::runtime_error("failed to create command pool!");
 	}
+}
+
+bool CDevice::CheckValidationLayerSupport(const std::vector<const char*>& a_enabled_layers)
+{
+	uint32_t layerCount;
+	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+	std::vector<VkLayerProperties> availableLayers(layerCount);
+	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+	// Check if we find the layers
+	for (const char* layerName : a_enabled_layers) {
+		bool layerFound = false;
+
+		for (const auto& layerProperties : availableLayers) {
+			if (strcmp(layerName, layerProperties.layerName) == 0) {
+				layerFound = true;
+				break;
+			}
+		}
+
+		if (!layerFound) {
+			return false;
+		}
+	}
+
+	return true;
 }

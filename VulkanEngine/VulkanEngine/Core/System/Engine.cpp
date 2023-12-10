@@ -16,108 +16,25 @@ const std::string NAME = "SAE_Tobi_Engine";
 const std::string APPLICATION_NAME = "SAE_ASP_Engine";
 
 
+CEngine::~CEngine()
+{
+	Cleanup();
+}
+
 void CEngine::Run(void)
 {
 	InitializeWindow();
 	InitializeVulkan();
 	MainLoop();
-	Cleanup();
 }
 
 void CEngine::InitializeVulkan(void)
 {
-	CreateVulkanInstance();
 	CreateInput();
-	CreateGLFWSurface();
-	m_pDevice = std::make_shared<CDevice>(m_vInstance, m_pWindow->GetSurface());
-	m_pDevice->Initialize();
+	m_pDevice = std::make_shared<CDevice>(m_pWindow);
 	CreateScenes();
 	m_pRenderer = std::make_shared<CRenderer>(m_pDevice, m_pWindow, m_firstScene);
 }
-
-
-void CEngine::CreateVulkanInstance(void)
-{
-	VkApplicationInfo application_info = {};
-	application_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	application_info.pApplicationName = APPLICATION_NAME.c_str();
-	application_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	application_info.pEngineName = NAME.c_str();
-	application_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	application_info.apiVersion = VK_API_VERSION_1_2;
-
-	uint32_t glfwExtensionCount = 0;
-
-	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-
-#ifdef NDEBUG
-	m_bEnableValidationLayers = false;
-#else
-	m_bEnableValidationLayers = true;
-#endif
-
-	if (m_bEnableValidationLayers && !CheckValidationLayerSupport(m_EnabledLayers))
-	{
-		throw std::runtime_error("validation layers requested, but not available!");
-	}
-
-	// Configuration Structs are a common pattern in VK, later used to create the instance
-	VkInstanceCreateInfo create_info = {};
-	create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	// Extra Application Info(Here for API version used)
-	create_info.pApplicationInfo = &application_info;
-	// Adding used Extensions
-	create_info.enabledExtensionCount = glfwExtensionCount;
-	create_info.ppEnabledExtensionNames = glfwExtensions;
-
-	if (m_bEnableValidationLayers)
-	{
-		// Enable a Layer(validation)
-		create_info.enabledLayerCount = static_cast<uint32_t>(m_EnabledLayers.size());
-		create_info.ppEnabledLayerNames = m_EnabledLayers.data();
-	}
-	else
-	{
-		create_info.enabledLayerCount = 0;
-	}
-
-	m_vInstance = std::make_shared<VkInstance>();
-
-	const VkResult result = vkCreateInstance(&create_info, nullptr, m_vInstance.get());
-	if (result != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create VK instance!");
-	}
-}
-
-bool CEngine::CheckValidationLayerSupport(const std::vector<const char*>& a_enabled_layers)
-{
-	uint32_t layerCount;
-	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-	std::vector<VkLayerProperties> availableLayers(layerCount);
-	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-
-	// Check if we find the layers
-	for (const char* layerName : a_enabled_layers) {
-		bool layerFound = false;
-
-		for (const auto& layerProperties : availableLayers) {
-			if (strcmp(layerName, layerProperties.layerName) == 0) {
-				layerFound = true;
-				break;
-			}
-		}
-
-		if (!layerFound) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
 
 void CEngine::InitializeWindow(void)
 {
@@ -143,19 +60,23 @@ void CEngine::CreateScenes(void)
 
 void CEngine::MainLoop(void)
 {
+	CSimpleRenderSystem simpleRenderSystem{m_pDevice, m_pRenderer->GetSwapChainRenderPass(), m_pRenderer->GetDescriptorSetLayout()};
+
+	
 	while (!m_pWindow->GetWindowShouldClose()) 
 	{
-		CSimpleRenderSystem simpleRenderSystem{m_pDevice, m_pRenderer->GetSwapChainRenderPass(), m_pRenderer->GetDescriptorSetLayout()};
 		m_pWindow->Update();
-		m_firstScene->Update();
+		m_dCurrentFrame = glfwGetTime();
+		m_dDeltaTime = m_dCurrentFrame - m_dLastFrame;
+		m_dLastFrame = m_dCurrentFrame;
 		if (const auto commandBuffer = m_pRenderer->BeginFrame())
 		{
 			DrawInformation drawInfo{commandBuffer, simpleRenderSystem.GetLayout()};
 			m_pRenderer->BeginSwapChainRenderPass(drawInfo);
+			m_firstScene->Update(m_dDeltaTime);
 			simpleRenderSystem.RenderGameObjects(drawInfo, m_firstScene);
 			m_pRenderer->EndSwapChainRenderPass(drawInfo);
 			m_pRenderer->EndFrame();
-			simpleRenderSystem.Finalize();
 		}
 	}
 
@@ -165,15 +86,6 @@ void CEngine::MainLoop(void)
 void CEngine::Cleanup(void)
 {
 	m_firstScene->Finalize();
-	m_pRenderer->Finalize();
-	vkDestroySurfaceKHR(*m_vInstance, m_pWindow->GetSurface(), nullptr);
-	m_pDevice->Finalize();
-	vkDestroyInstance(*m_vInstance, nullptr);
 	m_pWindow->Finalize();
-}
-
-void CEngine::CreateGLFWSurface(void)
-{
-	m_pWindow->CreateWindowSurface(*m_vInstance);
 }
 

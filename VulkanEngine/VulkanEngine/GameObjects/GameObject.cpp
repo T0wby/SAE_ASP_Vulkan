@@ -18,11 +18,11 @@ void CGameObject::Initialize(VkCommandBuffer a_commandBuffer)
 	}
 }
 
-void CGameObject::Update(void)
+void CGameObject::Update(const double& a_dDeltaTime)
 {
 	for (std::shared_ptr<IComponent> component : m_components)
 	{
-		component->Update(); // calls the update function of each component
+		component->Update(a_dDeltaTime); // calls the update function of each component
 	}
 }
 

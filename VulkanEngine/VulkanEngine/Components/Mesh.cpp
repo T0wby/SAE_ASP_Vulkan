@@ -1,22 +1,41 @@
 #include "Mesh.h"
 #include "../Utility/Utility.h"
+#include <iostream>
+
+CMesh::~CMesh()
+{
+    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
+    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
+    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
+    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
+}
+
+std::unique_ptr<CMesh> CMesh::CreateMeshFromFile(const std::shared_ptr<CDevice>& a_pDevice,
+    const std::string& a_filePath, MeshData& a_meshData)
+{
+    MeshData data{};
+    data.LoadModel(a_filePath, a_meshData);
+
+    std::cout << data.vertices.size() << "\n";
+    return std::make_unique<CMesh>(a_pDevice, data);
+}
 
 int CMesh::Initialize(void)
 {
     return 0;
 }
 
-int CMesh::Initialize(VkCommandBuffer a_commandBuffer)
+int CMesh::Initialize(const VkCommandBuffer& a_commandBuffer)
 {
     const VkBuffer vertexBuffers[] = { m_vertexBuffer };
     constexpr VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(a_commandBuffer, 0, 1, vertexBuffers, offsets);
 
-    vkCmdBindIndexBuffer(a_commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    vkCmdBindIndexBuffer(a_commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
     return 0;
 }
 
-int CMesh::Update(void)
+int CMesh::Update(const double& a_dDeltaTime)
 {
     return 0;
 }
@@ -32,10 +51,10 @@ void CMesh::Draw(const DrawInformation& a_drawInformation)
 
 void CMesh::Finalize(void)
 {
-    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
-    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
-    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
-    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
+    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
+    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
+    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
+    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
 }
 
 void CMesh::SetVertexData(const std::vector<Vertex>& a_vertices)

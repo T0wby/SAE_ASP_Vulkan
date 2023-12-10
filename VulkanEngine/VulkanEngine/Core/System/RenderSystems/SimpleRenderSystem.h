@@ -21,8 +21,6 @@ public:
     CSimpleRenderSystem(const CSimpleRenderSystem &) = delete;
     CSimpleRenderSystem &operator=(const CSimpleRenderSystem &) = delete;
 
-    void Finalize(void);
-
     void RenderGameObjects(const DrawInformation& a_drawInfo, const std::shared_ptr<CScene>& a_pCurrentScene);
     inline VkPipelineLayout GetLayout(void) const { return m_pipelineLayout; }
 

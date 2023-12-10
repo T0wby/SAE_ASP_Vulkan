@@ -37,7 +37,7 @@ public:
 
     virtual void Initialize(void);
     virtual void Initialize(VkCommandBuffer a_commandBuffer);
-    virtual void Update(void);
+    virtual void Update(const double& a_dDeltaTime);
     virtual void Draw(void);
     virtual void Draw(const DrawInformation& a_drawInformation);
     virtual void Finalize(void);
@@ -55,10 +55,7 @@ protected:
     uint32_t m_fWidth{ 0 };
     uint32_t m_fHeight{ 0 };
 
-    // Delta time
-    float m_fDeltaTime{ 0 };
-    float m_fLastFrame{ 0 };
-    float m_fCurrentFrame{ 0 };
+    
 
 };
 #endif

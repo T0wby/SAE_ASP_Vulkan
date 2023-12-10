@@ -27,7 +27,7 @@ public:
 
 	virtual void Initialize(void);
 	virtual void Initialize(VkCommandBuffer a_commandBuffer);
-	virtual void Update(void);
+	virtual void Update(const double& a_dDeltaTime);
 	virtual void Draw(void);
 	virtual void Draw(const DrawInformation& a_drawInformation);
 	virtual void Finalize(void);

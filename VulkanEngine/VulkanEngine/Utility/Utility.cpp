@@ -41,7 +41,7 @@ VkCommandBuffer CUtility::BeginSingleTimeCommands(const VkDevice& a_logicalDevic
     return commandBuffer;
 }
 
-void CUtility::EndSingleTimeCommands(VkCommandBuffer a_commandBuffer, const VkQueue& a_graphicsQueue, const VkCommandPool& a_commandPool, const VkDevice& a_logicalDevice)
+void CUtility::EndSingleTimeCommands(const VkCommandBuffer& a_commandBuffer, const VkQueue& a_graphicsQueue, const VkCommandPool& a_commandPool, const VkDevice& a_logicalDevice)
 {
     vkEndCommandBuffer(a_commandBuffer);
 
@@ -55,3 +55,4 @@ void CUtility::EndSingleTimeCommands(VkCommandBuffer a_commandBuffer, const VkQu
 
     vkFreeCommandBuffers(a_logicalDevice, a_commandPool, 1, &a_commandBuffer);
 }
+
