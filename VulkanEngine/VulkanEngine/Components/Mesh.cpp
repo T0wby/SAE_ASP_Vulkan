@@ -13,11 +13,11 @@ CMesh::~CMesh()
 std::unique_ptr<CMesh> CMesh::CreateMeshFromFile(const std::shared_ptr<CDevice>& a_pDevice,
     const std::string& a_filePath, MeshData& a_meshData)
 {
-    MeshData data{};
-    data.LoadModel(a_filePath, a_meshData);
+    const auto assimpScene = MeshData::LoadMesh(a_filePath);
+    MeshData::ProcessNode(assimpScene->mRootNode, assimpScene, a_meshData);
 
-    std::cout << data.vertices.size() << "\n";
-    return std::make_unique<CMesh>(a_pDevice, data);
+    std::cout << a_meshData.vertices.size() << "\n";
+    return std::make_unique<CMesh>(a_pDevice, a_meshData);
 }
 
 int CMesh::Initialize(void)
@@ -51,10 +51,6 @@ void CMesh::Draw(const DrawInformation& a_drawInformation)
 
 void CMesh::Finalize(void)
 {
-    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
-    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
-    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
-    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
 }
 
 void CMesh::SetVertexData(const std::vector<Vertex>& a_vertices)

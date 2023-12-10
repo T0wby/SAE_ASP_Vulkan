@@ -102,7 +102,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\Primitives\LoadedCube.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>GameObject\Primitives</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -160,7 +160,9 @@
     <ClInclude Include="Components\Texture.h" />
     <ClInclude Include="Core\System\Renderer.h" />
     <ClInclude Include="Core\System\RenderSystems\SimpleRenderSystem.h" />
-    <ClInclude Include="GameObjects\Primitives\LoadedCube.h" />
+    <ClInclude Include="GameObjects\Primitives\LoadedCube.h">
+      <Filter>GameObject\Primitives</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">

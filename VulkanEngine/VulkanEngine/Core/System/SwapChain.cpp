@@ -754,7 +754,7 @@ void CSwapChain::UpdateUniformBuffer(const std::shared_ptr<CScene>& a_pScene)
 void CSwapChain::CreateTextureImage()
 {
 	int texWidth, texHeight, texChannels;
-	stbi_uc* pixels = stbi_load("Textures/SAE_Institute_Black_Logo.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	stbi_uc* pixels = CUtility::LoadTextureFromFile("Textures/SAE_Institute_Black_Logo.jpg", texWidth, texHeight, texChannels);
 	const VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 	if (!pixels) 

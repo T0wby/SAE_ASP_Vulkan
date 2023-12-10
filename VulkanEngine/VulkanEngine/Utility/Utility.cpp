@@ -56,3 +56,9 @@ void CUtility::EndSingleTimeCommands(const VkCommandBuffer& a_commandBuffer, con
     vkFreeCommandBuffers(a_logicalDevice, a_commandPool, 1, &a_commandBuffer);
 }
 
+stbi_uc* CUtility::LoadTextureFromFile(const std::string& a_filename, int& a_iTexWidth, int& a_iTexHeight,
+    int& a_iTexChannels)
+{
+    return stbi_load(a_filename.c_str(), &a_iTexWidth, &a_iTexHeight, &a_iTexChannels, STBI_rgb_alpha);
+}
+

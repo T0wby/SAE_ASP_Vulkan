@@ -5,11 +5,8 @@
 #include <vector>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm/gtx/hash.hpp>
-#include <glm/glm/vec2.hpp>
-#include <glm/glm/vec3.hpp>
+#include <assimp/scene.h>
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <tiny_obj_loader.h>
 
 
 struct Vertex
@@ -118,23 +115,14 @@ struct Vertex
 	}
 };
 
-namespace std {
-	template<> struct hash<Vertex> {
-		size_t operator()(const Vertex& vertex) const noexcept
-		{
-			return ((hash<glm::vec3>()(glm::vec3(vertex.position.x,vertex.position.y,vertex.position.z)) ^
-				   (hash<glm::vec3>()(glm::vec3(vertex.color.r,vertex.color.g,vertex.color.b)) << 1)) >> 1) ^
-				   (hash<glm::vec2>()(glm::vec2(vertex.uv.u, vertex.uv.v)) << 1);
-		}
-	};
-}
-
 struct MeshData
 {
 	std::vector<Vertex> vertices{};
 	std::vector<uint16_t> indices{};
 
-	void LoadModel(const std::string& a_filePath, MeshData& a_meshData);
+	static auto LoadMesh(const std::string& a_filePath)-> const aiScene*;
+	static void ProcessMesh(const aiMesh* a_pMesh, const aiScene* a_pScene, MeshData& a_data);
+	static void ProcessNode(const aiNode* a_pNode, const aiScene* a_pScene, MeshData& a_data);
 };
 
 #endif // !VARIABLES_H

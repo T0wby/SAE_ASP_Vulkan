@@ -1,7 +1,5 @@
 #ifndef MESH_H
 #define MESH_H
-
-
 #include <memory>
 #include "Component.h"
 #include "../Utility/Variables.h"

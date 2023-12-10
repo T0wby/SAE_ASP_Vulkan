@@ -1,6 +1,7 @@
 #include "Variables.h"
 #include <stdexcept>
-#include <unordered_map>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 #include "Utility.h"
 
 const float F_ZERO = 0.0f;
@@ -58,74 +59,47 @@ Vertex::Normal Vertex::Normal::One()
     return Normal{ F_ONE, F_ONE, F_ONE };
 }
 
-void MeshData::LoadModel(const std::string& a_filePath, MeshData& a_meshData)
+auto MeshData::LoadMesh(const std::string& a_filePath) -> const aiScene*
 {
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
+    Assimp::Importer imp;
+    const auto pScene = imp.ReadFile(a_filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, a_filePath.c_str()))
+    if (!pScene | pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
     {
-        throw std::runtime_error(warn + err);
+        throw std::runtime_error(imp.GetErrorString());
+    }
+    
+    return pScene;
+}
+
+void MeshData::ProcessMesh(const aiMesh* a_pMesh, const aiScene* a_pScene, MeshData& a_data)
+{
+    for (int i = 0; i < a_pMesh->mNumVertices; ++i)
+    {
+        
+        a_data.vertices.push_back(Vertex{Vertex::Position{a_pMesh->mVertices[i].x, a_pMesh->mVertices[i].y, a_pMesh->mVertices[i].z},
+                                            Vertex::Color{a_pMesh->mColors[0][i].r, a_pMesh->mColors[0][i].g, a_pMesh->mColors[0][i].b},
+                                                Vertex::Normal{a_pMesh->mNormals[i].x, a_pMesh->mNormals[i].y, a_pMesh->mNormals[i].z},
+                                                {a_pMesh->mTextureCoords[0][i].x, a_pMesh->mTextureCoords[0][i].y}});
     }
 
-    a_meshData.vertices.clear();
-    a_meshData.indices.clear();
-
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-    for (const auto &shape : shapes)
+    for (int i = 0; i < a_pMesh->mNumFaces; ++i)
     {
-        for (const auto &index : shape.mesh.indices)
-        {
-            Vertex vertex{};
+        const auto face = a_pMesh->mFaces[i];
+        for (int j = 0; j < face.mNumIndices; ++j) a_data.indices.push_back(face.mIndices[j]);
+    }
+}
 
-            if (index.vertex_index >= 0)
-            {
-                vertex.position = {
-                    attrib.vertices[3 * index.vertex_index + 0],
-                    attrib.vertices[3 * index.vertex_index + 1],
-                    attrib.vertices[3 * index.vertex_index + 2],
-                };
+void MeshData::ProcessNode(const aiNode* a_pNode, const aiScene* a_pScene, MeshData& a_data)
+{
+    for (int i = 0; i < a_pNode->mNumMeshes; ++i)
+    {
+        const auto mesh = a_pScene->mMeshes[a_pNode->mMeshes[i]];
+        ProcessMesh(mesh, a_pScene, a_data);
+    }
 
-                auto colorIndex = 3 * index.vertex_index + 2;
-                if (colorIndex < attrib.colors.size())
-                {
-                    vertex.color = {
-                        attrib.colors[colorIndex - 2],
-                        attrib.colors[colorIndex - 1],
-                        attrib.colors[colorIndex - 0],
-                    };
-                }
-                else
-                {
-                    vertex.color = {1.f, 1.f, 1.f};  // set default color
-                }
-            }
-
-            if (index.normal_index >= 0)
-            {
-                vertex.normal = {
-                    attrib.normals[3 * index.normal_index + 0],
-                    attrib.normals[3 * index.normal_index + 1],
-                    attrib.normals[3 * index.normal_index + 2],
-                };
-            }
-
-            if (index.texcoord_index >= 0)
-            {
-                vertex.uv = {
-                    attrib.texcoords[2 * index.texcoord_index + 0],
-                    attrib.texcoords[2 * index.texcoord_index + 1],
-                };
-            }
-
-            if (uniqueVertices.count(vertex) == 0)
-            {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                a_meshData.vertices.push_back(vertex);
-            }
-            a_meshData.indices.push_back(uniqueVertices[vertex]);
-        }
+    for (int i = 0; i < a_pNode->mNumChildren; ++i)
+    {
+        ProcessNode(a_pNode->mChildren[i], a_pScene, a_data);
     }
 }
