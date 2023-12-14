@@ -4,10 +4,10 @@
 
 CMesh::~CMesh()
 {
-    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
-    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
-    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
-    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
+    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
+    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
+    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
+    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
 }
 
 std::unique_ptr<CMesh> CMesh::CreateMeshFromFile(const std::shared_ptr<CDevice>& a_pDevice,
@@ -27,11 +27,11 @@ int CMesh::Initialize(void)
 
 int CMesh::Initialize(const VkCommandBuffer& a_commandBuffer)
 {
-    const VkBuffer vertexBuffers[] = { m_vertexBuffer };
+    const VkBuffer vertexBuffers[] = { m_pVertexBuffer->GetBuffer() };
     constexpr VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(a_commandBuffer, 0, 1, vertexBuffers, offsets);
 
-    vkCmdBindIndexBuffer(a_commandBuffer, m_indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindIndexBuffer(a_commandBuffer, m_pIndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
     return 0;
 }
 
@@ -76,45 +76,58 @@ std::vector<uint16_t>& CMesh::GetIndiceData(void)
 void CMesh::CreateVertexBuffer(const std::vector<Vertex>& a_vertices)
 {
     const VkDeviceSize bufferSize = sizeof(Vertex) * a_vertices.size();
+    
+    uint32_t vertexSize = sizeof(Vertex);
+    uint32_t vertexCount = a_vertices.size();
 
-    // Added staging buffer (vertex data is now being loaded from high performance memory)
-    // One staging buffer in CPU accessible memory to upload the data from the vertex array to, and the final vertex buffer in device local memory(GPU).
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
+    CBuffer stagingBuffer{
+        m_pDevice,
+        vertexSize,
+        vertexCount,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
 
-    m_pDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    stagingBuffer.Map();
+    stagingBuffer.WriteToBuffer((void*)a_vertices.data());
 
-    void* data;
-    // Map memory and copy vertices.data() to it(other possibility would be explicit flushing)
-    vkMapMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, a_vertices.data(), (size_t)bufferSize);
-    vkUnmapMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory);
+    
+    m_pVertexBuffer = std::make_unique<CBuffer>(
+        m_pDevice,
+        vertexSize,
+        vertexCount,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        );
 
-    m_pDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory);
-
-    m_pDevice->CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
-
-    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory, nullptr);
+    m_pDevice->CopyBuffer(stagingBuffer.GetBuffer(), m_pVertexBuffer->GetBuffer(), bufferSize);
 }
 
 void CMesh::CreateIndexBuffer(const std::vector<uint16_t>& a_indices)
 {
-    const VkDeviceSize bufferSize = sizeof(uint16_t) * a_indices.size();
+    uint32_t indexSize = sizeof(uint16_t);
+    uint32_t indexCount = a_indices.size();
+    const VkDeviceSize bufferSize = indexCount * indexSize;
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    m_pDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    
+    CBuffer stagingBuffer{
+        m_pDevice,
+        indexSize,
+        indexCount,
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
 
-    void* data;
-    vkMapMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, a_indices.data(), (size_t)bufferSize);
-    vkUnmapMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory);
+    stagingBuffer.Map();
+    stagingBuffer.WriteToBuffer((void*)a_indices.data());
 
-    m_pDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory);
+    m_pIndexBuffer = std::make_unique<CBuffer>(
+            m_pDevice,
+            indexSize,
+            indexCount,
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            );
 
-    m_pDevice->CopyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
-
-    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory, nullptr);
+    m_pDevice->CopyBuffer(stagingBuffer.GetBuffer(), m_pIndexBuffer->GetBuffer(), bufferSize);
 }

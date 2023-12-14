@@ -23,6 +23,7 @@ public:
 	virtual void Finalize(void) override;
 
 	inline auto GetTransformMatrix(void) const -> const glm::mat4x4 { return m_transformMatrix; }
+	inline auto GetInverseScaleMatrix(void) const -> const glm::mat3x3 { return CalcInverseScale(); }
 	inline auto GetPosition(void) const -> const glm::vec3 { return m_position; }
 	inline void AddPosition(glm::vec3 a_pos){ m_position += a_pos; }
 	inline void SetPosition(glm::vec3 a_pos){ m_position = a_pos; }
@@ -39,5 +40,7 @@ private:
 	glm::mat4x4 m_positionMatrix{};
 	glm::mat4x4 m_rotationMatrix{};
 	glm::mat4x4 m_scaleMatrix{};
+
+	auto CalcInverseScale(void) const -> const glm::mat3x3;
 };
 #endif // !TRANSFORM_H

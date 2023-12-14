@@ -4,6 +4,8 @@
 #define GLFW_INCLUDE_VULKAN
 #include <memory>
 #include <GLFW/glfw3.h>
+
+#include "Buffer.h"
 #include "Device.h"
 #include "Scene.h"
 #include "../../WindowGLFW/Window.h"
@@ -99,8 +101,9 @@ private:
 	std::vector<VkDeviceMemory> m_vDepthImageMemorys{};
 	std::vector<VkImageView> m_vDepthImageViews{};
 	
-	std::vector<VkBuffer> m_vUniformBuffers{};
-	std::vector<VkDeviceMemory> m_vUniformBuffersMemory{};
+	//std::vector<VkBuffer> m_vUniformBuffers{};
+	//std::vector<VkDeviceMemory> m_vUniformBuffersMemory{};
+	std::vector<std::unique_ptr<CBuffer>> m_uboBuffers{};
 	std::vector<void*> m_vUniformBuffersMapped{};
 	VkDescriptorSetLayout m_descriptorSetLayout{};
 	VkDescriptorPool m_descriptorPool{};

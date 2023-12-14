@@ -6,35 +6,41 @@ constexpr float F_N_DOT_FIVE= -0.5f;
 constexpr float F_P_DOT_FIVE= 0.5f;
 
 const std::vector<Vertex> verticies = {
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Red(),  {F_ONE, F_ONE} }, // 0
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Green(),{F_ZERO, F_ONE} }, // 1
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), {F_ZERO, F_ZERO} }, // 2
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),{F_ONE, F_ZERO} }, // 3
+		// Front
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Red(),  Vertex::Normal{F_ZERO, F_ZERO, -F_ONE}, {F_ONE, F_ONE} }, // 0
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Green(),Vertex::Normal{F_ZERO, F_ZERO, -F_ONE},{F_ZERO, F_ONE} }, // 1
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), Vertex::Normal{F_ZERO, F_ZERO, -F_ONE},{F_ZERO, F_ZERO} }, // 2
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),Vertex::Normal{F_ZERO, F_ZERO, -F_ONE},{F_ONE, F_ZERO} }, // 3
 
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  {F_ONE, F_ONE}},   // 4
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),{F_ZERO, F_ONE}},   // 5
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Blue(), {F_ZERO, F_ZERO}},   // 6
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::White(),{F_ONE, F_ZERO}},   // 7
+		// Back
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  Vertex::Normal{F_ZERO, F_ZERO, F_ONE},{F_ONE, F_ONE}},   // 4
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),Vertex::Normal{F_ZERO, F_ZERO, F_ONE},{F_ZERO, F_ONE}},   // 5
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Blue(), Vertex::Normal{F_ZERO, F_ZERO, F_ONE},{F_ZERO, F_ZERO}},   // 6
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::White(),Vertex::Normal{F_ZERO, F_ZERO, F_ONE},{F_ONE, F_ZERO}},   // 7
 
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  {F_ONE, F_ONE} }, // 8
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),{F_ZERO, F_ONE} }, // 9
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), {F_ZERO, F_ZERO} }, // 10
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),{F_ONE, F_ZERO} }, // 11
+		// Top
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  Vertex::Normal{F_ZERO, -F_ONE, F_ZERO},{F_ONE, F_ONE} }, // 8
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),Vertex::Normal{F_ZERO, -F_ONE, F_ZERO},{F_ZERO, F_ONE} }, // 9
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), Vertex::Normal{F_ZERO, -F_ONE, F_ZERO},{F_ZERO, F_ZERO} }, // 10
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),Vertex::Normal{F_ZERO, -F_ONE, F_ZERO},{F_ONE, F_ZERO} }, // 11
 
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  {F_ONE, F_ONE} }, // 12
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),{F_ZERO, F_ONE} }, // 13
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), {F_ZERO, F_ZERO} }, // 14
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),{F_ONE, F_ZERO} }, // 15
-		
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  {F_ONE, F_ONE} }, // 16
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Green(),{F_ZERO, F_ONE} }, // 17
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), {F_ZERO, F_ZERO} }, // 18
-		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::White(),{F_ONE, F_ZERO} }, // 19
-		
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Red(),  {F_ONE, F_ONE} }, // 20
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),{F_ZERO, F_ONE} }, // 21
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Blue(), {F_ZERO, F_ZERO} }, // 22
-		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),{F_ONE, F_ZERO} }, // 23
+		// Bottom
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  Vertex::Normal{F_ZERO, F_ONE, F_ZERO},{F_ONE, F_ONE} }, // 12
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),Vertex::Normal{F_ZERO, F_ONE, F_ZERO},{F_ZERO, F_ONE} }, // 13
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), Vertex::Normal{F_ZERO, F_ONE, F_ZERO},{F_ZERO, F_ZERO} }, // 14
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),Vertex::Normal{F_ZERO, F_ONE, F_ZERO},{F_ONE, F_ZERO} }, // 15
+
+		// Right
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Red(),  Vertex::Normal{-F_ONE, F_ZERO, F_ZERO},{F_ONE, F_ONE} }, // 16
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Green(),Vertex::Normal{-F_ONE, F_ZERO, F_ZERO},{F_ZERO, F_ONE} }, // 17
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Blue(), Vertex::Normal{-F_ONE, F_ZERO, F_ZERO},{F_ZERO, F_ZERO} }, // 18
+		Vertex{Vertex::Position{F_N_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::White(),Vertex::Normal{-F_ONE, F_ZERO, F_ZERO},{F_ONE, F_ZERO} }, // 19
+
+		// Left
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::Red(),  Vertex::Normal{F_ONE, F_ZERO, F_ZERO},{F_ONE, F_ONE} }, // 20
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_N_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Green(),Vertex::Normal{F_ONE, F_ZERO, F_ZERO},{F_ZERO, F_ONE} }, // 21
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_P_DOT_FIVE}, Vertex::Color::Blue(), Vertex::Normal{F_ONE, F_ZERO, F_ZERO},{F_ZERO, F_ZERO} }, // 22
+		Vertex{Vertex::Position{F_P_DOT_FIVE, F_P_DOT_FIVE, F_N_DOT_FIVE}, Vertex::Color::White(),Vertex::Normal{F_ONE, F_ZERO, F_ZERO},{F_ONE, F_ZERO} }, // 23
 		} ;
 
 const std::vector<uint16_t> indices = { 

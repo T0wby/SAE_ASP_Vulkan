@@ -162,6 +162,8 @@ void CDevice::PickPhysicalDevice(void)
 
 	if (m_physicalDevice == VK_NULL_HANDLE)
 		throw std::runtime_error("failed to find a suitable GPU!");
+
+	vkGetPhysicalDeviceProperties(m_physicalDevice, &m_properties);
 }
 
 void CDevice::CreateLogicalDevice()

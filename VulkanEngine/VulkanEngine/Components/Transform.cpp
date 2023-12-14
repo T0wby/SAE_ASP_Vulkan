@@ -51,3 +51,8 @@ void CTransform::Draw(const DrawInformation& a_drawInformation)
 void CTransform::Finalize(void)
 {
 }
+
+auto CTransform::CalcInverseScale() const -> const glm::mat3x3
+{
+	return glm::scale(1.0f / m_scale);
+}

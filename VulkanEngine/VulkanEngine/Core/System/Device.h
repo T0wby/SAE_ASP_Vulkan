@@ -22,6 +22,7 @@ public:
 	~CDevice();
 
 	inline auto GetPhysicalDevice(void) const -> const VkPhysicalDevice& { return m_physicalDevice; }
+	inline auto GetPhysicalDeviceProperties(void) const -> const VkPhysicalDeviceProperties& { return m_properties; }
 	inline auto GetLogicalDevice(void) const -> const VkDevice& { return m_logicalDevice; }
 	inline auto GetGraphicsQueue(void) const -> const VkQueue& { return m_graphicsQueue; }
 	inline auto GetPresentationQueue(void) const -> const VkQueue& { return m_presentationQueue; }
@@ -52,6 +53,7 @@ private:
 	bool m_bEnableValidationLayers{true};
 	
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+	VkPhysicalDeviceProperties m_properties;
 	VkDevice m_logicalDevice{};
 	VkQueue m_graphicsQueue{};
 	VkQueue m_presentationQueue{};

@@ -3,7 +3,7 @@
 #include <memory>
 #include "Component.h"
 #include "../Utility/Variables.h"
-#include "../Core/System/Device.h"
+#include "../Core/System/Buffer.h"
 #include "../Core/System/CoreSystemStructs.h"
 #include <vector>
 
@@ -41,10 +41,9 @@ private:
 	std::vector<Vertex> m_vertices{};
 	std::vector<uint16_t> m_indices{};
 	std::shared_ptr<CDevice> m_pDevice{nullptr};
-	VkBuffer m_vertexBuffer{};
-	VkDeviceMemory m_vertexBufferMemory{};
-	VkBuffer m_indexBuffer{};
-	VkDeviceMemory m_indexBufferMemory{};
+
+	std::unique_ptr<CBuffer> m_pVertexBuffer{nullptr};
+	std::unique_ptr<CBuffer> m_pIndexBuffer{nullptr};
 
 	void CreateVertexBuffer(const std::vector<Vertex>& a_vertices);
 	void CreateIndexBuffer(const std::vector<uint16_t>& a_indices);

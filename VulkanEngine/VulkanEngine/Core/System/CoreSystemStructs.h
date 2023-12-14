@@ -30,7 +30,7 @@ struct UniformBufferObject
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 proj;
-	glm::mat4 transform;
+	glm::vec3 lightDirection = glm::normalize(glm::vec3(1.0f,3.0f,-1.0f));
 };
 
 struct PipelineConfigInfo

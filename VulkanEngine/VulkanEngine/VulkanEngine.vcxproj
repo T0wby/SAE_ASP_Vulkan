@@ -221,6 +221,7 @@
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
     <ClCompile Include="Components\Transform.cpp" />
+    <ClCompile Include="Core\System\Buffer.cpp" />
     <ClCompile Include="Core\System\Renderer.cpp" />
     <ClCompile Include="Core\System\Device.cpp" />
     <ClCompile Include="Core\System\Engine.cpp" />
@@ -318,6 +319,7 @@
     <ClInclude Include="Components\Mesh.h" />
     <ClInclude Include="Components\Texture.h" />
     <ClInclude Include="Components\Transform.h" />
+    <ClInclude Include="Core\System\Buffer.h" />
     <ClInclude Include="Core\System\Renderer.h" />
     <ClInclude Include="Core\System\Device.h" />
     <ClInclude Include="Core\System\Engine.h" />

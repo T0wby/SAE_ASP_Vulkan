@@ -111,12 +111,10 @@ void CPipeline::DefaultPipelineConfigInfo(PipelineConfigInfo& a_configInfo)
 
 void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, PipelineConfigInfo* a_pipelineConfig, VkDescriptorSetLayout& a_descriptorSetLayout)
 {
-    //const auto vertShaderCode = CUtility::ReadFile("Shader/vert.spv");
-    //const auto fragShaderCode = CUtility::ReadFile("Shader/frag.spv");
     const auto vertShaderCode = CUtility::ReadFile(vertFilepath);
     const auto fragShaderCode = CUtility::ReadFile(fragFilepath);
 
-    // Wrapper for  SPIR-V bytecode
+    // Wrapper for SPIR-V bytecode
     CreateShaderModule(vertShaderCode, &m_vertShaderModule);
     CreateShaderModule(fragShaderCode, &m_fragShaderModule);
 
@@ -144,7 +142,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 		attributeDescriptionPos, attributeDescriptionColor, attributeDescriptionNormal, attributeDescriptionUV
 	};
 
-	// Vertex Input(Data hard coded inside of the shader atm)
+	// Vertex Input
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount =  1;

@@ -179,12 +179,14 @@ void CSwapChain::CreateSwapChain()
 	const QueueFamilyIndices indices = FindQueueFamilies(m_pDevice->GetPhysicalDevice(), m_pDevice->GetSurface());
 	const uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
-	if (indices.graphicsFamily != indices.presentFamily) {
+	if (indices.graphicsFamily != indices.presentFamily)
+	{
 		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 		createInfo.queueFamilyIndexCount = 2;
 		createInfo.pQueueFamilyIndices = queueFamilyIndices;
 	}
-	else {
+	else
+	{
 		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		createInfo.queueFamilyIndexCount = 0; // Optional
 		createInfo.pQueueFamilyIndices = nullptr; // Optional
@@ -393,12 +395,6 @@ VkResult CSwapChain::AquireNextImage(uint32_t& a_imageIndex)
 
 VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const uint32_t& a_imageIndex, const std::shared_ptr<CScene>& a_pScene)
 {
-	//if (m_vImagesInFlight[a_imageIndex] != VK_NULL_HANDLE)
-	//{
-	//	vkWaitForFences(m_pDevice->GetLogicalDevice(), 1, &m_vImagesInFlight[a_imageIndex], VK_TRUE, UINT64_MAX);
-	//}
-	//m_vImagesInFlight[a_imageIndex] = m_vInFlightFences[m_iCurrentFrame];
-	
 	UpdateUniformBuffer(a_pScene);
 	
 	// Reset fence to unsigned
@@ -476,11 +472,6 @@ void CSwapChain::CleanupSwapChain()
 		vkDestroySemaphore(m_pDevice->GetLogicalDevice(), m_vImageAvailableSemaphores[i], nullptr);
 		vkDestroySemaphore(m_pDevice->GetLogicalDevice(), m_vRenderFinishedSemaphores[i], nullptr);
 		vkDestroyFence(m_pDevice->GetLogicalDevice(), m_vInFlightFences[i], nullptr);
-	}
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vUniformBuffers[i], nullptr);
-		vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vUniformBuffersMemory[i], nullptr);
 	}
 	vkDestroyDescriptorPool(m_pDevice->GetLogicalDevice(), m_descriptorPool, nullptr);
 }
@@ -745,9 +736,11 @@ bool CSwapChain::HasStencilComponent(VkFormat a_format)
 
 void CSwapChain::UpdateUniformBuffer(const std::shared_ptr<CScene>& a_pScene)
 {
-	const UniformBufferObject ubo = a_pScene->CreateUniformBuffer();
+	UniformBufferObject ubo = a_pScene->CreateUniformBuffer();
 
-	memcpy(m_vUniformBuffersMapped[m_iCurrentFrame], &ubo, sizeof(ubo));
+	m_uboBuffers[m_iCurrentFrame]->WriteToIndex(&ubo, m_iCurrentFrame);
+	//m_uboBuffers[m_iCurrentFrame]->FlushIndex(m_iCurrentFrame);
+	//memcpy(m_vUniformBuffersMapped[m_iCurrentFrame], &ubo, sizeof(ubo));
 }
 
 
@@ -856,7 +849,6 @@ void CSwapChain::CreateTextureSampler()
 	}
 }
 
-
 void CSwapChain::CreateDescriptorSetLayout()
 {
 	VkDescriptorSetLayoutBinding uboLayoutBinding{};
@@ -925,7 +917,7 @@ void CSwapChain::CreateDescriptorSets(void)
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{
 		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = m_vUniformBuffers[i];
+		bufferInfo.buffer = m_uboBuffers[i]->GetBuffer();
 		bufferInfo.offset = 0;
 		bufferInfo.range = sizeof(UniformBufferObject);
 
@@ -961,18 +953,17 @@ void CSwapChain::CreateDescriptorSets(void)
 
 void CSwapChain::CreateUniformBuffers(void)
 {
-	const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-	m_vUniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-	m_vUniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-	m_vUniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	//const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+	m_uboBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+	
+	for (auto& m_uboBuffer : m_uboBuffers)
 	{
-		// staging buffer not used due to uniform buffers being changed every frame
-		m_pDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_vUniformBuffers[i], m_vUniformBuffersMemory[i]);
-
-		// persistent mapping
-		vkMapMemory(m_pDevice->GetLogicalDevice(), m_vUniformBuffersMemory[i], 0, bufferSize, 0, &m_vUniformBuffersMapped[i]);
+		m_uboBuffer = std::make_unique<CBuffer>(
+		m_pDevice,
+		sizeof(UniformBufferObject),
+		1,
+		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+		m_uboBuffer->Map();
 	}
 }
