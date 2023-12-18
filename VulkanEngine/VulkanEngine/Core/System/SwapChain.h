@@ -20,10 +20,10 @@ public:
 	{
 		Init();
 		CreateTextures();
-		CreateUniformBuffers();
-		CreateDescriptorPool();
-		CreateDescriptorSetLayout();
-		CreateDescriptorSets();
+		//CreateUniformBuffers();
+		//CreateDescriptorPool();
+		//CreateDescriptorSetLayout();
+		//CreateDescriptorSets();
 	}
 	
 	inline CSwapChain(const std::shared_ptr<CDevice>& a_pDevice, const std::shared_ptr<CWindow>& a_pWindow, const std::shared_ptr<CSwapChain>& a_pSwapChainPrevious)
@@ -32,10 +32,10 @@ public:
 		Init();
 		m_pSwapChainOld = nullptr;
 		CreateTextures();
-		CreateUniformBuffers();
-		CreateDescriptorPool();
-		CreateDescriptorSetLayout();
-		CreateDescriptorSets();
+		//CreateUniformBuffers();
+		//CreateDescriptorPool();
+		//CreateDescriptorSetLayout();
+		//CreateDescriptorSets();
 	}
     
 	CSwapChain(const CSwapChain&) = delete;
@@ -49,10 +49,10 @@ public:
 	VkResult SubmitCommandBuffers(const VkCommandBuffer& buffers, const uint32_t& a_imageIndex,
 		const std::shared_ptr<CScene>& a_pScene);
 	VkFormat FindDepthFormat();
-	void CreateDescriptorSetLayout(void);
-	void CreateDescriptorPool(void);
-	void CreateDescriptorSets(void);
-	void CreateUniformBuffers(void);
+	//void CreateDescriptorSetLayout(void);
+	//void CreateDescriptorPool(void);
+	//void CreateDescriptorSets(void);
+	//void CreateUniformBuffers(void);
 
 	inline VkFramebuffer GetFrameBuffer(const int& a_iIndex) const { return m_vSwapChainFramebuffers[a_iIndex]; }
 	inline VkRenderPass GetRenderPass() const { return m_renderPass; }
@@ -64,9 +64,18 @@ public:
 	inline uint32_t GetWidth() const { return m_swapChainExtent.width; }
 	inline uint32_t GetHeight() const { return m_swapChainExtent.height; }
 	inline uint32_t GetCurrentFrame() const { return m_iCurrentFrame; }
-	inline std::vector<VkDescriptorSet> GetDescriptorSets() const { return m_vDescriptorSets; }
-	inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_descriptorSetLayout; }
-	inline void SetDescriptorSetLayout(VkDescriptorSetLayout a_layout){ m_descriptorSetLayout = a_layout; }
+	inline VkDescriptorImageInfo GetDescriptorImageInfo() const
+	{
+		VkDescriptorImageInfo image_info{};
+		image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		image_info.imageView = m_textureImageView;
+		image_info.sampler = m_textureSampler;
+
+		return image_info;
+	}
+	//inline std::vector<VkDescriptorSet> GetDescriptorSets() const { return m_vDescriptorSets; }
+	//inline VkDescriptorSetLayout GetDescriptorSetLayout() const { return m_descriptorSetLayout; }
+	//inline void SetDescriptorSetLayout(VkDescriptorSetLayout a_layout){ m_descriptorSetLayout = a_layout; }
 	inline bool CompareSwapFormats(const CSwapChain& a_swapChain) const
 	{
 		return a_swapChain.GetSwapChainDepthFormat() == m_swapChainDepthFormat &&
@@ -101,13 +110,14 @@ private:
 	std::vector<VkDeviceMemory> m_vDepthImageMemorys{};
 	std::vector<VkImageView> m_vDepthImageViews{};
 	
-	//std::vector<VkBuffer> m_vUniformBuffers{};
-	//std::vector<VkDeviceMemory> m_vUniformBuffersMemory{};
-	std::vector<std::unique_ptr<CBuffer>> m_uboBuffers{};
-	std::vector<void*> m_vUniformBuffersMapped{};
-	VkDescriptorSetLayout m_descriptorSetLayout{};
-	VkDescriptorPool m_descriptorPool{};
-    std::vector<VkDescriptorSet> m_vDescriptorSets{};
+	//std::vector<std::unique_ptr<CBuffer>> m_uboBuffers{};
+	//std::vector<void*> m_vUniformBuffersMapped{};
+
+	
+	
+	//VkDescriptorSetLayout m_descriptorSetLayout{};
+	//VkDescriptorPool m_descriptorPool{};
+    //std::vector<VkDescriptorSet> m_vDescriptorSets{};
 	
 	VkImage m_textureImage{};
 	VkDeviceMemory m_textureImageMemory{};

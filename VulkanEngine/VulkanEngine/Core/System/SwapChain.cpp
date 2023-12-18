@@ -395,7 +395,7 @@ VkResult CSwapChain::AquireNextImage(uint32_t& a_imageIndex)
 
 VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const uint32_t& a_imageIndex, const std::shared_ptr<CScene>& a_pScene)
 {
-	UpdateUniformBuffer(a_pScene);
+	//UpdateUniformBuffer(a_pScene);
 	
 	// Reset fence to unsigned
 	vkResetFences(m_pDevice->GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame]);
@@ -463,7 +463,6 @@ void CSwapChain::CleanupSwapChain()
 	vkDestroyImageView(m_pDevice->GetLogicalDevice(), m_textureImageView, nullptr);
 	vkDestroyImage(m_pDevice->GetLogicalDevice(), m_textureImage, nullptr);
 	vkFreeMemory(m_pDevice->GetLogicalDevice(), m_textureImageMemory, nullptr);
-	vkDestroyDescriptorSetLayout(m_pDevice->GetLogicalDevice(), m_descriptorSetLayout, nullptr);
 	
 	vkDestroyRenderPass(m_pDevice->GetLogicalDevice(), m_renderPass, nullptr);
 
@@ -473,7 +472,6 @@ void CSwapChain::CleanupSwapChain()
 		vkDestroySemaphore(m_pDevice->GetLogicalDevice(), m_vRenderFinishedSemaphores[i], nullptr);
 		vkDestroyFence(m_pDevice->GetLogicalDevice(), m_vInFlightFences[i], nullptr);
 	}
-	vkDestroyDescriptorPool(m_pDevice->GetLogicalDevice(), m_descriptorPool, nullptr);
 }
 
 void CSwapChain::CleanupFrameBuffer()
@@ -734,14 +732,14 @@ bool CSwapChain::HasStencilComponent(VkFormat a_format)
 	return a_format == VK_FORMAT_D32_SFLOAT_S8_UINT || a_format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-void CSwapChain::UpdateUniformBuffer(const std::shared_ptr<CScene>& a_pScene)
-{
-	UniformBufferObject ubo = a_pScene->CreateUniformBuffer();
-
-	m_uboBuffers[m_iCurrentFrame]->WriteToIndex(&ubo, m_iCurrentFrame);
-	//m_uboBuffers[m_iCurrentFrame]->FlushIndex(m_iCurrentFrame);
-	//memcpy(m_vUniformBuffersMapped[m_iCurrentFrame], &ubo, sizeof(ubo));
-}
+// void CSwapChain::UpdateUniformBuffer(const std::shared_ptr<CScene>& a_pScene)
+// {
+// 	UniformBufferObject ubo = a_pScene->CreateUniformBuffer();
+//
+// 	m_uboBuffers[m_iCurrentFrame]->WriteToIndex(&ubo, m_iCurrentFrame);
+// 	//m_uboBuffers[m_iCurrentFrame]->FlushIndex(m_iCurrentFrame);
+// 	//memcpy(m_vUniformBuffersMapped[m_iCurrentFrame], &ubo, sizeof(ubo));
+// }
 
 
 void CSwapChain::CreateTextureImage()
@@ -849,121 +847,19 @@ void CSwapChain::CreateTextureSampler()
 	}
 }
 
-void CSwapChain::CreateDescriptorSetLayout()
-{
-	VkDescriptorSetLayoutBinding uboLayoutBinding{};
-	uboLayoutBinding.binding = 0;
-	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	uboLayoutBinding.descriptorCount = 1;
-	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT; // only used in Vertex shader
-	uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
-
-	VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-	samplerLayoutBinding.binding = 1;
-	samplerLayoutBinding.descriptorCount = 1;
-	samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	samplerLayoutBinding.pImmutableSamplers = nullptr;
-	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-	const std::vector<VkDescriptorSetLayoutBinding> bindings = { uboLayoutBinding, samplerLayoutBinding };
-	VkDescriptorSetLayoutCreateInfo layoutInfo{};
-	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-	layoutInfo.pBindings = bindings.data();
-
-	if (vkCreateDescriptorSetLayout(m_pDevice->GetLogicalDevice(), &layoutInfo, nullptr, &m_descriptorSetLayout) != VK_SUCCESS) 
-	{
-		throw std::runtime_error("failed to create descriptor set layout!");
-	}
-}
-
-void CSwapChain::CreateDescriptorPool()
-{
-	const VkDescriptorPoolSize uniform{};
-	const VkDescriptorPoolSize descriptor{};
-	std::vector<VkDescriptorPoolSize> poolSizes{ uniform, descriptor };
-	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-	VkDescriptorPoolCreateInfo poolInfo{};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-	poolInfo.pPoolSizes = poolSizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-	if (vkCreateDescriptorPool(m_pDevice->GetLogicalDevice(), &poolInfo, nullptr, &m_descriptorPool) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create descriptor pool!");
-	}
-}
-
-void CSwapChain::CreateDescriptorSets(void)
-{
-	const std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
-	VkDescriptorSetAllocateInfo allocInfo{};
-	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	allocInfo.descriptorPool = m_descriptorPool;
-	allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-	allocInfo.pSetLayouts = layouts.data();
-
-	m_vDescriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-	if (vkAllocateDescriptorSets(m_pDevice->GetLogicalDevice(), &allocInfo, m_vDescriptorSets.data()) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to allocate descriptor sets!");
-	}
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = m_uboBuffers[i]->GetBuffer();
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(UniformBufferObject);
-
-		VkDescriptorImageInfo imageInfo{};
-		imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imageInfo.imageView = m_textureImageView;
-		imageInfo.sampler = m_textureSampler;
-
-		const VkWriteDescriptorSet dsUniform{};
-		const VkWriteDescriptorSet dsImageSampler{};
-
-		std::vector<VkWriteDescriptorSet> descriptorWrites{ dsUniform, dsImageSampler };
-
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = m_vDescriptorSets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[1].dstSet = m_vDescriptorSets[i];
-		descriptorWrites[1].dstBinding = 1;
-		descriptorWrites[1].dstArrayElement = 0;
-		descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		descriptorWrites[1].descriptorCount = 1;
-		descriptorWrites[1].pImageInfo = &imageInfo;
-
-		vkUpdateDescriptorSets(m_pDevice->GetLogicalDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-	}
-}
-
-void CSwapChain::CreateUniformBuffers(void)
-{
-	//const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-	m_uboBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-	
-	for (auto& m_uboBuffer : m_uboBuffers)
-	{
-		m_uboBuffer = std::make_unique<CBuffer>(
-		m_pDevice,
-		sizeof(UniformBufferObject),
-		1,
-		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-		m_uboBuffer->Map();
-	}
-}
+// void CSwapChain::CreateUniformBuffers(void)
+// {
+// 	//const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+// 	m_uboBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+// 	
+// 	for (auto& m_uboBuffer : m_uboBuffers)
+// 	{
+// 		m_uboBuffer = std::make_unique<CBuffer>(
+// 		m_pDevice,
+// 		sizeof(UniformBufferObject),
+// 		1,
+// 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+// 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+// 		m_uboBuffer->Map();
+// 	}
+// }

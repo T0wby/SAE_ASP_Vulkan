@@ -1,6 +1,6 @@
 #version 450
 
-layout(binding = 0) uniform UniformBufferObject {
+layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
     mat4 proj;
@@ -21,7 +21,6 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec3 Normal;
 layout(location = 2) out vec2 fragTexCoord;
 
-const vec3 DIRECTION_TO_LIGHT = normalize(vec3(1.0,3.0,-1.0));
 const float AMBIENT = 0.02;
 
 void main() {
@@ -30,7 +29,7 @@ void main() {
     //vec3 normalWorldSpace = normalize(mat3(ubo.model) * inNormal);
     mat3 normalMatrix = mat3(transpose(inverse(ubo.model)));
     vec3 normalWorldSpace = normalize(normalMatrix * inNormal);
-    float lightIntensity = AMBIENT + max(dot(normalWorldSpace, lightDirection), 0);
+    float lightIntensity = AMBIENT + max(dot(normalWorldSpace, ubo.lightDirection), 0);
     
     fragColor = lightIntensity * inColor;
     fragTexCoord = inTexCoord;

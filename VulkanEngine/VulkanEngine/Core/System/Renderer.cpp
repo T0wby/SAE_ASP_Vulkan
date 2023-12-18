@@ -105,7 +105,7 @@ void CRenderer::BeginSwapChainRenderPass(const DrawInformation& a_drawInfo)
     scissor.extent = m_pSwapChain->GetSwapChainExtent();
     vkCmdSetScissor(a_drawInfo.commandBuffer, 0, 1, &scissor);
 
-    vkCmdBindDescriptorSets(a_drawInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_drawInfo.pipelineLayout, 0, 1, &m_pSwapChain->GetDescriptorSets()[m_currentFrameIndex], 0, nullptr);
+    //vkCmdBindDescriptorSets(a_drawInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_drawInfo.pipelineLayout, 0, 1, &m_pSwapChain->GetDescriptorSets()[m_currentFrameIndex], 0, nullptr);
 }
 
 void CRenderer::EndSwapChainRenderPass(const DrawInformation& a_drawInfo)

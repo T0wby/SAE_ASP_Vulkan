@@ -1,6 +1,8 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 #include <memory>
+
+#include "Descriptors.h"
 #include "../../Input/PlayerController.h"
 #include "Device.h"
 #include "Renderer.h"
@@ -24,6 +26,11 @@ private:
 	std::shared_ptr<CWindow> m_pWindow = nullptr;
 	std::shared_ptr<CDevice> m_pDevice{nullptr};
 	std::shared_ptr<CRenderer> m_pRenderer{nullptr};
+	std::unique_ptr<CDescriptorPool> m_pGlobalPool{nullptr};
+	std::unique_ptr<CDescriptorSetLayout> m_pDescriptorSetLayout{nullptr};
+	std::vector<VkDescriptorSet> m_vGlobalDescriptorSets{};
+	std::vector<std::unique_ptr<CBuffer>> m_uboBuffers{};
+	
 	// Scenes
 	std::shared_ptr<CDefaultScene> m_firstScene{nullptr};
 

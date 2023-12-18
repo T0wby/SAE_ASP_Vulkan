@@ -12,8 +12,15 @@ class CDescriptorSetLayout
   {
    public:
     Builder(const std::shared_ptr<CDevice>& a_pDevice) : m_pDevice{a_pDevice} {}
- 
-    Builder &AddBinding( uint32_t a_binding, VkDescriptorType a_descriptorType, VkShaderStageFlags a_stageFlags, uint32_t a_count = 1);
+   
+    /// <summary> Appends to the map of bindings </summary>
+    /// <param name="a_binding">  </param>
+    /// <param name="a_descriptorType"> The type to expect(uniform, image...) </param>
+    /// <param name="a_stageFlags"> Which shader stages have access </param>
+    /// <param name="a_count"> Count of descriptors </param>
+    /// <returns> .... </returns>
+    Builder& AddBinding( uint32_t a_binding, VkDescriptorType a_descriptorType, VkShaderStageFlags a_stageFlags, uint32_t a_count = 1);
+   
     std::unique_ptr<CDescriptorSetLayout> Build() const;
  
    private:
@@ -43,7 +50,7 @@ class CDescriptorPool
  {
    public:
     Builder(const std::shared_ptr<CDevice>& a_pDevice) : m_pDevice{a_pDevice} {}
- 
+    
     Builder &AddPoolSize(VkDescriptorType a_descriptorType, uint32_t a_count);
     Builder &SetPoolFlags(VkDescriptorPoolCreateFlags a_flags);
     Builder &SetMaxSets(uint32_t a_count);
@@ -61,7 +68,7 @@ class CDescriptorPool
   CDescriptorPool(const CDescriptorPool &) = delete;
   CDescriptorPool &operator=(const CDescriptorPool &) = delete;
  
-  bool AllocateDescriptor(
+  bool AllocateDescriptorSet(
       const VkDescriptorSetLayout a_descriptorSetLayout, VkDescriptorSet &a_descriptor) const;
  
   void FreeDescriptors(std::vector<VkDescriptorSet> &a_descriptors) const;
@@ -87,8 +94,8 @@ class CDescriptorWriter
   void Overwrite(VkDescriptorSet &a_set);
  
  private:
-  CDescriptorSetLayout &m_setLayout;
-  CDescriptorPool &m_pool;
+  CDescriptorSetLayout& m_setLayout;
+  CDescriptorPool& m_pool;
   std::vector<VkWriteDescriptorSet> m_vWrites;
 };
 #endif

@@ -13,6 +13,10 @@ CSimpleRenderSystem::~CSimpleRenderSystem()
 void CSimpleRenderSystem::RenderGameObjects(const DrawInformation& a_drawInfo, const std::shared_ptr<CScene>& a_pCurrentScene)
 {
     m_pPipeline->Bind(a_drawInfo.commandBuffer);
+
+    vkCmdBindDescriptorSets(a_drawInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_drawInfo.pipelineLayout,
+        0, 1, &a_drawInfo.globalDescriptorSet, 0, nullptr);
+    
     a_pCurrentScene->Initialize(a_drawInfo.commandBuffer);
     a_pCurrentScene->Draw(a_drawInfo);
 }

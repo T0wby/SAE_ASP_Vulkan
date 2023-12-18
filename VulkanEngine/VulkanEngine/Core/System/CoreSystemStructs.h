@@ -64,6 +64,7 @@ struct DrawInformation
 {
 	VkCommandBuffer commandBuffer;
 	VkPipelineLayout pipelineLayout;
+	VkDescriptorSet globalDescriptorSet{};
 };
 
 #endif
