@@ -42,13 +42,13 @@ void CRenderer::EndFrame()
 {
     assert(m_bIsFrameStarted && "Frame still in progress!");
 
-    const auto commandBuffer = m_vCommandBuffers[m_currentFrameIndex];
+    const auto commandBuffer = GetCurrentCommandBuffer();
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) 
     {
         throw std::runtime_error("failed to record command buffer!");
     }
 
-    const auto result = m_pSwapChain->SubmitCommandBuffers(commandBuffer, m_currentImageIndex, m_pCurrentScene);
+    const auto result = m_pSwapChain->SubmitCommandBuffers(&commandBuffer, &m_currentImageIndex);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||  m_pWindow->IsFrameBufferResized())
     {
         m_pWindow->SetIsFrameBufferResized(false);

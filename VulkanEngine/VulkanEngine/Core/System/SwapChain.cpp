@@ -393,10 +393,8 @@ VkResult CSwapChain::AquireNextImage(uint32_t& a_imageIndex)
 	return vkAcquireNextImageKHR(m_pDevice->GetLogicalDevice(), m_swapChain, UINT64_MAX, m_vImageAvailableSemaphores[m_iCurrentFrame], VK_NULL_HANDLE, &a_imageIndex);
 }
 
-VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const uint32_t& a_imageIndex, const std::shared_ptr<CScene>& a_pScene)
+VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer* a_buffers, const uint32_t* a_imageIndex)
 {
-	//UpdateUniformBuffer(a_pScene);
-	
 	// Reset fence to unsigned
 	vkResetFences(m_pDevice->GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame]);
 
@@ -410,14 +408,13 @@ VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const 
 	submitInfo.pWaitDstStageMask = waitStages;
 	
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &buffers;
+	submitInfo.pCommandBuffers = a_buffers;
 
 	const VkSemaphore signalSemaphores[] = { m_vRenderFinishedSemaphores[m_iCurrentFrame] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 	
-	
-
+	vkResetFences(m_pDevice->GetLogicalDevice(), 1, &m_vInFlightFences[m_iCurrentFrame]);
 	if (vkQueueSubmit(m_pDevice->GetGraphicsQueue(), 1, &submitInfo, m_vInFlightFences[m_iCurrentFrame]) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to submit draw command buffer!");
@@ -431,7 +428,7 @@ VkResult CSwapChain::SubmitCommandBuffers(const VkCommandBuffer& buffers, const 
 	VkSwapchainKHR swapChains[] = { m_swapChain };
 	presentInfo.swapchainCount = 1;
 	presentInfo.pSwapchains = swapChains;
-	presentInfo.pImageIndices = &a_imageIndex;
+	presentInfo.pImageIndices = a_imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
 	const auto result = vkQueuePresentKHR(m_pDevice->GetPresentationQueue(), &presentInfo);

@@ -46,8 +46,7 @@ public:
 
 	void CreateTextures(void);
 	VkResult AquireNextImage(uint32_t& a_imageIndex);
-	VkResult SubmitCommandBuffers(const VkCommandBuffer& buffers, const uint32_t& a_imageIndex,
-		const std::shared_ptr<CScene>& a_pScene);
+	VkResult SubmitCommandBuffers(const VkCommandBuffer* a_buffers, const uint32_t* a_imageIndex);
 	VkFormat FindDepthFormat();
 	//void CreateDescriptorSetLayout(void);
 	//void CreateDescriptorPool(void);

@@ -40,11 +40,11 @@ void CEngine::InitializeVulkan(void)
 	for (auto& m_uboBuffer : m_uboBuffers)
 	{
 		m_uboBuffer = std::make_unique<CBuffer>(
-		m_pDevice,
-		sizeof(UniformBufferObject),
-		1,
-		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+			m_pDevice,
+			sizeof(UniformBufferObject),
+			1,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 		m_uboBuffer->Map();
 	}
 	
@@ -96,7 +96,6 @@ void CEngine::CreateScenes(void)
 void CEngine::MainLoop(void)
 {
 	CSimpleRenderSystem simpleRenderSystem{m_pDevice, m_pRenderer->GetSwapChainRenderPass(), m_pDescriptorSetLayout->GetDescriptorSetLayout()};
-
 	
 	while (!m_pWindow->GetWindowShouldClose()) 
 	{
