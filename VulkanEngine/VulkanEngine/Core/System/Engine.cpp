@@ -5,6 +5,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE // GLM uses the OpenGL depth range of -1.0 to 1.0 by default, but Vulkan uses 0.0 to 1.0
 #define STB_IMAGE_IMPLEMENTATION
+#include <ppltasks.h>
 #include <stb_image.h>
 #include "RenderSystems/SimpleRenderSystem.h"
 
@@ -62,7 +63,7 @@ void CEngine::InitializeVulkan(void)
 	m_vGlobalDescriptorSets.resize(CSwapChain::MAX_FRAMES_IN_FLIGHT);
 	for (int i = 0; i < m_vGlobalDescriptorSets.size(); ++i)
 	{
-		auto bufferInfo = m_uboBuffers[i]->DescriptorInfo();
+		auto bufferInfo = m_uboBuffers[i]->DescriptorInfo(sizeof(UniformBufferObject));
 		auto imageInfo = m_pRenderer->GetDescriptorImageInfo();
 		CDescriptorWriter(*m_pDescriptorSetLayout, *m_pGlobalPool)
 			.WriteBuffer(0, &bufferInfo)
@@ -116,6 +117,7 @@ void CEngine::MainLoop(void)
 			m_uboBuffers[m_pRenderer->GetFrameIndex()]->WriteToIndex(&ubo, m_pRenderer->GetFrameIndex());
 			
 			m_pRenderer->EndFrame();
+			//std::this_thread::sleep_for(std::chrono::seconds(2));
 		}
 	}
 
