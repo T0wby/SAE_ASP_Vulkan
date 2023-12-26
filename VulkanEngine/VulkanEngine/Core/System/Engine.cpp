@@ -106,16 +106,19 @@ void CEngine::MainLoop(void)
 		m_dLastFrame = m_dCurrentFrame;
 		if (const auto commandBuffer = m_pRenderer->BeginFrame())
 		{
-			DrawInformation drawInfo{commandBuffer, simpleRenderSystem.GetLayout(), m_vGlobalDescriptorSets[m_pRenderer->GetFrameIndex()]};
+			const auto frameIndex = m_pRenderer->GetFrameIndex();
+			DrawInformation drawInfo{commandBuffer, simpleRenderSystem.GetLayout(), m_vGlobalDescriptorSets[frameIndex]};
+
+			// Update uniform buffers
+			UniformBufferObject ubo = m_firstScene->CreateUniformBuffer();
+			//m_uboBuffers[frameIndex]->WriteToIndex(&ubo, frameIndex);
+			m_uboBuffers[frameIndex]->WriteToBuffer(&ubo);
+			m_uboBuffers[frameIndex]->Flush();
+			
 			m_pRenderer->BeginSwapChainRenderPass(drawInfo);
 			m_firstScene->Update(m_dDeltaTime);
 			simpleRenderSystem.RenderGameObjects(drawInfo, m_firstScene);
 			m_pRenderer->EndSwapChainRenderPass(drawInfo);
-
-			// Update uniform buffers
-			UniformBufferObject ubo = m_firstScene->CreateUniformBuffer();
-			m_uboBuffers[m_pRenderer->GetFrameIndex()]->WriteToIndex(&ubo, m_pRenderer->GetFrameIndex());
-			
 			m_pRenderer->EndFrame();
 			//std::this_thread::sleep_for(std::chrono::seconds(2));
 		}
