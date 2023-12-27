@@ -232,6 +232,7 @@
     <ClCompile Include="Core\System\Scenes\CDefaultScene.cpp" />
     <ClCompile Include="Core\System\SwapChain.cpp" />
     <ClCompile Include="GameObjects\GameObject.cpp" />
+    <ClCompile Include="GameObjects\Primitives\Quad.cpp" />
     <ClCompile Include="GameObjects\Primitives\Cube.cpp" />
     <ClCompile Include="GameObjects\Primitives\LoadedCube.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -332,6 +333,7 @@
     <ClInclude Include="Core\System\Scenes\CDefaultScene.h" />
     <ClInclude Include="Core\System\SwapChain.h" />
     <ClInclude Include="GameObjects\GameObject.h" />
+    <ClInclude Include="GameObjects\Primitives\Quad.h" />
     <ClInclude Include="GameObjects\Primitives\Cube.h" />
     <ClInclude Include="GameObjects\Primitives\LoadedCube.h" />
     <ClInclude Include="Input\PlayerController.h" />

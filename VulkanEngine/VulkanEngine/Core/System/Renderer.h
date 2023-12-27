@@ -30,7 +30,6 @@ public:
     inline auto IsFrameInProgress(void) const -> const bool { return m_bIsFrameStarted; }
     inline auto GetCurrentCommandBuffer(void) const -> const VkCommandBuffer&{return m_vCommandBuffers[m_currentFrameIndex];}
     inline auto GetSwapChainRenderPass(void) const -> const VkRenderPass { return m_pSwapChain->GetRenderPass(); }
-    //inline auto GetDescriptorSetLayout(void) const -> const VkDescriptorSetLayout { return m_pSwapChain->GetDescriptorSetLayout(); }
     inline int GetFrameIndex() const
     {
         assert(m_bIsFrameStarted && "Cannot get frame index when frame not in progress");

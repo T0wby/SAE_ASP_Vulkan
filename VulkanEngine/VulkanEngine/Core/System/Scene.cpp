@@ -149,7 +149,7 @@ auto CScene::GetSceneIndicesCount(void) const -> const int
 
 auto CScene::GetSceneFirstIndice(void) const -> const std::vector<uint16_t>
 {
-    if (m_vGameObjects.size() < 1)
+    if (m_vGameObjects.empty())
     {
         throw std::runtime_error("Scene doesn't have any gameobjects");
     }
@@ -164,8 +164,8 @@ UniformBufferObject& CScene::CreateUniformBuffer(void)
     ubo.view = m_pCamera->GetViewMatrix(m_pCameraObject->GetPosition());
     ubo.proj = m_pCamera->GetProjectionMatrix();
     ubo.proj[1][1] *= -1;
-    ubo.lightDirection =  glm::normalize(glm::vec3(1.0f,3.0f,-1.0f));
-    // TODO: Light position
+    ubo.lightPosition = glm::vec3(1.0f,3.0f,-1.0f);
+    ubo.lightColor = glm::vec4(1.0f);
 
     return ubo;
 }

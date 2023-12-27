@@ -45,7 +45,11 @@ private:
 	std::unique_ptr<CBuffer> m_pVertexBuffer{nullptr};
 	std::unique_ptr<CBuffer> m_pIndexBuffer{nullptr};
 
+	bool m_bHasIndexBuffer = false;
+	uint32_t m_iIndexCount{};
+	
 	void CreateVertexBuffer(const std::vector<Vertex>& a_vertices);
 	void CreateIndexBuffer(const std::vector<uint16_t>& a_indices);
+	void Bind(const VkCommandBuffer& a_commandBuffer) const;
 };
 #endif

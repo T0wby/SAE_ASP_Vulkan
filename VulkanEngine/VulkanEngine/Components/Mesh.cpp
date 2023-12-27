@@ -2,13 +2,7 @@
 #include "../Utility/Utility.h"
 #include <iostream>
 
-CMesh::~CMesh()
-{
-    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_indexBuffer, nullptr);
-    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_indexBufferMemory, nullptr);
-    //vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_vertexBuffer, nullptr);
-    //vkFreeMemory(m_pDevice->GetLogicalDevice(), m_vertexBufferMemory, nullptr);
-}
+CMesh::~CMesh(){}
 
 std::unique_ptr<CMesh> CMesh::CreateMeshFromFile(const std::shared_ptr<CDevice>& a_pDevice,
     const std::string& a_filePath, MeshData& a_meshData)
@@ -27,11 +21,8 @@ int CMesh::Initialize(void)
 
 int CMesh::Initialize(const VkCommandBuffer& a_commandBuffer)
 {
-    const VkBuffer vertexBuffers[] = { m_pVertexBuffer->GetBuffer() };
-    constexpr VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(a_commandBuffer, 0, 1, vertexBuffers, offsets);
-
-    vkCmdBindIndexBuffer(a_commandBuffer, m_pIndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+    Bind(a_commandBuffer);
+    
     return 0;
 }
 
@@ -46,7 +37,8 @@ void CMesh::Draw(void)
 
 void CMesh::Draw(const DrawInformation& a_drawInformation)
 {
-    vkCmdDrawIndexed(a_drawInformation.commandBuffer, static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
+    Bind(a_drawInformation.commandBuffer);
+    vkCmdDrawIndexed(a_drawInformation.commandBuffer, m_iIndexCount, 1, 0, 0, 0);
 }
 
 void CMesh::Finalize(void)
@@ -105,15 +97,18 @@ void CMesh::CreateVertexBuffer(const std::vector<Vertex>& a_vertices)
 
 void CMesh::CreateIndexBuffer(const std::vector<uint16_t>& a_indices)
 {
-    uint32_t indexSize = sizeof(uint16_t);
-    uint32_t indexCount = a_indices.size();
-    const VkDeviceSize bufferSize = indexCount * indexSize;
+    m_iIndexCount = static_cast<uint32_t>(a_indices.size());
 
+    m_bHasIndexBuffer = m_iIndexCount > 0;
+    if (!m_bHasIndexBuffer) return;
+    
+    uint32_t indexSize = sizeof(a_indices[0]);
+    const VkDeviceSize bufferSize = indexSize * m_iIndexCount;
     
     CBuffer stagingBuffer{
         m_pDevice,
         indexSize,
-        indexCount,
+        m_iIndexCount,
         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
     };
@@ -124,10 +119,20 @@ void CMesh::CreateIndexBuffer(const std::vector<uint16_t>& a_indices)
     m_pIndexBuffer = std::make_unique<CBuffer>(
             m_pDevice,
             indexSize,
-            indexCount,
+            m_iIndexCount,
             VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
             );
 
     m_pDevice->CopyBuffer(stagingBuffer.GetBuffer(), m_pIndexBuffer->GetBuffer(), bufferSize);
+}
+
+void CMesh::Bind(const VkCommandBuffer& a_commandBuffer) const
+{
+    const VkBuffer vertexBuffers[] = { m_pVertexBuffer->GetBuffer() };
+    constexpr VkDeviceSize offsets[] = { 0 };
+    vkCmdBindVertexBuffers(a_commandBuffer, 0, 1, vertexBuffers, offsets);
+
+    if (m_bHasIndexBuffer)
+        vkCmdBindIndexBuffer(a_commandBuffer, m_pIndexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
 }

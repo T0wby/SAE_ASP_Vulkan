@@ -9,6 +9,7 @@ CPipeline::~CPipeline()
 	vkDestroyShaderModule(m_pDevice->GetLogicalDevice(), m_vertShaderModule, nullptr);
 	vkDestroyShaderModule(m_pDevice->GetLogicalDevice(), m_fragShaderModule, nullptr);
 
+	//vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), m_pipelineConfig->pipelineLayout, nullptr);
 	vkDestroyPipeline(m_pDevice->GetLogicalDevice(), m_graphicsPipeline, nullptr);
 }
 
@@ -174,6 +175,7 @@ void CPipeline::CreateGraphicsPipeline(const std::string& vertFilepath, const st
 	// Creating Pipeline
 	VkGraphicsPipelineCreateInfo pipelineInfo{};
 	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	//pipelineInfo.flags = VK_PIPELINE_CREATE_DESCRIPTOR_BUFFER_BIT_EXT;
 	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;
 	pipelineInfo.pVertexInputState = &vertexInputInfo;

@@ -111,7 +111,7 @@ void CEngine::MainLoop(void)
 
 			// Update uniform buffers
 			UniformBufferObject ubo = m_firstScene->CreateUniformBuffer();
-			//m_uboBuffers[frameIndex]->WriteToIndex(&ubo, frameIndex);
+			// Switched from IndexedBuffer since each uniform data is stored in a different frame
 			m_uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 			m_uboBuffers[frameIndex]->Flush();
 			

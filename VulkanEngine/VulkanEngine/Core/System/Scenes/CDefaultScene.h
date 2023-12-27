@@ -3,6 +3,7 @@
 #include "../Scene.h"
 #include "../../../GameObjects/Primitives/Cube.h"
 #include "../../../GameObjects/Primitives/LoadedCube.h"
+#include "../../../GameObjects/Primitives/Quad.h"
 
 class CDefaultScene : public CScene
 {
@@ -23,10 +24,14 @@ public:
     void Draw(const DrawInformation& a_drawInformation) override;
     void Finalize(void) override;
 
+    UniformBufferObject& CreateUniformBuffer(void) override;
+
 private:
     std::shared_ptr<CCube> m_pCube{ nullptr };
     std::shared_ptr<CCube> m_pCube2{ nullptr };
     std::shared_ptr<CCube> m_pCube3{ nullptr };
+    std::shared_ptr<CQuad> m_pFloor{ nullptr };
+    std::shared_ptr<CGameObject> m_pLightObject{ nullptr };
     std::shared_ptr<CLoadedCube> m_pCubeLoad{ nullptr };
 
     void InitGameObjects(void);
