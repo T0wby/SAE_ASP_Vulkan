@@ -29,10 +29,9 @@ public:
 private:
     std::shared_ptr<CCube> m_pCube{ nullptr };
     std::shared_ptr<CCube> m_pCube2{ nullptr };
-    std::shared_ptr<CCube> m_pCube3{ nullptr };
     std::shared_ptr<CQuad> m_pFloor{ nullptr };
     std::shared_ptr<CGameObject> m_pLightObject{ nullptr };
-    std::shared_ptr<CLoadedCube> m_pCubeLoad{ nullptr };
+    std::shared_ptr<CLoadedCube> m_pVaseLoad{ nullptr };
 
     void InitGameObjects(void);
 

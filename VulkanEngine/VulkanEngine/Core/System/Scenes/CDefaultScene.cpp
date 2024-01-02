@@ -20,14 +20,6 @@ void CDefaultScene::InitGameObjects()
 	m_pCube2->SetPosition(glm::vec3(1.0f, 1.0f,-2.0f));
 	m_pCube2->SetRotation(glm::vec3(100.0f, 55.0f,128.0f));
 	m_vGameObjects.push_back(std::move(m_pCube2));
-	
-	cube = CCube::CreateGameObject(m_pDevice);
-	m_pCube3 = std::make_shared<CCube>(std::move(cube));
-	m_pCube3->Initialize();
-	m_pCube3->SetPosition(glm::vec3(-0.5f, 2.0f,-1.0f));
-	m_pCube3->SetRotation(glm::vec3(90.0f, 55.0f,255.0f));
-	m_pCube3->SetScale(glm::vec3(0.5f, 0.5f,0.5f));
-	m_vGameObjects.push_back(std::move(m_pCube3));
 
 	auto floor = CQuad::CreateGameObject(m_pDevice);
 	m_pFloor = std::make_shared<CQuad>(std::move(floor));
@@ -38,16 +30,16 @@ void CDefaultScene::InitGameObjects()
 
 	auto light = CGameObject::CreateGameObject(m_pDevice);
 	m_pLightObject = std::make_shared<CGameObject>(std::move(light));
-	m_pLightObject->SetPosition(glm::vec3(0.0f,2.0f,0.0f));
+	m_pLightObject->SetPosition(glm::vec3(-1.0f,2.0f,2.0f));
 	m_vGameObjects.push_back(std::move(m_pLightObject));
 	
 	auto loaded = CLoadedCube::CreateGameObject(m_pDevice);
-	m_pCubeLoad = std::make_shared<CLoadedCube>(std::move(loaded));
-	m_pCubeLoad->Initialize();
-	m_pCubeLoad->SetPosition(glm::vec3(0.0f, 0.5f,0.0f));
-	m_pCubeLoad->SetRotation(glm::vec3(110.0f, 0.0f,0.0f));
-	m_pCubeLoad->SetScale(glm::vec3(1.7f, 1.7f,1.7f));
-	m_vGameObjects.push_back(std::move(m_pCubeLoad));
+	m_pVaseLoad = std::make_shared<CLoadedCube>(std::move(loaded));
+	m_pVaseLoad->Initialize();
+	m_pVaseLoad->SetPosition(glm::vec3(0.0f, 0.5f,0.0f));
+	m_pVaseLoad->SetRotation(glm::vec3(110.0f, 0.0f,0.0f));
+	m_pVaseLoad->SetScale(glm::vec3(1.7f, 1.7f,1.7f));
+	m_vGameObjects.push_back(std::move(m_pVaseLoad));
 
 }
 
