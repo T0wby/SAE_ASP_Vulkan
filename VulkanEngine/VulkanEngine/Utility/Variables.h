@@ -4,6 +4,7 @@
 #include <Vulkan/Include/vulkan/vulkan_core.h>
 #include <vector>
 #define GLM_ENABLE_EXPERIMENTAL
+#include <memory>
 #include <glm/glm/gtx/hash.hpp>
 #include <assimp/scene.h>
 
@@ -123,6 +124,7 @@ struct MeshData
 	static auto LoadMesh(const std::string& a_filePath)-> const aiScene*;
 	static void ProcessMesh(const aiMesh* a_pMesh, const aiScene* a_pScene, MeshData& a_data);
 	static void ProcessNode(const aiNode* a_pNode, const aiScene* a_pScene, MeshData& a_data);
+
 };
 
 #endif // !VARIABLES_H

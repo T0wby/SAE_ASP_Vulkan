@@ -78,7 +78,8 @@ void MeshData::ProcessMesh(const aiMesh* a_pMesh, const aiScene* a_pScene, MeshD
     {
         
         a_data.vertices.push_back(Vertex{Vertex::Position{a_pMesh->mVertices[i].x, a_pMesh->mVertices[i].y, a_pMesh->mVertices[i].z},
-                                            Vertex::Color{a_pMesh->mColors[0][i].r, a_pMesh->mColors[0][i].g, a_pMesh->mColors[0][i].b},
+                                            //Vertex::Color{a_pMesh->mColors[0][i].r, a_pMesh->mColors[0][i].g, a_pMesh->mColors[0][i].b},
+                                                Vertex::Color::White(),
                                                 Vertex::Normal{a_pMesh->mNormals[i].x, a_pMesh->mNormals[i].y, a_pMesh->mNormals[i].z},
                                                 {a_pMesh->mTextureCoords[0][i].x, a_pMesh->mTextureCoords[0][i].y}});
     }

@@ -1,14 +1,25 @@
 #include "Mesh.h"
 #include "../Utility/Utility.h"
 #include <iostream>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 CMesh::~CMesh(){}
 
 std::unique_ptr<CMesh> CMesh::CreateMeshFromFile(const std::shared_ptr<CDevice>& a_pDevice,
     const std::string& a_filePath, MeshData& a_meshData)
 {
-    const auto assimpScene = MeshData::LoadMesh(a_filePath);
-    MeshData::ProcessNode(assimpScene->mRootNode, assimpScene, a_meshData);
+    //const auto assimpScene = MeshData::LoadMesh(a_filePath);
+
+    Assimp::Importer imp;
+    const auto pScene = imp.ReadFile(a_filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+
+    if (!pScene | pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !pScene->mRootNode)
+    {
+        throw std::runtime_error(imp.GetErrorString());
+    }
+    
+    MeshData::ProcessNode(pScene->mRootNode, pScene, a_meshData);
 
     std::cout << a_meshData.vertices.size() << "\n";
     return std::make_unique<CMesh>(a_pDevice, a_meshData);

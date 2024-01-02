@@ -10,6 +10,7 @@ public:
     static CCube CreateGameObject(const std::shared_ptr<CDevice>& a_pDevice)
     {
         static id_t currentId = 0;
+        
         return CCube{a_pDevice, currentId++};
     }
     CCube(const CCube&) = default;

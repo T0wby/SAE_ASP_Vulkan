@@ -20,25 +20,17 @@ layout(location = 3) in vec2 inTexCoord;
 
 
 layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec3 Normal;
+layout(location = 1) out vec3 fragNormalWorld;
 layout(location = 2) out vec2 fragTexCoord;
+layout(location = 3) out vec3 fragPosWorld;
 
 void main() {
     vec4 positionWorld = push.transform * vec4(inPosition, 1.0);
     gl_Position = (ubo.proj * ubo.view * ubo.model) * positionWorld;
     
     mat3 normalMatrix = mat3(transpose(inverse(ubo.model)));
-    vec3 normalWorldSpace = normalize(normalMatrix * inNormal);
-    
-    vec3 directionToLight = ubo.lightPosition - positionWorld.xyz;
-    float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
-    
-    vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * attenuation;
-    vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-    vec3 diffuseLight = lightColor *  max(dot(normalWorldSpace, normalize(directionToLight)), 0);
-    
-    
-    fragColor = (diffuseLight + ambientLight) * inColor;
+    fragNormalWorld = normalize(normalMatrix * inNormal);
+    fragPosWorld = positionWorld.xyz;
+    fragColor = inColor;
     fragTexCoord = inTexCoord;
-    Normal = mat3(transpose(inverse(push.transform))) * inNormal;
 }

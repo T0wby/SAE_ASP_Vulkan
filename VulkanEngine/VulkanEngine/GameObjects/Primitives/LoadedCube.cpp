@@ -13,7 +13,7 @@ CLoadedCube::~CLoadedCube()
 void CLoadedCube::Initialize(void)
 {
 	MeshData data{};
-	m_pMesh = CMesh::CreateMeshFromFile(m_pDevice, "Models/colored_cube.obj", data);
+	m_pMesh = CMesh::CreateMeshFromFile(m_pDevice, "Models/smooth_vase.obj", data);
 
 	AddComponent(m_pMesh);
 

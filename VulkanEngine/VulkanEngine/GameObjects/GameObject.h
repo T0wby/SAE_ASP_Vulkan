@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include "../Components/Component.h"
 #include "../Components/Transform.h"
 #include "../Utility/Variables.h"
@@ -11,6 +12,8 @@
 class CGameObject
 {
 public:
+	using id_t = unsigned int;
+	using Map = std::unordered_map<id_t, CGameObject>;
 	static CGameObject CreateGameObject(const std::shared_ptr<CDevice>& a_pDevice)
 	{
 		static id_t currentId = 0;
@@ -23,7 +26,6 @@ public:
 	CGameObject& operator= (CGameObject&&) = default;
 	virtual ~CGameObject() = default;
 
-	using id_t = unsigned int;
 
 	virtual void Initialize(void);
 	virtual void Initialize(VkCommandBuffer a_commandBuffer);
