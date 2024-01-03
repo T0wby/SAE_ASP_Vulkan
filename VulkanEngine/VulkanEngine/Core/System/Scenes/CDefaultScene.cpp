@@ -30,7 +30,7 @@ void CDefaultScene::InitGameObjects()
 
 	auto light = CGameObject::CreateGameObject(m_pDevice);
 	m_pLightObject = std::make_shared<CGameObject>(std::move(light));
-	m_pLightObject->SetPosition(glm::vec3(-1.0f,2.0f,2.0f));
+	m_pLightObject->SetPosition(glm::vec3(0.0f,3.0f,0.0f));
 	m_vGameObjects.push_back(std::move(m_pLightObject));
 	
 	auto loaded = CLoadedCube::CreateGameObject(m_pDevice);

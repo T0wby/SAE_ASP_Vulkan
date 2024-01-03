@@ -5,9 +5,9 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE // GLM uses the OpenGL depth range of -1.0 to 1.0 by default, but Vulkan uses 0.0 to 1.0
 #define STB_IMAGE_IMPLEMENTATION
-#include <ppltasks.h>
 #include <stb_image.h>
 #include "RenderSystems/SimpleRenderSystem.h"
+#include "RenderSystems/PointLightSystem.h"
 
 constexpr uint32_t WIDTH = 800;
 constexpr uint32_t HEIGHT = 600;
@@ -97,6 +97,7 @@ void CEngine::CreateScenes(void)
 void CEngine::MainLoop(void)
 {
 	CSimpleRenderSystem simpleRenderSystem{m_pDevice, m_pRenderer->GetSwapChainRenderPass(), m_pDescriptorSetLayout->GetDescriptorSetLayout()};
+	CPointLightSystem pointLightSystem{m_pDevice, m_pRenderer->GetSwapChainRenderPass(), m_pDescriptorSetLayout->GetDescriptorSetLayout()};
 	
 	while (!m_pWindow->GetWindowShouldClose()) 
 	{
@@ -118,6 +119,7 @@ void CEngine::MainLoop(void)
 			m_pRenderer->BeginSwapChainRenderPass(drawInfo);
 			m_firstScene->Update(m_dDeltaTime);
 			simpleRenderSystem.RenderGameObjects(drawInfo, m_firstScene);
+			pointLightSystem.Render(drawInfo);
 			m_pRenderer->EndSwapChainRenderPass(drawInfo);
 			m_pRenderer->EndFrame();
 			//std::this_thread::sleep_for(std::chrono::seconds(2));

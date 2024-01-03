@@ -1,5 +1,14 @@
 #version 450
 
+const vec2 OFFSETS[6] = vec2[](
+vec2(-1.0, -1.0),
+vec2(-1.0, 1.0),
+vec2(1.0, -1.0),
+vec2(1.0, -1.0),
+vec2(-1.0, 1.0),
+vec2(1.0, 1.0)
+);
+
 layout(set = 0, binding = 0) uniform UniformBufferObject {
     mat4 model;
     mat4 view;
@@ -9,28 +18,15 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     vec4 lightColor;
 } ubo;
 
-layout(push_constant) uniform Push {
-    mat4 transform;
-} push;
+layout(location = 0) out vec2 fragOffset;
 
-layout(location = 0) in vec3 inPosition;
-layout(location = 1) in vec3 inColor;
-layout(location = 2) in vec3 inNormal;
-layout(location = 3) in vec2 inTexCoord;
-
-
-layout(location = 0) out vec3 fragColor;
-layout(location = 1) out vec3 fragNormalWorld;
-layout(location = 2) out vec2 fragTexCoord;
-layout(location = 3) out vec3 fragPosWorld;
+const float LIGHT_RADIUS = 0.1;
 
 void main() {
-    vec4 positionWorld = push.transform * vec4(inPosition, 1.0);
-    gl_Position = (ubo.proj * ubo.view * ubo.model) * positionWorld;
-    
-    mat3 normalMatrix = mat3(transpose(inverse(ubo.model)));
-    fragNormalWorld = normalize(normalMatrix * inNormal);
-    fragPosWorld = positionWorld.xyz;
-    fragColor = inColor;
-    fragTexCoord = inTexCoord;
+    fragOffset = OFFSETS[gl_VertexIndex];
+    vec3 cameraRightWorld = {ubo.view[0][0], ubo.view[1][0], ubo.view[2][0]};
+    vec3 cameraUpWorld = {ubo.view[0][1], ubo.view[1][1], ubo.view[2][1]};
+
+    vec3 positionWorld = ubo.lightPosition.xyz + LIGHT_RADIUS * fragOffset.x * cameraRightWorld + LIGHT_RADIUS * fragOffset.y * cameraUpWorld;
+    gl_Position = (ubo.proj * ubo.view) * vec4(positionWorld, 1.0);
 }

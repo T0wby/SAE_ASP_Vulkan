@@ -1,27 +1,26 @@
-﻿#ifndef SIMPLERENDERSYSTEM_H
-#define SIMPLERENDERSYSTEM_H
+﻿#ifndef POINTLIGHTSYSTEM_H
+#define POINTLIGHTSYSTEM_H
 #include <memory>
-#include <vector>
 #include <Vulkan/Include/vulkan/vulkan_core.h>
 #include "../Pipeline.h"
 #include "../../../GameObjects/GameObject.h"
 #include "../Scene.h"
 
-class CSimpleRenderSystem
+class CPointLightSystem
 {
 public:
-    inline CSimpleRenderSystem(const std::shared_ptr<CDevice>& a_pDevice, VkRenderPass a_renderPass, VkDescriptorSetLayout a_descLayout)
+    inline CPointLightSystem(const std::shared_ptr<CDevice>& a_pDevice, VkRenderPass a_renderPass, VkDescriptorSetLayout a_descLayout)
         : m_pDevice(a_pDevice)
     {
         CreatePipelineLayout(a_descLayout);
         CreatePipeline(a_renderPass, a_descLayout);
     }
-    ~CSimpleRenderSystem();
+    ~CPointLightSystem();
 
-    CSimpleRenderSystem(const CSimpleRenderSystem &) = delete;
-    CSimpleRenderSystem &operator=(const CSimpleRenderSystem &) = delete;
+    CPointLightSystem(const CPointLightSystem &) = delete;
+    CPointLightSystem &operator=(const CPointLightSystem &) = delete;
 
-    void RenderGameObjects(const DrawInformation& a_drawInfo, const std::shared_ptr<CScene>& a_pCurrentScene);
+    void Render(const DrawInformation& a_drawInfo);
     inline VkPipelineLayout GetLayout(void) const { return m_pipelineLayout; }
 
 private:

@@ -1,40 +1,41 @@
-﻿#include "SimpleRenderSystem.h"
+﻿#include "PointLightSystem.h"
 
 #include <stdexcept>
 
-const std::string VERT_SHADER = "Shader/vert.spv";
-const std::string FRAG_SHADER = "Shader/frag.spv";
+const std::string VERT_SHADER = "Shader/point_light_vert.spv";
+const std::string FRAG_SHADER = "Shader/point_light_frag.spv";
 
-CSimpleRenderSystem::~CSimpleRenderSystem()
+CPointLightSystem::~CPointLightSystem()
 {
     vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), m_pipelineLayout, nullptr);
 }
 
-void CSimpleRenderSystem::RenderGameObjects(const DrawInformation& a_drawInfo, const std::shared_ptr<CScene>& a_pCurrentScene)
+void CPointLightSystem::Render(const DrawInformation& a_drawInfo)
 {
     m_pPipeline->Bind(a_drawInfo.commandBuffer);
 
     vkCmdBindDescriptorSets(a_drawInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_drawInfo.pipelineLayout,
         0, 1, &a_drawInfo.globalDescriptorSet, 0, nullptr);
     
-    a_pCurrentScene->Initialize(a_drawInfo.commandBuffer);
-    a_pCurrentScene->Draw(a_drawInfo);
+    //a_pCurrentScene->Initialize(a_drawInfo.commandBuffer);
+    //a_pCurrentScene->Draw(a_drawInfo);
+    vkCmdDraw(a_drawInfo.commandBuffer, 6, 1, 0, 0);
 }
 
-void CSimpleRenderSystem::CreatePipelineLayout(VkDescriptorSetLayout a_descLayout)
+void CPointLightSystem::CreatePipelineLayout(VkDescriptorSetLayout a_descLayout)
 {
     // Pipeline Layout
-    VkPushConstantRange pushConstantRange{};
-    pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    pushConstantRange.offset = 0;
-    pushConstantRange.size = sizeof(SimplePushConstantData);
+    // VkPushConstantRange pushConstantRange{};
+    // pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    // pushConstantRange.offset = 0;
+    // pushConstantRange.size = sizeof(SimplePushConstantData);
 	
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1; // Optional
     pipelineLayoutInfo.pSetLayouts = &a_descLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 1; // Optional
-    pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange; // Optional
+    pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
+    pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
     if (vkCreatePipelineLayout(m_pDevice->GetLogicalDevice(), &pipelineLayoutInfo, nullptr, &m_pipelineLayout) != VK_SUCCESS)
     {
@@ -42,7 +43,7 @@ void CSimpleRenderSystem::CreatePipelineLayout(VkDescriptorSetLayout a_descLayou
     }
 }
 
-void CSimpleRenderSystem::CreatePipeline(const VkRenderPass& renderPass, VkDescriptorSetLayout a_descLayout)
+void CPointLightSystem::CreatePipeline(const VkRenderPass& renderPass, VkDescriptorSetLayout a_descLayout)
 {
     PipelineConfigInfo defaultPipelineConfigInfo{};
     CPipeline::DefaultPipelineConfigInfo(defaultPipelineConfigInfo);

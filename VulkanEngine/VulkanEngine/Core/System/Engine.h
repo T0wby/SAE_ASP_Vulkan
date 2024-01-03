@@ -6,7 +6,6 @@
 #include "../../Input/PlayerController.h"
 #include "Device.h"
 #include "Renderer.h"
-#include "SwapChain.h"
 #include "Scenes/CDefaultScene.h"
 
 
