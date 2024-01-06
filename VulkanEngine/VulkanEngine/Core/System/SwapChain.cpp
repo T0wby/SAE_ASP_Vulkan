@@ -198,7 +198,7 @@ void CSwapChain::CreateSwapChain()
 	createInfo.oldSwapchain = m_pSwapChainOld == nullptr ? VK_NULL_HANDLE : m_pSwapChainOld->m_swapChain; // Swapchain can get invalid during runtime for example because the window was resized(Solution done later)
 
 	const auto result = vkCreateSwapchainKHR(m_pDevice->GetLogicalDevice(), &createInfo, nullptr, &m_swapChain);
-	if (result != VK_SUCCESS) 
+	if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create swap chain!");
 	}

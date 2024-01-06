@@ -27,10 +27,6 @@ public:
     void RemoveGameObject(const std::shared_ptr<CGameObject>& a_gameObject);
 
     std::shared_ptr<CGameObject> GetGameObject(const int& a_iIndex);
-    auto GetSceneVertexCount(void) const -> const int;
-    auto GetSceneFirstVertex(void) const -> const std::vector<Vertex>;
-    auto GetSceneIndicesCount(void) const -> const int;
-    auto GetSceneFirstIndice(void) const -> const std::vector<uint16_t>;
 
     virtual UniformBufferObject& CreateUniformBuffer(void);
     void UpdateSizeValues(const int& a_iWidth, const int& a_iHeight);
@@ -54,8 +50,6 @@ protected:
 
     uint32_t m_fWidth{ 0 };
     uint32_t m_fHeight{ 0 };
-
-    
 
 };
 #endif

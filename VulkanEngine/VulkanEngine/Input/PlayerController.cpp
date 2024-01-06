@@ -19,6 +19,7 @@ std::function<void(void)> pLeftInput{ []() {} };
 std::function<void(void)> pUpInput{ []() {} };
 std::function<void(void)> pDownInput{ []() {} };
 std::function<void(void)> pMouseMode{ []() {} };
+std::function<void(void)> pSceneSwitch{ []() {} };
 
 // Mouse Input
 float fPitch{ 0.0f };
@@ -128,6 +129,11 @@ void CPlayerController::SetMouseMode(const std::function<void(void)>& a_pMouseMo
 	pMouseMode = a_pMouseMode;
 }
 
+void CPlayerController::SetSceneSwitch(const std::function<void()>& a_pSceneSwitch)
+{
+	pSceneSwitch = a_pSceneSwitch;
+}
+
 void CPlayerController::SetDefaultInputGO()
 {
 	pExitInput = ([]() { pCurrWindow->SetWindowShouldClose(true); });
@@ -181,5 +187,9 @@ void CPlayerController::CheckKeys(void)
 	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_Q) == GLFW_PRESS)
 	{
 		pDownInput();
+	}
+	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_P) == GLFW_PRESS)
+	{
+		pSceneSwitch();
 	}
 }

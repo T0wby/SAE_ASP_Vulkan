@@ -101,62 +101,6 @@ std::shared_ptr<CGameObject> CScene::GetGameObject(const int& a_iIndex)
     return m_vGameObjects[a_iIndex];
 }
 
-auto CScene::GetSceneVertexCount(void) const -> const int
-{
-    std::vector<std::vector<Vertex>> vertices{};
-
-    for (int i = 0; i < m_vGameObjects.size(); i++)
-    {
-        vertices.push_back(m_vGameObjects[i]->GetMeshVertexData());
-    }
-
-    int vertexCount{ 0 };
-    for (int i = 0; i < vertices.size(); i++)
-    {
-        vertexCount += vertices[i].size();
-    }
-
-    return vertexCount;
-}
-
-auto CScene::GetSceneFirstVertex(void) const -> const std::vector<Vertex>
-{
-    if (m_vGameObjects.size() < 1)
-    {
-        throw std::runtime_error("Scene doesn't have any gameobjects");
-    }
-
-    return m_vGameObjects[0]->GetMeshVertexData();
-}
-
-auto CScene::GetSceneIndicesCount(void) const -> const int
-{
-    std::vector<std::vector<uint16_t>> indices{};
-
-    for (int i = 0; i < m_vGameObjects.size(); i++)
-    {
-        indices.push_back(m_vGameObjects[i]->GetMeshIndiceData());
-    }
-
-    int indicesCount{ 0 };
-    for (int i = 0; i < indices.size(); i++)
-    {
-        indicesCount += indices[i].size();
-    }
-
-    return indicesCount;
-}
-
-auto CScene::GetSceneFirstIndice(void) const -> const std::vector<uint16_t>
-{
-    if (m_vGameObjects.empty())
-    {
-        throw std::runtime_error("Scene doesn't have any gameobjects");
-    }
-
-    return m_vGameObjects[0]->GetMeshIndiceData();
-}
-
 UniformBufferObject& CScene::CreateUniformBuffer(void)
 {
     UniformBufferObject ubo{};

@@ -8,9 +8,11 @@
 #include <stb_image.h>
 #include "RenderSystems/SimpleRenderSystem.h"
 #include "RenderSystems/PointLightSystem.h"
+#include "Scenes/DefaultScene.h"
+#include "Scenes/LoadedModelScene.h"
 
-constexpr uint32_t WIDTH = 800;
-constexpr uint32_t HEIGHT = 600;
+constexpr uint32_t WIDTH = 1200;
+constexpr uint32_t HEIGHT = 1000;
 const std::string VERT_SHADER = "Shader/vert.spv";
 const std::string FRAG_SHADER = "Shader/frag.spv";
 const std::string NAME = "SAE_Tobi_Engine";
@@ -34,7 +36,15 @@ void CEngine::InitializeVulkan(void)
 	CreateInput();
 	m_pDevice = std::make_shared<CDevice>(m_pWindow);
 	CreateScenes();
-	m_pRenderer = std::make_shared<CRenderer>(m_pDevice, m_pWindow, m_firstScene);
+	EngineSetup();
+}
+
+void CEngine::EngineSetup()
+{
+	if (m_pRenderer == nullptr)
+		m_pRenderer = std::make_shared<CRenderer>(m_pDevice, m_pWindow, m_pCurrScene);
+	else
+		m_pRenderer->RecreateSwapChain();
 
 	m_uboBuffers.resize(CSwapChain::MAX_FRAMES_IN_FLIGHT);
 	
@@ -82,16 +92,37 @@ void CEngine::InitializeWindow(void)
 void CEngine::CreateInput(void)
 {
 	m_playerController = std::make_shared<CPlayerController>();
+
+	m_playerController->SetSceneSwitch(([this]()
+	{
+		m_bSwitchScenes = true;
+	}));
+	m_playerController2 = std::make_shared<CPlayerController>();
+
+	m_playerController2->SetSceneSwitch(([this]()
+	{
+		m_bSwitchScenes = true;
+	}));
 }
 
 void CEngine::CreateScenes(void)
 {
-	m_firstScene = std::make_shared<CDefaultScene>(m_playerController,
-		m_pWindow,
-		m_pDevice,
-		WIDTH,
-		HEIGHT);
-	m_firstScene->Initialize();
+	const auto scene = std::make_shared<CDefaultScene>(m_playerController,
+	                                                   m_pWindow,
+	                                                   m_pDevice,
+	                                                   WIDTH,
+	                                                   HEIGHT);
+	scene->Initialize();
+	m_vScenes.push_back(scene);
+	m_pCurrScene = m_vScenes[m_iCurrSceneNum];
+
+	const auto scene2 = std::make_shared<CLoadedModelScene>(m_playerController2,
+													   m_pWindow,
+													   m_pDevice,
+													   WIDTH,
+													   HEIGHT);
+	//scene2->Initialize();
+	m_vScenes.push_back(scene2);
 }
 
 void CEngine::MainLoop(void)
@@ -99,7 +130,7 @@ void CEngine::MainLoop(void)
 	CSimpleRenderSystem simpleRenderSystem{m_pDevice, m_pRenderer->GetSwapChainRenderPass(), m_pDescriptorSetLayout->GetDescriptorSetLayout()};
 	CPointLightSystem pointLightSystem{m_pDevice, m_pRenderer->GetSwapChainRenderPass(), m_pDescriptorSetLayout->GetDescriptorSetLayout()};
 	
-	while (!m_pWindow->GetWindowShouldClose()) 
+	while (!m_pWindow->GetWindowShouldClose())
 	{
 		m_pWindow->Update();
 		m_dCurrentFrame = glfwGetTime();
@@ -111,17 +142,28 @@ void CEngine::MainLoop(void)
 			DrawInformation drawInfo{commandBuffer, simpleRenderSystem.GetLayout(), m_vGlobalDescriptorSets[frameIndex]};
 
 			// Update uniform buffers
-			UniformBufferObject ubo = m_firstScene->CreateUniformBuffer();
+			UniformBufferObject ubo = m_pCurrScene->CreateUniformBuffer();
 			// Switched from IndexedBuffer since each uniform data is stored in a different frame
 			m_uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 			m_uboBuffers[frameIndex]->Flush();
 			
 			m_pRenderer->BeginSwapChainRenderPass(drawInfo);
-			m_firstScene->Update(m_dDeltaTime);
-			simpleRenderSystem.RenderGameObjects(drawInfo, m_firstScene);
+			m_pCurrScene->Update(m_dDeltaTime);
+			simpleRenderSystem.RenderGameObjects(drawInfo, m_pCurrScene);
 			pointLightSystem.Render(drawInfo);
 			m_pRenderer->EndSwapChainRenderPass(drawInfo);
 			m_pRenderer->EndFrame();
+			
+			if (m_bSwitchScenes)
+			{
+				m_iCurrSceneNum++;
+				m_iCurrSceneNum %= m_vScenes.size();
+				m_pCurrScene->Finalize();
+				m_pCurrScene = m_vScenes[m_iCurrSceneNum];
+				m_pCurrScene->Initialize();
+				EngineSetup();
+				m_bSwitchScenes = false;
+			}
 			//std::this_thread::sleep_for(std::chrono::seconds(2));
 		}
 	}
@@ -131,7 +173,7 @@ void CEngine::MainLoop(void)
 
 void CEngine::Cleanup(void)
 {
-	m_firstScene->Finalize();
+	m_pCurrScene->Finalize();
 	m_pWindow->Finalize();
 }
 

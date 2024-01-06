@@ -30,6 +30,7 @@ public:
 	void SetUpInput(const std::function<void(void)>& a_pUpInput);
 	void SetDownInput(const std::function<void(void)>& a_pDownInput);
 	void SetMouseMode(const std::function<void(void)>& a_pMouseMode);
+	void SetSceneSwitch(const std::function<void(void)>& a_pSceneSwitch);
 
 private:
 	void SetDefaultInputGO(void);

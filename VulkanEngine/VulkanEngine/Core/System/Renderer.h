@@ -26,6 +26,7 @@ public:
     void EndFrame(void);
     void BeginSwapChainRenderPass(const DrawInformation& a_drawInfo);
     void EndSwapChainRenderPass(const DrawInformation& a_drawInfo);
+    void RecreateSwapChain(void);
 
     inline auto IsFrameInProgress(void) const -> const bool { return m_bIsFrameStarted; }
     inline auto GetCurrentCommandBuffer(void) const -> const VkCommandBuffer&{return m_vCommandBuffers[m_currentFrameIndex];}
@@ -53,6 +54,5 @@ private:
     
     void CreateCommandBuffers(void);
     void FreeCommandBuffers(void);
-    void RecreateSwapChain(void);
 };
 #endif
