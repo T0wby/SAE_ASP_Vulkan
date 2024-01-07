@@ -7,6 +7,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     vec4 ambientLightColor;
     vec3 lightPosition;
     vec4 lightColor;
+    vec3 camPos;
 } ubo;
 
 layout(push_constant) uniform Push {

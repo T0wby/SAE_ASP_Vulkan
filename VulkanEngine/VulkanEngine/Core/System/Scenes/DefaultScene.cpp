@@ -78,6 +78,7 @@ UniformBufferObject& CDefaultScene::CreateUniformBuffer()
 	ubo.proj[1][1] *= -1;
 	ubo.lightPosition = m_vGameObjects[4]->GetPosition();
 	ubo.lightColor = glm::vec4(1.0f);
+	ubo.camPos = m_pCameraObject->GetPosition();
 
 	return ubo;
 }

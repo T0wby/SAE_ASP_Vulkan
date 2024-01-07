@@ -7,6 +7,7 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     vec4 ambientLightColor;
     vec3 lightPosition;
     vec4 lightColor;
+    vec3 camPos;
 } ubo;
 
 layout(binding = 1) uniform sampler2D texSampler;
@@ -23,12 +24,25 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-    vec3 directionToLight = ubo.lightPosition - fragPosWorld;
-    float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
-
-    vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * attenuation;
+    // Ambient
     vec3 ambientLight = ubo.ambientLightColor.xyz * ubo.ambientLightColor.w;
-    vec3 diffuseLight = lightColor *  max(dot(normalize(fragNormalWorld), normalize(directionToLight)), 0);
     
-    outColor = texture(texSampler, fragTexCoord) * vec4((diffuseLight + ambientLight) * fragColor, 1.0);
+    // Diffuse
+    vec3 norm = normalize(fragNormalWorld);
+    vec3 directionToLight = normalize(ubo.lightPosition - fragPosWorld);
+    float diffImpact = max(dot(norm, directionToLight), 0.0);
+    vec3 diffuse = vec3(1.0f, 1.0f, 1.0f) * diffImpact;
+    
+    // Specular
+    vec3 viewDir = normalize(ubo.camPos - fragPosWorld); // Direction of our Camera to the current fragment
+    vec3 reflectDir = reflect(-directionToLight, norm); // Direction of the reflected light
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    vec3 specular = vec3(1.0f, 1.0f, 1.0f) * (spec * vec3(0.727811f, 0.626959f, 0.626959f));
+    
+    //float attenuation = 1.0 / dot(directionToLight, directionToLight); // distance squared
+
+    //vec3 lightColor = ubo.lightColor.xyz * ubo.lightColor.w * attenuation;
+    //vec3 diffuseLight = lightColor *  max(dot(normalize(fragNormalWorld), normalize(directionToLight)), 0);
+    
+    outColor = texture(texSampler, fragTexCoord) * vec4((diffuse + ambientLight + specular) * fragColor, 1.0);
 }
