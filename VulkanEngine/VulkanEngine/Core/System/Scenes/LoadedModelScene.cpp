@@ -8,6 +8,7 @@ void CLoadedModelScene::Initialize()
 
 void CLoadedModelScene::InitGameObjects()
 {
+	if(!m_vGameObjects.empty()) return;
 	auto light = CGameObject::CreateGameObject(m_pDevice);
 	m_pLightObject = std::make_shared<CGameObject>(std::move(light));
 	m_pLightObject->SetPosition(glm::vec3(2.0f,3.0f,0.0f));

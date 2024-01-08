@@ -58,6 +58,7 @@ void CScene::Finalize(void)
 
 void CScene::CreateGameObjects(void)
 {
+    if (m_pCameraObject != nullptr)return;
     auto camObj = CGameObject::CreateGameObject(m_pDevice);
     m_pCameraObject = std::make_shared<CGameObject>(std::move(camObj));
     m_pCamera = std::make_shared<CCamera>(static_cast<float>(m_fWidth), static_cast<float>(m_fHeight), glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, -0.5f),

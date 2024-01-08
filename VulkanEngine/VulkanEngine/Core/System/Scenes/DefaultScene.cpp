@@ -9,6 +9,7 @@ void CDefaultScene::Initialize()
 
 void CDefaultScene::InitGameObjects()
 {
+	if(!m_vGameObjects.empty()) return;
 	auto cube = CCube::CreateGameObject(m_pDevice);
 	m_pCube = std::make_shared<CCube>(std::move(cube));
 	m_pCube->Initialize();
