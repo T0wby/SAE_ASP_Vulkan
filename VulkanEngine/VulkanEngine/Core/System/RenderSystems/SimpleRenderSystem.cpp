@@ -42,11 +42,11 @@ void CSimpleRenderSystem::CreatePipelineLayout(VkDescriptorSetLayout a_descLayou
     }
 }
 
-void CSimpleRenderSystem::CreatePipeline(const VkRenderPass& renderPass, VkDescriptorSetLayout a_descLayout)
+void CSimpleRenderSystem::CreatePipeline(const VkRenderPass& a_renderPass, VkDescriptorSetLayout a_descLayout)
 {
     PipelineConfigInfo defaultPipelineConfigInfo{};
     CPipeline::DefaultPipelineConfigInfo(defaultPipelineConfigInfo);
-    defaultPipelineConfigInfo.renderPass = renderPass;
+    defaultPipelineConfigInfo.renderPass = a_renderPass;
     defaultPipelineConfigInfo.pipelineLayout = m_pipelineLayout;
     m_pPipeline = std::make_unique<CPipeline>(m_pDevice, &defaultPipelineConfigInfo, VERT_SHADER, FRAG_SHADER, a_descLayout);
 }

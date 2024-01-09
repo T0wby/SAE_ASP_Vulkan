@@ -26,7 +26,7 @@ public:
 
 private:
     void CreatePipelineLayout(VkDescriptorSetLayout a_descLayout);
-    void CreatePipeline(const VkRenderPass& renderPass, VkDescriptorSetLayout a_descLayout);
+    void CreatePipeline(const VkRenderPass& a_renderPass, VkDescriptorSetLayout a_descLayout);
 
     std::shared_ptr<CDevice> m_pDevice{nullptr};
     std::unique_ptr<CPipeline> m_pPipeline{nullptr};

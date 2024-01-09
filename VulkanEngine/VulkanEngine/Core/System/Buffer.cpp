@@ -10,31 +10,34 @@
 
 VkDeviceSize CBuffer::GetAlignment(VkDeviceSize a_instanceSize, VkDeviceSize a_minOffsetAlignment)
 {
-  if (a_minOffsetAlignment > 0) {
-    return (a_instanceSize + a_minOffsetAlignment - 1) & ~(a_minOffsetAlignment - 1);
-  }
-  return a_instanceSize;
+    if (a_minOffsetAlignment > 0)
+    {
+        return (a_instanceSize + a_minOffsetAlignment - 1) & ~(a_minOffsetAlignment - 1);
+    }
+    return a_instanceSize;
 }
- 
-CBuffer::CBuffer(const std::shared_ptr<CDevice>& a_pDevice, VkDeviceSize a_instanceSize, uint32_t a_instanceCount, VkBufferUsageFlags a_usageFlags, VkMemoryPropertyFlags a_memoryPropertyFlags, VkDeviceSize a_minOffsetAlignment)
+
+CBuffer::CBuffer(const std::shared_ptr<CDevice>& a_pDevice, VkDeviceSize a_instanceSize, uint32_t a_instanceCount,
+                 VkBufferUsageFlags a_usageFlags, VkMemoryPropertyFlags a_memoryPropertyFlags,
+                 VkDeviceSize a_minOffsetAlignment)
     : m_pDevice(a_pDevice),
       m_instanceCount{a_instanceCount},
       m_instanceSize{a_instanceSize},
       m_usageFlags{a_usageFlags},
       m_memoryPropertyFlags{a_memoryPropertyFlags}
 {
-   m_alignmentSize = GetAlignment(a_instanceSize, a_minOffsetAlignment);
-   m_bufferSize =  m_alignmentSize * a_instanceCount;
-  m_pDevice->CreateBuffer( m_bufferSize, a_usageFlags, a_memoryPropertyFlags,  m_buffer,  m_memory);
+    m_alignmentSize = GetAlignment(a_instanceSize, a_minOffsetAlignment);
+    m_bufferSize = m_alignmentSize * a_instanceCount;
+    m_pDevice->CreateBuffer(m_bufferSize, a_usageFlags, a_memoryPropertyFlags, m_buffer, m_memory);
 }
- 
+
 CBuffer::~CBuffer()
 {
-  Unmap();
-  vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_buffer, nullptr);
-  vkFreeMemory(m_pDevice->GetLogicalDevice(), m_memory, nullptr);
+    Unmap();
+    vkDestroyBuffer(m_pDevice->GetLogicalDevice(), m_buffer, nullptr);
+    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_memory, nullptr);
 }
- 
+
 /**
  * Map a memory range of this buffer. If successful, mapped points to the specified buffer range.
  *
@@ -46,10 +49,10 @@ CBuffer::~CBuffer()
  */
 VkResult CBuffer::Map(VkDeviceSize a_size, VkDeviceSize a_offset)
 {
-  assert(m_buffer && m_memory && "Called map on buffer before create");
-  return vkMapMemory(m_pDevice->GetLogicalDevice(), m_memory, a_offset, a_size, 0, &m_mapped);
+    assert(m_buffer && m_memory && "Called map on buffer before create");
+    return vkMapMemory(m_pDevice->GetLogicalDevice(), m_memory, a_offset, a_size, 0, &m_mapped);
 }
- 
+
 /**
  * Unmap a mapped memory range
  *
@@ -57,12 +60,13 @@ VkResult CBuffer::Map(VkDeviceSize a_size, VkDeviceSize a_offset)
  */
 void CBuffer::Unmap()
 {
-  if (m_mapped) {
-    vkUnmapMemory(m_pDevice->GetLogicalDevice(), m_memory);
-    m_mapped = nullptr;
-  }
+    if (m_mapped)
+    {
+        vkUnmapMemory(m_pDevice->GetLogicalDevice(), m_memory);
+        m_mapped = nullptr;
+    }
 }
- 
+
 /**
  * Copies the specified data to the mapped buffer. Default value writes whole buffer range
  *
@@ -72,19 +76,22 @@ void CBuffer::Unmap()
  * @param a_offset (Optional) Byte offset from beginning of mapped region
  *
  */
-void CBuffer::WriteToBuffer(void *a_data, VkDeviceSize a_size, VkDeviceSize a_offset)
+void CBuffer::WriteToBuffer(void* a_data, VkDeviceSize a_size, VkDeviceSize a_offset)
 {
-  assert(m_mapped && "Cannot copy to unmapped buffer");
- 
-  if (a_size == VK_WHOLE_SIZE) {
-    memcpy(m_mapped, a_data, m_bufferSize);
-  } else {
-    char *memOffset = (char *)m_mapped;
-    memOffset += a_offset;
-    memcpy(memOffset, a_data, a_size);
-  }
+    assert(m_mapped && "Cannot copy to unmapped buffer");
+
+    if (a_size == VK_WHOLE_SIZE)
+    {
+        memcpy(m_mapped, a_data, m_bufferSize);
+    }
+    else
+    {
+        char* memOffset = (char*)m_mapped;
+        memOffset += a_offset;
+        memcpy(memOffset, a_data, a_size);
+    }
 }
- 
+
 /**
  * Flush a memory range of the buffer to make it visible to the device
  *
@@ -98,14 +105,14 @@ void CBuffer::WriteToBuffer(void *a_data, VkDeviceSize a_size, VkDeviceSize a_of
  */
 VkResult CBuffer::Flush(VkDeviceSize a_size, VkDeviceSize a_offset)
 {
-  VkMappedMemoryRange mappedRange = {};
-  mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-  mappedRange.memory = m_memory;
-  mappedRange.offset = a_offset;
-  mappedRange.size = a_size;
-  return vkFlushMappedMemoryRanges(m_pDevice->GetLogicalDevice(), 1, &mappedRange);
+    VkMappedMemoryRange mappedRange = {};
+    mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+    mappedRange.memory = m_memory;
+    mappedRange.offset = a_offset;
+    mappedRange.size = a_size;
+    return vkFlushMappedMemoryRanges(m_pDevice->GetLogicalDevice(), 1, &mappedRange);
 }
- 
+
 /**
  * Invalidate a memory range of the buffer to make it visible to the host
  *
@@ -117,15 +124,16 @@ VkResult CBuffer::Flush(VkDeviceSize a_size, VkDeviceSize a_offset)
  *
  * @return VkResult of the invalidate call
  */
-VkResult CBuffer::Invalidate(VkDeviceSize a_size, VkDeviceSize a_offset) {
-  VkMappedMemoryRange mappedRange = {};
-  mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-  mappedRange.memory = m_memory;
-  mappedRange.offset = a_offset;
-  mappedRange.size = a_size;
-  return vkInvalidateMappedMemoryRanges(m_pDevice->GetLogicalDevice(), 1, &mappedRange);
+VkResult CBuffer::Invalidate(VkDeviceSize a_size, VkDeviceSize a_offset)
+{
+    VkMappedMemoryRange mappedRange = {};
+    mappedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+    mappedRange.memory = m_memory;
+    mappedRange.offset = a_offset;
+    mappedRange.size = a_size;
+    return vkInvalidateMappedMemoryRanges(m_pDevice->GetLogicalDevice(), 1, &mappedRange);
 }
- 
+
 /**
  * Create a buffer info descriptor
  *
@@ -136,13 +144,13 @@ VkResult CBuffer::Invalidate(VkDeviceSize a_size, VkDeviceSize a_offset) {
  */
 VkDescriptorBufferInfo CBuffer::DescriptorInfo(VkDeviceSize a_size, VkDeviceSize a_offset)
 {
-  return VkDescriptorBufferInfo{
-      m_buffer,
-      a_offset,
-      a_size,
-  };
+    return VkDescriptorBufferInfo{
+        m_buffer,
+        a_offset,
+        a_size,
+    };
 }
- 
+
 /**
  * Copies "instanceSize" bytes of data to the mapped buffer at an offset of index * alignmentSize
  *
@@ -150,11 +158,11 @@ VkDescriptorBufferInfo CBuffer::DescriptorInfo(VkDeviceSize a_size, VkDeviceSize
  * @param a_index Used in offset calculation
  *
  */
-void CBuffer::WriteToIndex(void *a_data, int a_index)
+void CBuffer::WriteToIndex(void* a_data, int a_index)
 {
-  WriteToBuffer(a_data, m_instanceSize, a_index * m_alignmentSize);
+    WriteToBuffer(a_data, m_instanceSize, a_index * m_alignmentSize);
 }
- 
+
 /**
  *  Flush the memory range at index * alignmentSize of the buffer to make it visible to the device
  *
@@ -162,7 +170,7 @@ void CBuffer::WriteToIndex(void *a_data, int a_index)
  *
  */
 VkResult CBuffer::FlushIndex(int a_index) { return Flush(m_alignmentSize, a_index * m_alignmentSize); }
- 
+
 /**
  * Create a buffer info descriptor
  *
@@ -172,9 +180,9 @@ VkResult CBuffer::FlushIndex(int a_index) { return Flush(m_alignmentSize, a_inde
  */
 VkDescriptorBufferInfo CBuffer::DescriptorInfoForIndex(int a_index)
 {
-  return DescriptorInfo(m_alignmentSize, a_index * m_alignmentSize);
+    return DescriptorInfo(m_alignmentSize, a_index * m_alignmentSize);
 }
- 
+
 /**
  * Invalidate a memory range of the buffer to make it visible to the host
  *
@@ -186,5 +194,5 @@ VkDescriptorBufferInfo CBuffer::DescriptorInfoForIndex(int a_index)
  */
 VkResult CBuffer::InvalidateIndex(int a_index)
 {
-  return Invalidate(m_alignmentSize, a_index * m_alignmentSize);
+    return Invalidate(m_alignmentSize, a_index * m_alignmentSize);
 }

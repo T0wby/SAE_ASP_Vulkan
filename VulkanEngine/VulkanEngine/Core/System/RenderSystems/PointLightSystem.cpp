@@ -17,19 +17,11 @@ void CPointLightSystem::Render(const DrawInformation& a_drawInfo)
     vkCmdBindDescriptorSets(a_drawInfo.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, a_drawInfo.pipelineLayout,
         0, 1, &a_drawInfo.globalDescriptorSet, 0, nullptr);
     
-    //a_pCurrentScene->Initialize(a_drawInfo.commandBuffer);
-    //a_pCurrentScene->Draw(a_drawInfo);
     vkCmdDraw(a_drawInfo.commandBuffer, 6, 1, 0, 0);
 }
 
 void CPointLightSystem::CreatePipelineLayout(VkDescriptorSetLayout a_descLayout)
 {
-    // Pipeline Layout
-    // VkPushConstantRange pushConstantRange{};
-    // pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-    // pushConstantRange.offset = 0;
-    // pushConstantRange.size = sizeof(SimplePushConstantData);
-	
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1; // Optional

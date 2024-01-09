@@ -14,7 +14,7 @@ void CWindow::Initialize(void)
 	if (!glfwInit()) return;
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 
 	if (m_pWindow == nullptr) m_pWindow.reset(glfwCreateWindow(m_iWidth, m_iHeight, m_sTitle.c_str(), nullptr, nullptr));
