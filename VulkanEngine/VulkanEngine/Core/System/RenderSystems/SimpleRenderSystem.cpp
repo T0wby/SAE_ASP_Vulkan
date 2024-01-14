@@ -1,5 +1,6 @@
 ﻿#include "SimpleRenderSystem.h"
 
+#include <iostream>
 #include <stdexcept>
 
 const std::string VERT_SHADER = "Shader/vert.spv";
@@ -7,6 +8,7 @@ const std::string FRAG_SHADER = "Shader/frag.spv";
 
 CSimpleRenderSystem::~CSimpleRenderSystem()
 {
+    std::cout << "destroy m_pipelineLayout" << std::endl;
     vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), m_pipelineLayout, nullptr);
 }
 
@@ -49,4 +51,5 @@ void CSimpleRenderSystem::CreatePipeline(const VkRenderPass& a_renderPass, VkDes
     defaultPipelineConfigInfo.renderPass = a_renderPass;
     defaultPipelineConfigInfo.pipelineLayout = m_pipelineLayout;
     m_pPipeline = std::make_unique<CPipeline>(m_pDevice, &defaultPipelineConfigInfo, VERT_SHADER, FRAG_SHADER, a_descLayout);
+    vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), defaultPipelineConfigInfo.pipelineLayout, nullptr);
 }

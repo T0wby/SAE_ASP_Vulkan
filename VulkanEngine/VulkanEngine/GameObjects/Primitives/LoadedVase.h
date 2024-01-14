@@ -4,19 +4,19 @@
 #include "../../Components/Mesh.h"
 #include "../../Utility/Variables.h"
 
-class CLoadedCube : public CGameObject
+class CLoadedVase : public CGameObject
 {
 public:
-    static CLoadedCube CreateGameObject(const std::shared_ptr<CDevice>& a_pDevice)
+    static CLoadedVase CreateGameObject(const std::shared_ptr<CDevice>& a_pDevice)
     {
         static id_t currentId = 0;
-        return CLoadedCube{a_pDevice, currentId++};
+        return CLoadedVase{a_pDevice, currentId++};
     }
-    CLoadedCube(const CLoadedCube&) = delete;
-    CLoadedCube(CLoadedCube&&) = default;
-    CLoadedCube& operator= (const CLoadedCube&) = delete;
-    CLoadedCube& operator= (CLoadedCube&&) = default;
-    ~CLoadedCube() override;
+    CLoadedVase(const CLoadedVase&) = delete;
+    CLoadedVase(CLoadedVase&&) = default;
+    CLoadedVase& operator= (const CLoadedVase&) = delete;
+    CLoadedVase& operator= (CLoadedVase&&) = default;
+    ~CLoadedVase() override;
 
 
     void Initialize(void) override;
@@ -30,7 +30,7 @@ public:
     virtual std::vector<uint16_t>& GetMeshIndiceData(void) override;
 
 private:
-    inline CLoadedCube(const std::shared_ptr<CDevice>& a_pDevice, id_t a_objId) : CGameObject(a_pDevice, a_objId){}
+    inline CLoadedVase(const std::shared_ptr<CDevice>& a_pDevice, id_t a_objId) : CGameObject(a_pDevice, a_objId){}
     std::shared_ptr<CMesh> m_pMesh{ nullptr };
     std::vector<Vertex> m_vertices{};
 

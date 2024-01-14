@@ -42,4 +42,5 @@ void CPointLightSystem::CreatePipeline(const VkRenderPass& renderPass, VkDescrip
     defaultPipelineConfigInfo.renderPass = renderPass;
     defaultPipelineConfigInfo.pipelineLayout = m_pipelineLayout;
     m_pPipeline = std::make_unique<CPipeline>(m_pDevice, &defaultPipelineConfigInfo, VERT_SHADER, FRAG_SHADER, a_descLayout);
+    vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), defaultPipelineConfigInfo.pipelineLayout, nullptr);
 }

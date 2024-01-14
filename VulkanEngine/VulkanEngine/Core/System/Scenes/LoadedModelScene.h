@@ -1,14 +1,14 @@
 #ifndef LOADEDSCENE_H
 #define LOADEDSCENE_H
 #include "../Scene.h"
-#include "../../../GameObjects/Primitives/Cube.h"
-#include "../../../GameObjects/Primitives/LoadedCube.h"
+#include "..\..\..\GameObjects\Primitives\LoadedVase.h"
 
 class CLoadedModelScene : public CScene
 {
 public:
-    inline CLoadedModelScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window, const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
-        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight){}
+    inline CLoadedModelScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window,
+        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight, physx::PxPhysics& a_physics)
+        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight, a_physics){}
 
     CLoadedModelScene(const CLoadedModelScene&) = default;
     CLoadedModelScene(CLoadedModelScene&&) = default;
@@ -27,7 +27,7 @@ public:
 
 private:
     std::shared_ptr<CGameObject> m_pLightObject{ nullptr };
-    std::shared_ptr<CLoadedCube> m_pVaseLoad{ nullptr };
+    std::shared_ptr<CLoadedVase> m_pVaseLoad{ nullptr };
 
     void InitGameObjects(void);
 

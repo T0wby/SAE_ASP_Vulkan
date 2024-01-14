@@ -2,14 +2,15 @@
 #define DEFAULTSCENE_H
 #include "../Scene.h"
 #include "../../../GameObjects/Primitives/Cube.h"
-#include "../../../GameObjects/Primitives/LoadedCube.h"
+#include "..\..\..\GameObjects\Primitives\LoadedVase.h"
 #include "../../../GameObjects/Primitives/Quad.h"
 
 class CDefaultScene : public CScene
 {
 public:
-    inline CDefaultScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window, const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
-        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight){}
+    inline CDefaultScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window,
+        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight, physx::PxPhysics& a_physics)
+        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight, a_physics){}
 
     CDefaultScene(const CDefaultScene&) = default;
     CDefaultScene(CDefaultScene&&) = default;
@@ -31,7 +32,7 @@ private:
     std::shared_ptr<CCube> m_pCube2{ nullptr };
     std::shared_ptr<CQuad> m_pFloor{ nullptr };
     std::shared_ptr<CGameObject> m_pLightObject{ nullptr };
-    std::shared_ptr<CLoadedCube> m_pVaseLoad{ nullptr };
+    std::shared_ptr<CLoadedVase> m_pVaseLoad{ nullptr };
 
     void InitGameObjects(void);
 

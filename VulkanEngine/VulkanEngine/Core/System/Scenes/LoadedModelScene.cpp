@@ -14,8 +14,8 @@ void CLoadedModelScene::InitGameObjects()
 	m_pLightObject->SetPosition(glm::vec3(2.0f,3.0f,0.0f));
 	m_vGameObjects.push_back(std::move(m_pLightObject));
 	
-	auto loaded = CLoadedCube::CreateGameObject(m_pDevice);
-	m_pVaseLoad = std::make_shared<CLoadedCube>(std::move(loaded));
+	auto loaded = CLoadedVase::CreateGameObject(m_pDevice);
+	m_pVaseLoad = std::make_shared<CLoadedVase>(std::move(loaded));
 	m_pVaseLoad->Initialize();
 	m_pVaseLoad->SetPosition(glm::vec3(0.0f, 0.5f,0.0f));
 	m_pVaseLoad->SetRotation(glm::vec3(110.0f, 0.0f,0.0f));

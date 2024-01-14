@@ -1,5 +1,6 @@
 #include "DefaultScene.h"
-#include <glm/glm/gtc/matrix_transform.hpp>
+#include <physx/PxRigidStatic.h>
+#include <physx/foundation/PxMathUtils.h>
 
 void CDefaultScene::Initialize()
 {
@@ -34,13 +35,25 @@ void CDefaultScene::InitGameObjects()
 	m_pLightObject->SetPosition(glm::vec3(2.0f,3.0f,0.0f));
 	m_vGameObjects.push_back(std::move(m_pLightObject));
 	
-	auto loaded = CLoadedCube::CreateGameObject(m_pDevice);
-	m_pVaseLoad = std::make_shared<CLoadedCube>(std::move(loaded));
+	auto loaded = CLoadedVase::CreateGameObject(m_pDevice);
+	m_pVaseLoad = std::make_shared<CLoadedVase>(std::move(loaded));
 	m_pVaseLoad->Initialize();
 	m_pVaseLoad->SetPosition(glm::vec3(0.0f, 0.5f,0.0f));
 	m_pVaseLoad->SetRotation(glm::vec3(110.0f, 0.0f,0.0f));
 	m_pVaseLoad->SetScale(glm::vec3(1.7f, 1.7f,1.7f));
 	m_vGameObjects.push_back(std::move(m_pVaseLoad));
+
+	const physx::PxShapeFlags shapeFlags = physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE;
+	physx::PxMaterial* materialPtr = nullptr;
+	physx::PxVec3 floorPos = physx::PxVec3(0.0f, -0.5f, 0.0f);
+
+	//plane rigid static
+	//physx::PxRigidStatic* rigidStatic = m_physics.createRigidStatic(physx::PxTransformFromPlaneEquation(physx::PxPlane(floorPos, 0.f)));
+	//{
+	//	physx::PxShape* shape = m_physics.createShape(physx::PxPlaneGeometry(), &materialPtr, 1, true, shapeFlags);
+	//	rigidStatic->attachShape(*shape);
+	//	shape->release(); // this way shape gets automatically released with actor
+	//}
 
 }
 
