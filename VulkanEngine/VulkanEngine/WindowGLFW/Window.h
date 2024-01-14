@@ -34,11 +34,11 @@ public:
 	void SetSize(const int& a_iHeight, const int& a_iWidth);
 	void CheckIfWindowMinimized(void);
 
-	std::shared_ptr<GLFWwindow> GetWindow(void);
+	GLFWwindow* GetWindow(void);
 
 private:
-	std::shared_ptr<GLFWwindow> m_pWindow{ nullptr };
-
+	GLFWwindow* m_pWindow{nullptr};
+	
 	int m_iWidth{ 0 };
 	int m_iHeight{ 0 };
 	std::string m_sTitle{};

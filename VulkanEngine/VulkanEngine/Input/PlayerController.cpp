@@ -72,8 +72,8 @@ int CPlayerController::Initialize(const std::shared_ptr<CWindow>& a_pWindow,
 
 	SetDefaultInputGO();
 
-	glfwSetCursorPosCallback(pCurrWindow->GetWindow().get(), MouseInput);
-	glfwSetScrollCallback(pCurrWindow->GetWindow().get(), ScrollCallback);
+	glfwSetCursorPosCallback(pCurrWindow->GetWindow(), MouseInput);
+	glfwSetScrollCallback(pCurrWindow->GetWindow(), ScrollCallback);
 	return I_SUCCESS;
 }
 
@@ -148,47 +148,47 @@ void CPlayerController::SetDefaultInputGO()
 	{
 		m_bMouseOn = !m_bMouseOn;
 		if (m_bMouseOn)
-			glfwSetInputMode(pCurrWindow->GetWindow().get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetInputMode(pCurrWindow->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		else
-			glfwSetInputMode(pCurrWindow->GetWindow().get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			glfwSetInputMode(pCurrWindow->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	});
 }
 
 void CPlayerController::CheckKeys(void)
 {
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS)
 	{
 		pExitInput();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
 	{
 		pMouseMode();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_W) == GLFW_PRESS)
 	{
 		pForwardInput();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_S) == GLFW_PRESS)
 	{
 		pBackwardInput();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_D) == GLFW_PRESS)
 	{
 		pRightInput();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_A) == GLFW_PRESS)
 	{
 		pLeftInput();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_E) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_E) == GLFW_PRESS)
 	{
 		pUpInput();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_Q) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_Q) == GLFW_PRESS)
 	{
 		pDownInput();
 	}
-	if (glfwGetKey(pCurrWindow->GetWindow().get(), GLFW_KEY_P) == GLFW_PRESS)
+	if (glfwGetKey(pCurrWindow->GetWindow(), GLFW_KEY_P) == GLFW_PRESS)
 	{
 		pSceneSwitch();
 	}

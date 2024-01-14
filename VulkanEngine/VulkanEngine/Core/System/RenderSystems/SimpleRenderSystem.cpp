@@ -1,6 +1,4 @@
 ﻿#include "SimpleRenderSystem.h"
-
-#include <iostream>
 #include <stdexcept>
 
 const std::string VERT_SHADER = "Shader/vert.spv";
@@ -8,7 +6,6 @@ const std::string FRAG_SHADER = "Shader/frag.spv";
 
 CSimpleRenderSystem::~CSimpleRenderSystem()
 {
-    std::cout << "destroy m_pipelineLayout" << std::endl;
     vkDestroyPipelineLayout(m_pDevice->GetLogicalDevice(), m_pipelineLayout, nullptr);
 }
 

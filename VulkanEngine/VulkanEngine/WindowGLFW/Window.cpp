@@ -17,19 +17,19 @@ void CWindow::Initialize(void)
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 
-	if (m_pWindow == nullptr) m_pWindow.reset(glfwCreateWindow(m_iWidth, m_iHeight, m_sTitle.c_str(), nullptr, nullptr));
+	if (m_pWindow == nullptr) m_pWindow = glfwCreateWindow(m_iWidth, m_iHeight, m_sTitle.c_str(), nullptr, nullptr);
 
-	glfwSetWindowUserPointer(m_pWindow.get(), this);
-	glfwSetFramebufferSizeCallback(m_pWindow.get(), framebufferResizeCallback);
+	glfwSetWindowUserPointer(m_pWindow, this);
+	glfwSetFramebufferSizeCallback(m_pWindow, framebufferResizeCallback);
 
 	if (!m_pWindow)
 	{
 		glfwTerminate();
 	}
 
-	glfwMakeContextCurrent(m_pWindow.get());
+	glfwMakeContextCurrent(m_pWindow);
 
-	glfwSetInputMode(m_pWindow.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	glfwSetInputMode(m_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 }
 
@@ -42,13 +42,13 @@ void CWindow::Update(void)
 
 void CWindow::Finalize(void)
 {
-	glfwDestroyWindow(m_pWindow.get());
+	glfwDestroyWindow(m_pWindow);
 	glfwTerminate();
 }
 
 void CWindow::CreateWindowSurface(VkInstance a_vulkanInstance, VkSurfaceKHR& a_surface)
 {
-	if (glfwCreateWindowSurface(a_vulkanInstance, m_pWindow.get(), nullptr, &a_surface) != VK_SUCCESS)
+	if (glfwCreateWindowSurface(a_vulkanInstance, m_pWindow, nullptr, &a_surface) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create window surface!");
 	}
@@ -56,7 +56,7 @@ void CWindow::CreateWindowSurface(VkInstance a_vulkanInstance, VkSurfaceKHR& a_s
 
 auto CWindow::GetWindowShouldClose(void) const -> const bool
 {
-    return glfwWindowShouldClose(m_pWindow.get());
+    return glfwWindowShouldClose(m_pWindow);
 }
 
 auto CWindow::GetExtent() const -> VkExtent2D
@@ -66,18 +66,18 @@ auto CWindow::GetExtent() const -> VkExtent2D
 
 void CWindow::GetWindowFrameBufferSize(int& a_iWidth, int& a_iHeight)
 {
-	glfwGetFramebufferSize(m_pWindow.get(), &a_iWidth, &a_iHeight);
+	glfwGetFramebufferSize(m_pWindow, &a_iWidth, &a_iHeight);
 }
 
 void CWindow::SetWindowShouldClose(const bool& a_bShouldClose)
 {
 	if (a_bShouldClose)
 	{
-		glfwSetWindowShouldClose(m_pWindow.get(), GLFW_TRUE);
+		glfwSetWindowShouldClose(m_pWindow, GLFW_TRUE);
 	}
 	else
 	{
-		glfwSetWindowShouldClose(m_pWindow.get(), GLFW_FALSE);
+		glfwSetWindowShouldClose(m_pWindow, GLFW_FALSE);
 	}
 }
 
@@ -100,15 +100,15 @@ void CWindow::SetSize(const int& a_iHeight, const int& a_iWidth)
 void CWindow::CheckIfWindowMinimized(void)
 {
 	int width = 0, height = 0;
-	glfwGetFramebufferSize(m_pWindow.get(), &width, &height);
+	glfwGetFramebufferSize(m_pWindow, &width, &height);
 	while (width == 0 || height == 0) 
 	{
-		glfwGetFramebufferSize(m_pWindow.get(), &width, &height);
+		glfwGetFramebufferSize(m_pWindow, &width, &height);
 		glfwWaitEvents();
 	}
 }
 
-std::shared_ptr<GLFWwindow> CWindow::GetWindow(void)
+GLFWwindow* CWindow::GetWindow(void)
 {
     if (m_pWindow == nullptr) return nullptr;
 
