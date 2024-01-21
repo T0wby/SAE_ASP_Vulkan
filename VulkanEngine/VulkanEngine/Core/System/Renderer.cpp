@@ -1,5 +1,4 @@
 ﻿#include "Renderer.h"
-
 #include <stdexcept>
 
 CRenderer::~CRenderer()
