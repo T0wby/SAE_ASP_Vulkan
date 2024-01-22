@@ -728,16 +728,6 @@ bool CSwapChain::HasStencilComponent(VkFormat a_format)
 	return a_format == VK_FORMAT_D32_SFLOAT_S8_UINT || a_format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-// void CSwapChain::UpdateUniformBuffer(const std::shared_ptr<CScene>& a_pScene)
-// {
-// 	UniformBufferObject ubo = a_pScene->CreateUniformBuffer();
-//
-// 	m_uboBuffers[m_iCurrentFrame]->WriteToIndex(&ubo, m_iCurrentFrame);
-// 	//m_uboBuffers[m_iCurrentFrame]->FlushIndex(m_iCurrentFrame);
-// 	//memcpy(m_vUniformBuffersMapped[m_iCurrentFrame], &ubo, sizeof(ubo));
-// }
-
-
 void CSwapChain::CreateTextureImage()
 {
 	int texWidth, texHeight, texChannels;
@@ -842,20 +832,3 @@ void CSwapChain::CreateTextureSampler()
 		throw std::runtime_error("failed to create texture sampler!");
 	}
 }
-
-// void CSwapChain::CreateUniformBuffers(void)
-// {
-// 	//const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-// 	m_uboBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-// 	
-// 	for (auto& m_uboBuffer : m_uboBuffers)
-// 	{
-// 		m_uboBuffer = std::make_unique<CBuffer>(
-// 		m_pDevice,
-// 		sizeof(UniformBufferObject),
-// 		1,
-// 		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-// 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-// 		m_uboBuffer->Map();
-// 	}
-// }
