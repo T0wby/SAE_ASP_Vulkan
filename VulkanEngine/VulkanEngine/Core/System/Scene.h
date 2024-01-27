@@ -15,9 +15,9 @@ public:
 
     CScene() = default;
     inline CScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window,
-        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight, physx::PxPhysics& a_physics)
+        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
         : m_pPlayerController(a_playerController), m_pWindow(a_window), m_pDevice(a_pDevice),
-            m_fWidth(a_fWidth), m_fHeight(a_fHeight), m_physics(a_physics) {}
+            m_fWidth(a_fWidth), m_fHeight(a_fHeight) {}
 
     CScene(const CScene&) = default;
     CScene(CScene&&) = default;
@@ -52,8 +52,5 @@ protected:
 
     uint32_t m_fWidth{ 0 };
     uint32_t m_fHeight{ 0 };
-    
-    physx::PxPhysics& m_physics;
-
 };
 #endif

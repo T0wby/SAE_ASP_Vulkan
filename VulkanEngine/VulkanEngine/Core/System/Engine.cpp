@@ -124,8 +124,7 @@ void CEngine::CreateScenes(void)
 	                                                   m_pWindow,
 	                                                   m_pDevice,
 	                                                   WIDTH,
-	                                                   HEIGHT,
-	                                                   *m_pPhysics);
+	                                                   HEIGHT);
 	scene->Initialize();
 	m_vScenes.push_back(scene);
 	m_pCurrScene = m_vScenes[m_iCurrSceneNum];
@@ -134,8 +133,7 @@ void CEngine::CreateScenes(void)
 													   m_pWindow,
 													   m_pDevice,
 													   WIDTH,
-													   HEIGHT,
-													   *m_pPhysics);
+													   HEIGHT);
 	m_vScenes.push_back(scene2);
 }
 
@@ -188,8 +186,8 @@ void CEngine::MainLoop(void)
 void CEngine::Cleanup(void)
 {
 	m_pCurrScene->Finalize();
-	m_pPhysics->release();
-	m_pFoundation->release();
+	//m_pPhysics->release();
+	//m_pFoundation->release();
 	m_pWindow->Finalize();
 }
 

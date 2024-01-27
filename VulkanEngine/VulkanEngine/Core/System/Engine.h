@@ -46,13 +46,13 @@ private:
 	double m_dCurrentFrame{ 0 };
 
 	//Physx
-	physx::PxDefaultAllocator m_DefaultAllocatorCallback;
-	physx::PxDefaultErrorCallback m_DefaultErrorCallback;
-	physx::PxDefaultCpuDispatcher* m_pDispatcher = nullptr;
-	physx::PxTolerancesScale m_ToleranceScale;
+	//physx::PxDefaultAllocator m_DefaultAllocatorCallback;
+	//physx::PxDefaultErrorCallback m_DefaultErrorCallback;
+	//physx::PxDefaultCpuDispatcher* m_pDispatcher = nullptr;
+	//physx::PxTolerancesScale m_ToleranceScale;
 
-	physx::PxFoundation* m_pFoundation = nullptr;
-	physx::PxPhysics* m_pPhysics = nullptr;
+	//physx::PxFoundation* m_pFoundation = nullptr;
+	//physx::PxPhysics* m_pPhysics = nullptr;
 	
 	void InitializeVulkan(void);
 	void EngineSetup(void);

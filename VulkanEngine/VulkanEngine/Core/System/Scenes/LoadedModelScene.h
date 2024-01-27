@@ -7,8 +7,8 @@ class CLoadedModelScene : public CScene
 {
 public:
     inline CLoadedModelScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window,
-        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight, physx::PxPhysics& a_physics)
-        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight, a_physics){}
+        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
+        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight){}
 
     CLoadedModelScene(const CLoadedModelScene&) = default;
     CLoadedModelScene(CLoadedModelScene&&) = default;
