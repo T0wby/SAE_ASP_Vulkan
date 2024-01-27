@@ -10,6 +10,9 @@ CTexture::~CTexture()
 
 int CTexture::Initialize(void)
 {
+	CreateTextureImage(m_texFilePath);
+	CreateTextureImageView();
+	CreateTextureSampler();
     return 0;
 }
 

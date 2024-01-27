@@ -9,8 +9,6 @@ CMesh::~CMesh(){}
 std::unique_ptr<CMesh> CMesh::CreateMeshFromFile(const std::shared_ptr<CDevice>& a_pDevice,
     const std::string& a_filePath, MeshData& a_meshData)
 {
-    //const auto assimpScene = MeshData::LoadMesh(a_filePath);
-
     Assimp::Importer imp;
     const auto pScene = imp.ReadFile(a_filePath, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
 

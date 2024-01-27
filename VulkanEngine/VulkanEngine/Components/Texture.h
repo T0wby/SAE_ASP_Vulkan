@@ -9,12 +9,7 @@ class CTexture : public IComponent
 {
 public:
 	inline CTexture(const std::shared_ptr<CDevice>& a_pDevice, const std::string& a_texFilePath)
-		: m_pDevice(a_pDevice)
-	{
-		CreateTextureImage(a_texFilePath);
-		CreateTextureImageView();
-		CreateTextureSampler();
-	}
+		: m_pDevice(a_pDevice), m_texFilePath(a_texFilePath){}
 	CTexture(const CTexture&) = default;
 	CTexture(CTexture&&) = default;
 	CTexture& operator= (const CTexture&) = default;
@@ -36,6 +31,7 @@ private:
 	VkDeviceMemory m_textureImageMemory{};
 	VkImageView m_textureImageView{};
 	VkSampler m_textureSampler{};
+	std::string m_texFilePath{};
 
 	void CreateTextureImage(const std::string& a_texFilePath);
 	void CopyBufferToImage(const VkBuffer& a_buffer,const VkImage& a_image,const uint32_t& a_width,const uint32_t& a_height);

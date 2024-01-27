@@ -93,12 +93,12 @@ void CEngine::InitializeWindow(void)
 void CEngine::InitializePhysx(void)
 {
 	// Create foundation
-	m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_DefaultAllocatorCallback, m_DefaultErrorCallback);
-	m_ToleranceScale.length = 100;        // typical length of an object
-	m_ToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
+	//m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_DefaultAllocatorCallback, m_DefaultErrorCallback);
+	//m_ToleranceScale.length = 100;        // typical length of an object
+	//m_ToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
 
-	// Create physics
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, m_ToleranceScale);
+	//// Create physics
+	//m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, m_ToleranceScale);
 
 }
 
