@@ -4,7 +4,7 @@
 #include <Vulkan/Include/vulkan/vulkan_core.h>
 #include "../Pipeline.h"
 #include "../../../GameObjects/GameObject.h"
-#include "../Scene.h"
+#include "../Scenes/Scene.h"
 
 class CPointLightSystem
 {

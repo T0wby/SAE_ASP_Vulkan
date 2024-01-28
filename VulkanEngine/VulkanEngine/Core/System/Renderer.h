@@ -3,7 +3,7 @@
 #include <memory>
 #include <Vulkan/Include/vulkan/vulkan_core.h>
 #include "SwapChain.h"
-#include "Scene.h"
+#include "Scenes/Scene.h"
 
 class CRenderer
 {

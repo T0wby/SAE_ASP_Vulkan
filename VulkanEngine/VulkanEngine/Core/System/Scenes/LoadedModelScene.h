@@ -1,14 +1,14 @@
 #ifndef LOADEDSCENE_H
 #define LOADEDSCENE_H
-#include "../Scene.h"
+#include "Scene.h"
 #include "..\..\..\GameObjects\Primitives\LoadedVase.h"
 
 class CLoadedModelScene : public CScene
 {
 public:
     inline CLoadedModelScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window,
-        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
-        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight){}
+        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight, physx::PxPhysics* a_pPhysics)
+        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight, a_pPhysics){}
 
     CLoadedModelScene(const CLoadedModelScene&) = default;
     CLoadedModelScene(CLoadedModelScene&&) = default;

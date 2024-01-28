@@ -7,7 +7,7 @@
 
 #include "Buffer.h"
 #include "Device.h"
-#include "Scene.h"
+#include "Scenes/Scene.h"
 #include "../../WindowGLFW/Window.h"
 #include "../../Core/System/CoreSystemStructs.h"
 

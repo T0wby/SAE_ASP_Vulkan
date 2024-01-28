@@ -1,11 +1,10 @@
 ﻿#ifndef SIMPLERENDERSYSTEM_H
 #define SIMPLERENDERSYSTEM_H
 #include <memory>
-#include <vector>
 #include <Vulkan/Include/vulkan/vulkan_core.h>
 #include "../Pipeline.h"
 #include "../../../GameObjects/GameObject.h"
-#include "../Scene.h"
+#include "../Scenes/Scene.h"
 
 class CSimpleRenderSystem
 {

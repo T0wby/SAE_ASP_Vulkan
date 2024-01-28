@@ -1,16 +1,16 @@
 #ifndef DEFAULTSCENE_H
 #define DEFAULTSCENE_H
-#include "../Scene.h"
+#include "Scene.h"
 #include "../../../GameObjects/Primitives/Cube.h"
-#include "..\..\..\GameObjects\Primitives\LoadedVase.h"
+#include "../../../GameObjects/Primitives/LoadedVase.h"
 #include "../../../GameObjects/Primitives/Quad.h"
 
 class CDefaultScene : public CScene
 {
 public:
     inline CDefaultScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window,
-        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
-        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight){}
+        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight, physx::PxPhysics* a_pPhysics)
+        : CScene(a_playerController, a_window, a_pDevice, a_fWidth, a_fHeight, a_pPhysics){}
 
     CDefaultScene(const CDefaultScene&) = default;
     CDefaultScene(CDefaultScene&&) = default;
