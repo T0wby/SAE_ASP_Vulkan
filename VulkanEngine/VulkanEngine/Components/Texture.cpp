@@ -5,20 +5,33 @@
 
 CTexture::~CTexture()
 {
-    
 }
 
 int CTexture::Initialize(void)
 {
-	CreateTextureImage(m_texFilePath);
-	CreateTextureImageView();
-	CreateTextureSampler();
     return 0;
 }
 
 int CTexture::Initialize(const VkCommandBuffer& a_commandBuffer)
 {
-    
+    //CreateTextureImage(m_texFilePath);
+    //m_pDescriptorSetLayout = CDescriptorSetLayout::Builder(m_pDevice)
+    //                         .AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
+    //                         .AddBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+    //                         .Build();
+//
+//
+    //auto bufferInfo = m_uboBuffers[i]->DescriptorInfo(sizeof(UniformBufferObject));
+    //VkDescriptorImageInfo image_info{};
+    //image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    //image_info.imageView = m_textureImageView;
+    //image_info.sampler = m_textureSampler;
+    //CDescriptorWriter(*m_pDescriptorSetLayout, *m_pGlobalPool)
+    //    .WriteBuffer(0, &bufferInfo)
+    //    .WriteImage(1, &image_info)
+    //    .Build(m_descriptorSet);
+    //CreateTextureImageView();
+    //CreateTextureSampler();
     return 0;
 }
 
@@ -33,14 +46,16 @@ void CTexture::Draw(void)
 
 void CTexture::Draw(const DrawInformation& a_drawInformation)
 {
+    vkCmdBindDescriptorSets(a_drawInformation.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            a_drawInformation.pipelineLayout, 1, 1, &m_descriptorSet, 0, nullptr);
 }
 
 void CTexture::Finalize(void)
 {
-	vkDestroySampler(m_pDevice->GetLogicalDevice(), m_textureSampler, nullptr);
-	vkDestroyImageView(m_pDevice->GetLogicalDevice(), m_textureImageView, nullptr);
-	vkDestroyImage(m_pDevice->GetLogicalDevice(), m_textureImage, nullptr);
-	vkFreeMemory(m_pDevice->GetLogicalDevice(), m_textureImageMemory, nullptr);
+    vkDestroySampler(m_pDevice->GetLogicalDevice(), m_textureSampler, nullptr);
+    vkDestroyImageView(m_pDevice->GetLogicalDevice(), m_textureImageView, nullptr);
+    vkDestroyImage(m_pDevice->GetLogicalDevice(), m_textureImage, nullptr);
+    vkFreeMemory(m_pDevice->GetLogicalDevice(), m_textureImageMemory, nullptr);
 }
 
 void CTexture::CreateTextureImage(const std::string& a_texFilePath)
@@ -49,7 +64,7 @@ void CTexture::CreateTextureImage(const std::string& a_texFilePath)
     stbi_uc* pixels = stbi_load(a_texFilePath.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     const VkDeviceSize imageSize = texWidth * texHeight * 4;
 
-    if (!pixels) 
+    if (!pixels)
     {
         throw std::runtime_error("failed to load texture image!");
     }
@@ -57,7 +72,9 @@ void CTexture::CreateTextureImage(const std::string& a_texFilePath)
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     // The buffer should be in host visible memory so that we can map it and it should be usable as a transfer source so that we can copy it to an image later on:
-    m_pDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    m_pDevice->CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
+                            stagingBufferMemory);
 
     // We can then directly copy the pixel values that we got from the image loading library to the buffer:
     void* data;
@@ -67,21 +84,26 @@ void CTexture::CreateTextureImage(const std::string& a_texFilePath)
 
     stbi_image_free(pixels);
 
-    CreateImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
-        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_textureImage, m_textureImageMemory);
+    CreateImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                m_textureImage, m_textureImageMemory);
 
-    TransitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    TransitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     CopyBufferToImage(stagingBuffer, m_textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 
-    TransitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    TransitionImageLayout(m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(m_pDevice->GetLogicalDevice(), stagingBuffer, nullptr);
     vkFreeMemory(m_pDevice->GetLogicalDevice(), stagingBufferMemory, nullptr);
 }
 
-void CTexture::CopyBufferToImage(const VkBuffer& a_buffer,const VkImage& a_image,const uint32_t& a_width,const uint32_t& a_height)
+void CTexture::CopyBufferToImage(const VkBuffer& a_buffer, const VkImage& a_image, const uint32_t& a_width,
+                                 const uint32_t& a_height)
 {
-    const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool());
+    const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(
+        m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool());
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -93,7 +115,7 @@ void CTexture::CopyBufferToImage(const VkBuffer& a_buffer,const VkImage& a_image
     region.imageSubresource.baseArrayLayer = 0;
     region.imageSubresource.layerCount = 1;
 
-    region.imageOffset = { 0, 0, 0 };
+    region.imageOffset = {0, 0, 0};
     region.imageExtent = {
         a_width,
         a_height,
@@ -109,7 +131,8 @@ void CTexture::CopyBufferToImage(const VkBuffer& a_buffer,const VkImage& a_image
         &region
     );
 
-    CUtility::EndSingleTimeCommands(commandBuffer, m_pDevice->GetGraphicsQueue(), m_pDevice->GetCommandPool(), m_pDevice->GetLogicalDevice());
+    CUtility::EndSingleTimeCommands(commandBuffer, m_pDevice->GetGraphicsQueue(), m_pDevice->GetCommandPool(),
+                                    m_pDevice->GetLogicalDevice());
 }
 
 void CTexture::CreateTextureImageView()
@@ -142,14 +165,15 @@ void CTexture::CreateTextureSampler()
     samplerInfo.minLod = 0.0f;
     samplerInfo.maxLod = 0.0f;
 
-    if (vkCreateSampler(m_pDevice->GetLogicalDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS) 
+    if (vkCreateSampler(m_pDevice->GetLogicalDevice(), &samplerInfo, nullptr, &m_textureSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create texture sampler!");
     }
 }
 
 void CTexture::CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_format, VkImageTiling a_tiling,
-    VkImageUsageFlags a_usage, VkMemoryPropertyFlags a_properties, VkImage& a_image, VkDeviceMemory& a_imageMemory)
+                           VkImageUsageFlags a_usage, VkMemoryPropertyFlags a_properties, VkImage& a_image,
+                           VkDeviceMemory& a_imageMemory)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -166,7 +190,7 @@ void CTexture::CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_forma
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateImage(m_pDevice->GetLogicalDevice(), &imageInfo, nullptr, &a_image) != VK_SUCCESS) 
+    if (vkCreateImage(m_pDevice->GetLogicalDevice(), &imageInfo, nullptr, &a_image) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image!");
     }
@@ -179,7 +203,7 @@ void CTexture::CreateImage(uint32_t a_width, uint32_t a_height, VkFormat a_forma
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, a_properties);
 
-    if (vkAllocateMemory(m_pDevice->GetLogicalDevice(), &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS) 
+    if (vkAllocateMemory(m_pDevice->GetLogicalDevice(), &allocInfo, nullptr, &a_imageMemory) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate image memory!");
     }
@@ -201,7 +225,7 @@ VkImageView CTexture::CreateImageView(VkImage a_image, VkFormat a_format, VkImag
     viewInfo.subresourceRange.layerCount = 1;
 
     VkImageView imageView;
-    if (vkCreateImageView(m_pDevice->GetLogicalDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS) 
+    if (vkCreateImageView(m_pDevice->GetLogicalDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create texture image view!");
     }
@@ -210,78 +234,83 @@ VkImageView CTexture::CreateImageView(VkImage a_image, VkFormat a_format, VkImag
 }
 
 void CTexture::TransitionImageLayout(VkImage a_image, VkFormat a_format, VkImageLayout a_oldLayout,
-    VkImageLayout a_newLayout)
+                                     VkImageLayout a_newLayout)
 {
-    const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool());
+    const VkCommandBuffer commandBuffer = CUtility::BeginSingleTimeCommands(
+        m_pDevice->GetLogicalDevice(), m_pDevice->GetCommandPool());
 
-	VkImageMemoryBarrier barrier{};
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.oldLayout = a_oldLayout;
-	barrier.newLayout = a_newLayout;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = a_image;
-	if (a_newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) 
-	{
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    VkImageMemoryBarrier barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = a_oldLayout;
+    barrier.newLayout = a_newLayout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = a_image;
+    if (a_newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+    {
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 
-		if (HasStencilComponent(a_format)) 
-		{
-			barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-		}
-	}
-	else 
-	{
-		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	}
+        if (HasStencilComponent(a_format))
+        {
+            barrier.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+        }
+    }
+    else
+    {
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    }
 
-	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = 1;
-	barrier.subresourceRange.baseArrayLayer = 0;
-	barrier.subresourceRange.layerCount = 1;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
 
-	VkPipelineStageFlags sourceStage;
-	VkPipelineStageFlags destinationStage;
+    VkPipelineStageFlags sourceStage;
+    VkPipelineStageFlags destinationStage;
 
-	if (a_oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && a_newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) 
-	{
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    if (a_oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && a_newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-	}
-	else if (a_oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && a_newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) 
-	{
-		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    else if (a_oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && a_newLayout ==
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    {
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
-		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
-		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-	}
-	else if (a_oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && a_newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) 
-	{
-		barrier.srcAccessMask = 0;
-		barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+    else if (a_oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && a_newLayout ==
+        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-	}
-	else 
-	{
-		throw std::invalid_argument("unsupported layout transition!");
-	}
+        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    }
+    else
+    {
+        throw std::invalid_argument("unsupported layout transition!");
+    }
 
-	vkCmdPipelineBarrier(
-		commandBuffer,
-		sourceStage, destinationStage,
-		0,
-		0, nullptr,
-		0, nullptr,
-		1, &barrier
-	);
+    vkCmdPipelineBarrier(
+        commandBuffer,
+        sourceStage, destinationStage,
+        0,
+        0, nullptr,
+        0, nullptr,
+        1, &barrier
+    );
 
-	CUtility::EndSingleTimeCommands(commandBuffer, m_pDevice->GetGraphicsQueue(), m_pDevice->GetCommandPool(), m_pDevice->GetLogicalDevice());
+    CUtility::EndSingleTimeCommands(commandBuffer, m_pDevice->GetGraphicsQueue(), m_pDevice->GetCommandPool(),
+                                    m_pDevice->GetLogicalDevice());
 }
 
 uint32_t CTexture::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
@@ -293,9 +322,9 @@ uint32_t CTexture::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags pro
     // VkMemoryRequirements::memoryTypeBits is a bitfield that sets a bit for every memoryType that is
     // supported for the resource.Therefore we need to check if the bit at index i is set while also testing the
     // required memory property flags while iterating over the memory types.
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
     {
-        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) 
+        if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
         {
             return i;
         }
@@ -306,5 +335,5 @@ uint32_t CTexture::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags pro
 
 bool CTexture::HasStencilComponent(VkFormat a_format)
 {
-	return a_format == VK_FORMAT_D32_SFLOAT_S8_UINT || a_format == VK_FORMAT_D24_UNORM_S8_UINT;
+    return a_format == VK_FORMAT_D32_SFLOAT_S8_UINT || a_format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
