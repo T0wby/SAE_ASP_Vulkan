@@ -53,9 +53,6 @@
     <ClCompile Include="GameObjects\GameObject.cpp">
       <Filter>GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Core\System\Scene.cpp">
-      <Filter>Core\System</Filter>
-    </ClCompile>
     <ClCompile Include="WindowGLFW\Window.cpp">
       <Filter>WindowGLFW</Filter>
     </ClCompile>
@@ -80,9 +77,6 @@
     <ClCompile Include="Components\Camera.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Core\System\Scenes\CDefaultScene.cpp">
-      <Filter>Core\System\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="Core\System\Device.cpp">
       <Filter>Core\System</Filter>
     </ClCompile>
@@ -101,8 +95,29 @@
     <ClCompile Include="Core\System\RenderSystems\SimpleRenderSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjects\Primitives\LoadedCube.cpp">
-      <Filter>GameObject\Primitives</Filter>
+    <ClCompile Include="Core\System\Buffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Descriptors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\RenderSystems\PointLightSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Scenes\DefaultScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Scenes\LoadedModelScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Scenes\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Primitives\Quad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObjects\Primitives\LoadedVase.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -111,9 +126,6 @@
     </ClInclude>
     <ClInclude Include="GameObjects\GameObject.h">
       <Filter>GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\System\Scene.h">
-      <Filter>Core\System</Filter>
     </ClInclude>
     <ClInclude Include="WindowGLFW\Window.h">
       <Filter>WindowGLFW</Filter>
@@ -145,9 +157,6 @@
     <ClInclude Include="Components\Camera.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Core\System\Scenes\CDefaultScene.h">
-      <Filter>Core\System\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="Core\System\Device.h">
       <Filter>Core\System</Filter>
     </ClInclude>
@@ -160,9 +169,14 @@
     <ClInclude Include="Components\Texture.h" />
     <ClInclude Include="Core\System\Renderer.h" />
     <ClInclude Include="Core\System\RenderSystems\SimpleRenderSystem.h" />
-    <ClInclude Include="GameObjects\Primitives\LoadedCube.h">
-      <Filter>GameObject\Primitives</Filter>
-    </ClInclude>
+    <ClInclude Include="Core\System\Buffer.h" />
+    <ClInclude Include="Core\System\Descriptors.h" />
+    <ClInclude Include="Core\System\RenderSystems\PointLightSystem.h" />
+    <ClInclude Include="Core\System\Scenes\DefaultScene.h" />
+    <ClInclude Include="Core\System\Scenes\LoadedModelScene.h" />
+    <ClInclude Include="Core\System\Scenes\Scene.h" />
+    <ClInclude Include="GameObjects\Primitives\Quad.h" />
+    <ClInclude Include="GameObjects\Primitives\LoadedVase.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">
@@ -171,6 +185,8 @@
     <None Include="Shader\shader.vert">
       <Filter>Source Files\Shader</Filter>
     </None>
+    <None Include="Shader\point_light_shader.frag" />
+    <None Include="Shader\point_light_shader.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\SAE_Institute_Black_Logo.jpg">
