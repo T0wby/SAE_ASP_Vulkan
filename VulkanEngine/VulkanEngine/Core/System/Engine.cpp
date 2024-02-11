@@ -27,7 +27,6 @@ CEngine::~CEngine()
 void CEngine::Run(void)
 {
 	InitializeWindow();
-	InitializePhysx();
 	InitializeVulkan();
 	MainLoop();
 }
@@ -90,18 +89,6 @@ void CEngine::InitializeWindow(void)
 	m_pWindow->Initialize();
 }
 
-void CEngine::InitializePhysx(void)
-{
-	// Create foundation
-	m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_DefaultAllocatorCallback, m_DefaultErrorCallback);
-	m_ToleranceScale.length = 100;        // typical length of an object
-	m_ToleranceScale.speed = 981;         // typical speed of an object, gravity*1s is a reasonable choice
-
-	//// Create physics
-	m_pPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, m_ToleranceScale);
-
-}
-
 void CEngine::CreateInput(void)
 {
 	m_playerController = std::make_shared<CPlayerController>();
@@ -124,8 +111,7 @@ void CEngine::CreateScenes(void)
 	                                                   m_pWindow,
 	                                                   m_pDevice,
 	                                                   WIDTH,
-	                                                   HEIGHT,
-	                                                   m_pPhysics);
+	                                                   HEIGHT);
 	scene->Initialize();
 	m_vScenes.push_back(scene);
 	m_pCurrScene = m_vScenes[m_iCurrSceneNum];
@@ -134,8 +120,7 @@ void CEngine::CreateScenes(void)
 													   m_pWindow,
 													   m_pDevice,
 													   WIDTH,
-													   HEIGHT,
-													   m_pPhysics);
+													   HEIGHT);
 	m_vScenes.push_back(scene2);
 }
 

@@ -1,8 +1,6 @@
 #ifndef SCENE_H
 #define SCENE_H
 #include <memory>
-#include <physx/PxPhysics.h>
-#include <physx/PxScene.h>
 #include "../../../GameObjects/GameObject.h"
 #include "../../../Input/PlayerController.h"
 #include "../../../Utility/Variables.h"
@@ -15,9 +13,9 @@ public:
 
     CScene() = default;
     inline CScene(const std::shared_ptr<CPlayerController>& a_playerController, const std::shared_ptr<CWindow>& a_window,
-        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight, physx::PxPhysics* a_pPhysics)
+        const std::shared_ptr<CDevice>& a_pDevice, const uint32_t& a_fWidth, const uint32_t& a_fHeight)
         : m_pPlayerController(a_playerController), m_pWindow(a_window), m_pDevice(a_pDevice),
-            m_fWidth(a_fWidth), m_fHeight(a_fHeight), m_pPhysics(a_pPhysics) {}
+            m_fWidth(a_fWidth), m_fHeight(a_fHeight) {}
 
     CScene(const CScene&) = default;
     CScene(CScene&&) = default;
@@ -43,7 +41,6 @@ public:
 protected:
     void CreateGameObjects(void);
     void SetupSceneInput(void);
-    void SetupPhysxScene(void);
     std::shared_ptr<CCamera> m_pCamera{ nullptr };
     std::shared_ptr<CGameObject> m_pCameraObject{ nullptr };
     std::shared_ptr<CPlayerController> m_pPlayerController{ nullptr };
@@ -53,8 +50,5 @@ protected:
     
     uint32_t m_fWidth{ 0 };
     uint32_t m_fHeight{ 0 };
-
-    physx::PxPhysics* m_pPhysics{nullptr};
-    physx::PxScene* m_pxScene{nullptr};
 };
 #endif

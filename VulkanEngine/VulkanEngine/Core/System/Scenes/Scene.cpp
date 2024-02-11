@@ -4,7 +4,6 @@
 void CScene::Initialize(void)
 {
     CreateGameObjects();
-    SetupPhysxScene();
     SetupSceneInput();
     for (const auto& m_vGameObject : m_vGameObjects)
     {
@@ -70,13 +69,6 @@ void CScene::SetupSceneInput(void)
 {
     // Default Input is set via the Initialize method
     m_pPlayerController->Initialize(m_pWindow, m_pCameraObject, 0.0f);
-}
-
-void CScene::SetupPhysxScene(void)
-{
-    const auto tolScale = m_pPhysics->getTolerancesScale();
-    const physx::PxSceneDesc sceneDesc{tolScale};
-    m_pxScene = m_pPhysics->createScene(sceneDesc);
 }
 
 void CScene::AddGameObject(std::shared_ptr<CGameObject>& a_gameObject)
