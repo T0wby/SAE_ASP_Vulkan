@@ -1,5 +1,13 @@
-﻿#include "Descriptors.h"
+﻿/*
+ * Encapsulates a vulkan descriptor
+ *
+ * Initially based off Brendan Galea -
+ * https://www.youtube.com/watch?v=d5p44idnZLQ
+ * Header: https://pastebin.com/yU7dMAxt
+ * CPP: https://pastebin.com/hZ6ax53w
+ */
 
+#include "Descriptors.h"
 #include <cassert>
 #include <stdexcept>
 
