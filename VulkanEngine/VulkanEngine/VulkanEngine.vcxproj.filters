@@ -86,38 +86,38 @@
     <ClCompile Include="Core\System\SwapChain.cpp">
       <Filter>Core\System</Filter>
     </ClCompile>
-    <ClCompile Include="Components\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\System\Renderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\System\RenderSystems\SimpleRenderSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Core\System\Buffer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Core\System</Filter>
     </ClCompile>
     <ClCompile Include="Core\System\Descriptors.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\RenderSystems\SimpleRenderSystem.cpp">
+      <Filter>Core\System</Filter>
     </ClCompile>
     <ClCompile Include="Core\System\RenderSystems\PointLightSystem.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Core\System</Filter>
     </ClCompile>
     <ClCompile Include="Core\System\Scenes\DefaultScene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Core\System\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Core\System\Scenes\LoadedModelScene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Core\System\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Core\System\Scenes\Scene.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Core\System\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\Primitives\Quad.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>GameObject\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="GameObjects\Primitives\LoadedVase.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>GameObject\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\System\Renderer.cpp">
+      <Filter>Core\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Texture.cpp">
+      <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -166,17 +166,39 @@
     <ClInclude Include="Core\System\SwapChain.h">
       <Filter>Core\System</Filter>
     </ClInclude>
-    <ClInclude Include="Components\Texture.h" />
-    <ClInclude Include="Core\System\Renderer.h" />
-    <ClInclude Include="Core\System\RenderSystems\SimpleRenderSystem.h" />
-    <ClInclude Include="Core\System\Buffer.h" />
-    <ClInclude Include="Core\System\Descriptors.h" />
-    <ClInclude Include="Core\System\RenderSystems\PointLightSystem.h" />
-    <ClInclude Include="Core\System\Scenes\DefaultScene.h" />
-    <ClInclude Include="Core\System\Scenes\LoadedModelScene.h" />
-    <ClInclude Include="Core\System\Scenes\Scene.h" />
-    <ClInclude Include="GameObjects\Primitives\Quad.h" />
-    <ClInclude Include="GameObjects\Primitives\LoadedVase.h" />
+    <ClInclude Include="Core\System\Buffer.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Descriptors.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\RenderSystems\PointLightSystem.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\RenderSystems\SimpleRenderSystem.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Scenes\DefaultScene.h">
+      <Filter>Core\System\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Scenes\LoadedModelScene.h">
+      <Filter>Core\System\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Scenes\Scene.h">
+      <Filter>Core\System\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Primitives\Quad.h">
+      <Filter>GameObject\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObjects\Primitives\LoadedVase.h">
+      <Filter>GameObject\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\System\Renderer.h">
+      <Filter>Core\System</Filter>
+    </ClInclude>
+    <ClInclude Include="Components\Texture.h">
+      <Filter>Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shader\shader.frag">
@@ -185,8 +207,12 @@
     <None Include="Shader\shader.vert">
       <Filter>Source Files\Shader</Filter>
     </None>
-    <None Include="Shader\point_light_shader.frag" />
-    <None Include="Shader\point_light_shader.vert" />
+    <None Include="Shader\point_light_shader.frag">
+      <Filter>Source Files\Shader</Filter>
+    </None>
+    <None Include="Shader\point_light_shader.vert">
+      <Filter>Source Files\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Textures\SAE_Institute_Black_Logo.jpg">

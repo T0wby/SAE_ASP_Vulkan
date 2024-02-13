@@ -1,11 +1,10 @@
 #ifndef CORESYSTEMSTRUCTS_H
 #define CORESYSTEMSTRUCTS_H
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #include <cstdint>
 #include <vector>
 #include <optional>
 #include <glm/glm/glm.hpp>
+#include <Vulkan/Include/vulkan/vulkan_core.h>
 
 struct QueueFamilyIndices
 {

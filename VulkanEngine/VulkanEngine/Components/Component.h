@@ -1,6 +1,5 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
-#include <Vulkan/Include/vulkan/vulkan_core.h>
 #include "../Core/System/CoreSystemStructs.h"
 
 
