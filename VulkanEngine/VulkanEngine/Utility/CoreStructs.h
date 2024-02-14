@@ -1,5 +1,5 @@
-#ifndef VARIABLES_H
-#define VARIABLES_H
+#ifndef CORESTRUCTS_H
+#define CORESTRUCTS_H
 #include <string>
 #include <Vulkan/Include/vulkan/vulkan_core.h>
 #include <vector>

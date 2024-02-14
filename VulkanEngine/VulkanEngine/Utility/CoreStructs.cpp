@@ -1,4 +1,4 @@
-#include "Variables.h"
+#include "CoreStructs.h"
 #include <stdexcept>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>

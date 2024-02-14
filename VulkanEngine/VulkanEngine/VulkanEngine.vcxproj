@@ -540,7 +540,7 @@
     <ClCompile Include="Input\PlayerController.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
-    <ClCompile Include="Utility\Variables.cpp" />
+    <ClCompile Include="Utility\CoreStructs.cpp" />
     <ClCompile Include="WindowGLFW\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -567,7 +567,7 @@
     <ClInclude Include="GameObjects\Primitives\LoadedVase.h" />
     <ClInclude Include="Input\PlayerController.h" />
     <ClInclude Include="Utility\Utility.h" />
-    <ClInclude Include="Utility\Variables.h" />
+    <ClInclude Include="Utility\CoreStructs.h" />
     <ClInclude Include="WindowGLFW\Window.h" />
   </ItemGroup>
   <ItemGroup>

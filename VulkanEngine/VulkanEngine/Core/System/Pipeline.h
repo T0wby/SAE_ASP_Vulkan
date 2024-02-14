@@ -2,7 +2,7 @@
 #define PIPELINE_H
 #include <string>
 #include "Device.h"
-#include "../../Utility/Variables.h"
+#include "../../Utility/CoreStructs.h"
 
 class CPipeline
 {

@@ -2,7 +2,7 @@
 #define CUBE_H
 #include "../GameObject.h"
 #include "../../Components/Mesh.h"
-#include "../../Utility/Variables.h"
+#include "../../Utility/CoreStructs.h"
 
 class CCube : public CGameObject
 {

@@ -3,7 +3,7 @@
 #include <memory>
 #include "../../../GameObjects/GameObject.h"
 #include "../../../Input/PlayerController.h"
-#include "../../../Utility/Variables.h"
+#include "../../../Utility/CoreStructs.h"
 #include "../Device.h"
 
 class CScene

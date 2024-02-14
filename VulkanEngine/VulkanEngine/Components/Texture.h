@@ -2,7 +2,7 @@
 #define MESH_H
 #include <memory>
 #include "Component.h"
-#include "../Utility/Variables.h"
+#include "../Utility/CoreStructs.h"
 #include "../Core/System/Device.h"
 #include "../Core/System/Descriptors.h"
 

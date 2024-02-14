@@ -2,7 +2,7 @@
 
 #include <stdexcept>
 #include "../../Utility/Utility.h"
-#include "../../Utility/Variables.h"
+#include "../../Utility/CoreStructs.h"
 
 CPipeline::~CPipeline()
 {

@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include "../Components/Component.h"
 #include "../Components/Transform.h"
-#include "../Utility/Variables.h"
+#include "../Utility/CoreStructs.h"
 #include "../Core/System/Device.h"
 
 class CGameObject

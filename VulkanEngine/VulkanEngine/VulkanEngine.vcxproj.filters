@@ -68,7 +68,7 @@
     <ClCompile Include="Components\Mesh.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Utility\Variables.cpp">
+    <ClCompile Include="Utility\CoreStructs.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
     <ClCompile Include="Input\PlayerController.cpp">
@@ -145,7 +145,7 @@
     <ClInclude Include="Components\Mesh.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Utility\Variables.h">
+    <ClInclude Include="Utility\CoreStructs.h">
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="Input\PlayerController.h">
