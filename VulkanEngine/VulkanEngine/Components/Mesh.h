@@ -4,7 +4,6 @@
 #include "Component.h"
 #include "../Utility/Variables.h"
 #include "../Core/System/Buffer.h"
-#include "../Core/System/CoreSystemStructs.h"
 #include <vector>
 
 class CMesh : public IComponent

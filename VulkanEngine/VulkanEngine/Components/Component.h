@@ -1,6 +1,6 @@
 #ifndef COMPONENT_H
 #define COMPONENT_H
-#include "../Core/System/CoreSystemStructs.h"
+#include "../Utility/Variables.h"
 
 
 class IComponent

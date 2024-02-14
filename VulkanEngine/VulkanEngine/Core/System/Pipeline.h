@@ -1,9 +1,8 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 #include <string>
-
-#include "CoreSystemStructs.h"
 #include "Device.h"
+#include "../../Utility/Variables.h"
 
 class CPipeline
 {

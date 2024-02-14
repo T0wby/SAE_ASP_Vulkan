@@ -5,7 +5,6 @@
 #include "../../../Input/PlayerController.h"
 #include "../../../Utility/Variables.h"
 #include "../Device.h"
-#include "../CoreSystemStructs.h"
 
 class CScene
 {

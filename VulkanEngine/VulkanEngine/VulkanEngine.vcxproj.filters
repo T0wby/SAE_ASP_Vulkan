@@ -130,9 +130,6 @@
     <ClInclude Include="WindowGLFW\Window.h">
       <Filter>WindowGLFW</Filter>
     </ClInclude>
-    <ClInclude Include="Core\System\CoreSystemStructs.h">
-      <Filter>Core\System</Filter>
-    </ClInclude>
     <ClInclude Include="Components\Component.h">
       <Filter>Components</Filter>
     </ClInclude>

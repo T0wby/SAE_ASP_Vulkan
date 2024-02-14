@@ -4,12 +4,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <memory>
 #include <GLFW/glfw3.h>
-
 #include "Buffer.h"
 #include "Device.h"
 #include "Scenes/Scene.h"
 #include "../../WindowGLFW/Window.h"
-#include "../../Core/System/CoreSystemStructs.h"
 
 class CSwapChain
 {

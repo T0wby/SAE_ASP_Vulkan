@@ -554,7 +554,6 @@
     <ClInclude Include="Core\System\Renderer.h" />
     <ClInclude Include="Core\System\Device.h" />
     <ClInclude Include="Core\System\Engine.h" />
-    <ClInclude Include="Core\System\CoreSystemStructs.h" />
     <ClInclude Include="Core\System\Pipeline.h" />
     <ClInclude Include="Core\System\RenderSystems\PointLightSystem.h" />
     <ClInclude Include="Core\System\RenderSystems\SimpleRenderSystem.h" />
